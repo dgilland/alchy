@@ -1,4 +1,4 @@
-.PHONY: build test
+.PHONY: build test release
 
 build:
 	rm -rf env
@@ -7,3 +7,8 @@ build:
 
 test:
 	. env/bin/activate; py.test --doctest-modules -v -s alchy tests
+
+release:
+	python setup.py sdist upload
+	rm -r dist
+	rm -r *.egg*
