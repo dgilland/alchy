@@ -1,0 +1,2 @@
+SQLAlchemy>=0.9
+pytest>=2.5.2
