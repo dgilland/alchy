@@ -227,15 +227,15 @@ class QueryProperty(object):
         except UnmappedClassError:
             return None
 
-def make_declarative_base(session=None, query_property=None):
-    Base = declarative_base(cls=ModelBase, constructor=ModelBase.__init__)
-    extend_declarative_base(Base, session, query_property)
-    return Base
+def make_declarative_base(session=None, query_property=None, Model=None):
+    Model = Model or declarative_base(cls=ModelBase, constructor=ModelBase.__init__)
+    extend_declarative_base(Model, session, query_property)
+    return Model
 
-def extend_declarative_base(Base, session=None, query_property=None):
-    # attach query attribute to Base if `session` object passed in
+def extend_declarative_base(Model, session=None, query_property=None):
+    # attach query attribute to Model if `session` object passed in
     if session:
-        Base.query = query_property(session) if query_property else QueryProperty(session)
+        Model.query = query_property(session) if query_property else QueryProperty(session)
 
-    return Base
+    return Model
 
