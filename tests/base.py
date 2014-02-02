@@ -32,7 +32,7 @@ class TestBase(TestCase):
     def assertTableNotExists(self, engine, table_name):
         self.assertFalse(self.has_table(engine, table_name))
 
-    def assertModelTablesExists(self, engine):
+    def assertModelTablesExist(self, engine):
         for table_name in self.model_table_names:
             self.assertTableExists(engine, table_name)
 

@@ -15,7 +15,7 @@ class TestManager(TestBase):
         db.create_all()
 
         self.assertTrue(len(self.models) > 0)
-        self.assertModelTablesExists(db.engine)
+        self.assertModelTablesExist(db.engine)
 
         db.drop_all()
 
@@ -30,7 +30,7 @@ class TestManager(TestBase):
 
         db.create_all()
 
-        self.assertModelTablesExists(db.engine)
+        self.assertModelTablesExist(db.engine)
 
         db.drop_all()
 
@@ -47,7 +47,7 @@ class TestManager(TestBase):
 
         db.create_all()
 
-        self.assertModelTablesExists(db.engine)
+        self.assertModelTablesExist(db.engine)
 
         db.drop_all()
 

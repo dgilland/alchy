@@ -13,7 +13,7 @@ class Query(orm.Query):
     __model__ = None
 
     @property
-    def model(self):
+    def Model(self):
         '''Return originating model class when Query used a query property'''
         return self.__model__
 
@@ -106,9 +106,9 @@ class Query(orm.Query):
         obj, names = get_load_options(*names)
         return self.options(obj.undefer_group(names[0]))
 
-    def map(self, function, *additional_sequences):
+    def map(self, function, *iterable_args):
         '''Call native `map` on `self.all()`'''
-        return map(function, self.all(), *additional_sequences)
+        return map(function, self.all(), *iterable_args)
 
     def reduce(self, function, initial=None):
         '''Call native `reduce` on `self.all()`'''

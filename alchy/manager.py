@@ -35,7 +35,7 @@ class ManagerBase(object):
 
 class Manager(ManagerBase):
     '''
-    Manager for orm session
+    Manager for session
     '''
     def __init__(self, Model=None, config=None, session=None, engine=None):
         self.session = None
