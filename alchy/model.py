@@ -1,6 +1,6 @@
 
 from sqlalchemy import inspect, orm, and_, or_
-from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import UnmappedClassError
 
 import query
@@ -217,8 +217,12 @@ class QueryProperty(object):
         try:
             mapper = orm.class_mapper(Model)
             if mapper:
+                if not getattr(Model, 'query_class', None):
+                    Model.query_class = query.Query
+
                 q = Model.query_class(mapper, session=self.session())
                 q.__model__ = Model
+
                 return q
         except UnmappedClassError:
             return None

@@ -1,12 +1,12 @@
 
-from sqlalchemy import orm
+from sqlalchemy import orm, Column, types
 
 from alchy import query
 
 from .base import TestQueryBase
 
 import fixtures
-from fixtures import Foo, Bar, Baz, Qux
+from fixtures import Foo, Bar, Baz, Qux, Model
 
 class TestModel(TestQueryBase):
 
@@ -56,6 +56,24 @@ class TestModel(TestQueryBase):
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)
         self.assertEquals(self.db.query(Foo).filter_by(number=3).all(), Foo.query.filter_by(number=3).all())
+
+    def test_query_class_missing_default(self):
+        """Test that models defined with query_class=None have default Query class for query_property"""
+        class TestModel(Model):
+            __tablename__ = 'test'
+            _id = Column(types.Integer(), primary_key=True)
+
+            query_class = None
+
+        self.db.create_all()
+
+        self.db.add_commit(TestModel(), TestModel())
+
+        records = self.db.query(TestModel).all()
+
+        self.assertTrue(len(records) > 0)
+        self.assertEquals(TestModel.query.all(), records, "Model's query property should return same results as session query")
+        self.assertIsInstance(TestModel.query, query.Query, "Model's query property should be an instance of query.Query")
 
     def test_to_dict_with_lazy(self):
         data = fixtures.data['Foo'][0]
