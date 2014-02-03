@@ -2,7 +2,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.exc import UnboundExecutionError
 
-from alchy import manager
+from alchy import manager, model
 
 from .base import TestBase
 import fixtures
@@ -50,4 +50,9 @@ class TestManager(TestBase):
         self.assertModelTablesExist(db.engine)
 
         db.drop_all()
+
+    def test_default_model_config(self):
+        db = manager.Manager()
+
+        self.assertTrue(issubclass(db.Model, model.ModelBase))
 
