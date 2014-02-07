@@ -27,8 +27,8 @@ class ModelBase(object):
 
     # specify sqla.session.query.filter() options for advanced and simple searches
     # eg: { key: lambda value: Model.column_name == val }
-    advanced_search_config = {}
-    simple_search_config = {}
+    __advanced_search__ = {}
+    __simple_search__ = {}
 
     def __init__(self, *args, **kargs):
         self.update(*args, **kargs)
@@ -116,8 +116,8 @@ class ModelBase(object):
     @classmethod
     def advanced_search(cls, search_dict):
         filters = None
-        if cls.advanced_search_config:
-            _filters = cls.get_search(search_dict, cls.advanced_search_config)
+        if cls.__advanced_search__:
+            _filters = cls.get_search(search_dict, cls.__advanced_search__)
 
             if _filters:
                 filters = and_(*_filters)
@@ -128,9 +128,9 @@ class ModelBase(object):
     def simple_search(cls, search_string):
         filters = None
 
-        if cls.simple_search_config:
+        if cls.__simple_search__:
             terms = [s for s in search_string.split()]
-            fields = cls.simple_search_config.keys()
+            fields = cls.__simple_search__.keys()
             field_count = len(fields)
 
             search_filters = []
@@ -139,7 +139,7 @@ class ModelBase(object):
                 # create a dict with each `config_search` key and `term` so filters can be applied to each combination
                 # i.e. { config_search_key1: term, config_search_key2: term, ..., config_search_keyN, term }
                 search_dict = dict(zip(fields, [term]*field_count))
-                term_filters = cls.get_search(search_dict, cls.simple_search_config)
+                term_filters = cls.get_search(search_dict, cls.__simple_search__)
 
                 if term_filters:
                     # `or` filters together since only 1 filter needs to match for `term`
