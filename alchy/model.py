@@ -1,4 +1,5 @@
 
+import functools
 
 import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
@@ -16,6 +17,48 @@ class ModelMeta(DeclarativeMeta):
 
         return DeclarativeMeta.__new__(cls, name, bases, dict_)
 
+    def __init__(cls, name, bases, dict_):
+        decorated_events = {}
+        for attr, value in dict_.iteritems():
+            if hasattr(value, '__event__'):
+                event_name,_ = value.__event__
+
+                # initialize event namespace
+                decorated_events.setdefault(event_name, [])
+
+                # convert namespace to list if not already
+                if not isinstance(decorated_events[event_name], list):
+                    decorated_events[event_name] = [decorated_events[event_name]]
+
+                # register our event
+                decorated_events[event_name].append(value.__event__)
+
+        ##
+        # @todo: merge decorated events with dict_['__events__']
+        ##
+
+        events = dict_.get('__events__', {})
+
+        for event_name, listeners in events.iteritems():
+            if not isinstance(listeners, list):
+                listeners = [listeners]
+
+            for listener in listeners:
+                if isinstance(listener, tuple):
+                    # listener definition includes listen keyword args
+                    listener, listen_kargs = listener
+                else:
+                    listen_kargs = {}
+
+                if not hasattr(listener, '__call__'):
+                    # assume listener is string reference to class method
+                    listener = dict_[listener]
+
+                sqlalchemy.event.listen(cls, event_name, listener, **listen_kargs)
+
+        super(ModelMeta, cls).__init__(name, bases, dict_)
+
+
 class ModelBase(object):
     '''Augmentable Base class for adding shared model properties/functions'''
 
@@ -25,6 +68,9 @@ class ModelBase(object):
     # define a default order by when not specified by query operation
     # eg: { 'order_by': [column1, column2] }
     __mapper_args__ = {}
+
+    # register orm event listeners
+    __events__ = {}
 
     # query class to use for self.query
     query_class = query.Query
@@ -249,3 +295,15 @@ def extend_declarative_base(Model, session=None, query_property=None):
 
     return Model
 
+
+def event(event_name, **kargs):
+    def _event(f, *args, **kargs):
+        f.__event__ = (event_name, kargs)
+
+        @functools.wraps(f)
+        def wrapper(cls, *args, **kargs):
+            return f(*args, **kargs)
+
+        return wrapper
+
+    return _event
