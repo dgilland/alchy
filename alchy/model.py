@@ -1,10 +1,20 @@
 
+
+import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.orm.exc import UnmappedClassError
 
 import query
-from utils import classproperty, is_sequence
+from utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
+
+class ModelMeta(DeclarativeMeta):
+    def __new__(cls, name, bases, dict_):
+        # set __tablename__ (if not defined) to underscore version of class name
+        if not dict_.get('__tablename__') and not dict_.get('__table__') is not None and has_primary_key(dict_):
+            dict_['__tablename__'] = camelcase_to_underscore(name)
+
+        return DeclarativeMeta.__new__(cls, name, bases, dict_)
 
 class ModelBase(object):
     '''Augmentable Base class for adding shared model properties/functions'''
@@ -228,7 +238,7 @@ class QueryProperty(object):
             return None
 
 def make_declarative_base(session=None, query_property=None, Model=None):
-    Model = Model or declarative_base(cls=ModelBase, constructor=ModelBase.__init__)
+    Model = Model or declarative_base(cls=ModelBase, constructor=ModelBase.__init__, metaclass=ModelMeta)
     extend_declarative_base(Model, session, query_property)
     return Model
 
