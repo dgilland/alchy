@@ -22,13 +22,13 @@ class Foo(Model):
     bars = orm.relationship('Bar', lazy=True)
     quxs = orm.relationship('Qux', lazy=True)
 
-    advanced_search_config = {
+    __advanced_search__ = {
         'foo_string': lambda value: Foo.string.like('%{0}%'.format(value)),
         'foo_number': lambda value: Foo.number == value
     }
 
-    simple_search_config = {
-        'foo_string': advanced_search_config['foo_string']
+    __simple_search__ = {
+        'foo_string': __advanced_search__['foo_string']
     }
 
     @orm.validates('number')
@@ -55,13 +55,13 @@ class Bar(Model):
     foo = orm.relationship('Foo')
     bazs = orm.relationship('Baz')
 
-    advanced_search_config = {
+    __advanced_search__ = {
         'bar_string': lambda value: Bar.string.like('%{0}%'.format(value)),
         'bar_number': lambda value: Bar.number == value
     }
 
-    simple_search_config = {
-        'bar_string': advanced_search_config['bar_string']
+    __simple_search__ = {
+        'bar_string': __advanced_search__['bar_string']
     }
 
 class Baz(Model):
