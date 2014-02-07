@@ -11,7 +11,7 @@ from setuptools import setup
 
 setup(
     name = 'alchy',
-    version = '0.2.0',
+    version = '0.2.1',
     url = 'https://github.com/dgilland/alchy',
     license = 'MIT',
     author = 'Derrick Gilland',
