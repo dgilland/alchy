@@ -6,7 +6,7 @@ build:
 	env/bin/pip install -r requirements.txt
 
 test:
-	. env/bin/activate; py.test --doctest-modules -v -s alchy tests
+	. env/bin/activate; py.test --doctest-modules -v -s --cov-config pytest.ini --cov-report term-missing --cov alchy alchy tests
 
 release:
 	python setup.py sdist upload
