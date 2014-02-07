@@ -21,10 +21,10 @@ class TestModel(TestQueryBase):
     }
 
     def assertRecordValid(self, record, data):
-        self.assertEquals(record._id, data['_id'])
-        self.assertEquals(record.string, data['string'])
-        self.assertEquals(record.number, data['number'])
-        self.assertEquals(record.boolean, data['boolean'])
+        self.assertEqual(record._id, data['_id'])
+        self.assertEqual(record.string, data['string'])
+        self.assertEqual(record.number, data['number'])
+        self.assertEqual(record.boolean, data['boolean'])
 
         self.assertFalse(hasattr(record, 'ignored_field'))
 
@@ -55,7 +55,7 @@ class TestModel(TestQueryBase):
 
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)
-        self.assertEquals(self.db.query(Foo).filter_by(number=3).all(), Foo.query.filter_by(number=3).all())
+        self.assertEqual(self.db.query(Foo).filter_by(number=3).all(), Foo.query.filter_by(number=3).all())
 
     def test_query_class_missing_default(self):
         """Test that models defined with query_class=None have default Query class for query_property"""
@@ -72,7 +72,7 @@ class TestModel(TestQueryBase):
         records = self.db.query(TestModel).all()
 
         self.assertTrue(len(records) > 0)
-        self.assertEquals(TestModel.query.all(), records, "Model's query property should return same results as session query")
+        self.assertEqual(TestModel.query.all(), records, "Model's query property should return same results as session query")
         self.assertIsInstance(TestModel.query, query.Query, "Model's query property should be an instance of query.Query")
 
     def test_to_dict_with_lazy(self):
@@ -83,7 +83,7 @@ class TestModel(TestQueryBase):
 
         # it should use default loading which is lazy
         self.assertIsSubset(data, as_json)
-        self.assertEquals(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean']))
+        self.assertEqual(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean']))
 
     def test_to_dict_with_joined(self):
         data = fixtures.data['Foo'][0]
@@ -96,7 +96,7 @@ class TestModel(TestQueryBase):
 
         # it should load relationships
         self.assertIsSubset(data, as_json)
-        self.assertEquals(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
+        self.assertEqual(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
 
         # and relationship's relationships
         self.assertIn('bazs', as_json['bars'][0])
@@ -105,39 +105,39 @@ class TestModel(TestQueryBase):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEquals(Baz.attrs, baz.attrs)
-        self.assertEquals(set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
+        self.assertEqual(Baz.attrs, baz.attrs)
+        self.assertEqual(set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
 
     def test_columns(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEquals(Baz.columns, baz.columns)
-        self.assertEquals(set(Baz.columns), set(['_id', 'string', 'number', 'bar_id']))
+        self.assertEqual(Baz.columns, baz.columns)
+        self.assertEqual(set(Baz.columns), set(['_id', 'string', 'number', 'bar_id']))
 
     def test_column_attrs(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEquals(Baz.column_attrs, baz.column_attrs)
-        self.assertEquals(set(Baz.column_attrs), set([Baz._id.property, Baz.string.property, Baz.number.property, Baz.bar_id.property]))
+        self.assertEqual(Baz.column_attrs, baz.column_attrs)
+        self.assertEqual(set(Baz.column_attrs), set([Baz._id.property, Baz.string.property, Baz.number.property, Baz.bar_id.property]))
 
     def test_descriptors(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEquals(Baz.descriptors, baz.descriptors)
-        self.assertEquals(set(Baz.descriptors), set(['_id', 'string', 'number', 'bar_id', 'bar', 'hybrid_number']))
+        self.assertEqual(Baz.descriptors, baz.descriptors)
+        self.assertEqual(set(Baz.descriptors), set(['_id', 'string', 'number', 'bar_id', 'bar', 'hybrid_number']))
 
     def test_relationships(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEquals(Baz.relationships, baz.relationships)
-        self.assertEquals(set(Baz.relationships), set(['bar']))
+        self.assertEqual(Baz.relationships, baz.relationships)
+        self.assertEqual(set(Baz.relationships), set(['bar']))
 
     def test_get(self):
-        self.assertEquals(Foo.get(1), self.db.query(Foo).get(1))
+        self.assertEqual(Foo.get(1), self.db.query(Foo).get(1))
 
     def test_session(self):
         record = Foo.get(1)
@@ -176,15 +176,15 @@ class TestModel(TestQueryBase):
         self.db.execute('update foo set number = :n where _id = 1', params={'n': new_number})
 
         # it's value hasn't changed
-        self.assertEquals(record.number, number)
+        self.assertEqual(record.number, number)
 
         record.expire()
 
         # it's values are empty
-        self.assertEquals(record.to_dict(), {})
+        self.assertEqual(record.to_dict(), {})
 
         # it's values are reloaded on access
-        self.assertEquals(record.number, new_number)
+        self.assertEqual(record.number, new_number)
         self.assertNotEquals(record.to_dict(), {})
 
     def test_refresh(self):
@@ -197,14 +197,14 @@ class TestModel(TestQueryBase):
         self.db.execute('update foo set number = :n where _id = 1', params={'n': new_number})
 
         # it's value hasn't changed
-        self.assertEquals(record.number, number)
+        self.assertEqual(record.number, number)
 
         record.refresh()
 
         # it's values are empty
         # it's values are reloaded immediately
         self.assertNotEquals(record.to_dict(), {})
-        self.assertEquals(record.number, new_number)
+        self.assertEqual(record.number, new_number)
 
     def test_expunge(self):
         _id = 10

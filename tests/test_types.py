@@ -19,10 +19,10 @@ class TestDeclarativeEnum(TestQueryBase):
         test_order.status = OrderStatus.pending
         self.db.add_commit(test_order)
 
-        self.assertEquals(test_order.status.name, 'pending')
-        self.assertEquals(test_order.status.value, 'p')
-        self.assertEquals(test_order.status.description, 'Pending')
+        self.assertEqual(test_order.status.name, 'pending')
+        self.assertEqual(test_order.status.value, 'p')
+        self.assertEqual(test_order.status.description, 'Pending')
 
-        self.assertEquals(str(test_order.status), 'pending')
-        self.assertEquals(repr(test_order.status), '<pending>')
+        self.assertEqual(str(test_order.status), 'pending')
+        self.assertEqual(repr(test_order.status), '<pending>')
 

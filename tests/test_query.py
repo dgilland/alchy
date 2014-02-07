@@ -18,9 +18,9 @@ class TestQuery(TestQueryBase):
 
         query = self.db.query(*entities).join(*join_entities)
 
-        self.assertEquals(query.entities, entities)
-        self.assertEquals(query.join_entities, join_entities)
-        self.assertEquals(query.all_entities, entities + join_entities)
+        self.assertEqual(query.entities, entities)
+        self.assertEqual(query.join_entities, join_entities)
+        self.assertEqual(query.all_entities, entities + join_entities)
 
     def test_query_page(self):
         per_page = 2
@@ -31,8 +31,8 @@ class TestQuery(TestQueryBase):
         self.assertTrue(len(page_1) > 0)
         self.assertTrue(len(page_2) > 0)
 
-        self.assertEquals(page_1, self.db.query(Foo).limit(per_page).all())
-        self.assertEquals(page_2, self.db.query(Foo).limit(per_page).offset(per_page).all())
+        self.assertEqual(page_1, self.db.query(Foo).limit(per_page).all())
+        self.assertEqual(page_2, self.db.query(Foo).limit(per_page).offset(per_page).all())
 
     def test_query_paginate(self):
         per_page = 2
@@ -41,28 +41,28 @@ class TestQuery(TestQueryBase):
         page_1 = self.db.query(Foo).limit(per_page).all()
         page_2 = self.db.query(Foo).limit(per_page).offset(per_page).all()
 
-        self.assertEquals(paginate.items, page_1)
-        self.assertEquals(paginate.prev_num, 0)
+        self.assertEqual(paginate.items, page_1)
+        self.assertEqual(paginate.prev_num, 0)
         self.assertFalse(paginate.has_prev)
-        self.assertEquals(paginate.page, 1)
-        self.assertEquals(paginate.next_num, 2)
+        self.assertEqual(paginate.page, 1)
+        self.assertEqual(paginate.next_num, 2)
         self.assertTrue(paginate.has_next)
-        self.assertEquals(paginate.per_page, per_page)
-        self.assertEquals(paginate.total, self.db.query(Foo).count())
-        self.assertEquals(paginate.pages, int(query.ceil(paginate.total / float(per_page))))
+        self.assertEqual(paginate.per_page, per_page)
+        self.assertEqual(paginate.total, self.db.query(Foo).count())
+        self.assertEqual(paginate.pages, int(query.ceil(paginate.total / float(per_page))))
 
         next_page = paginate.next()
 
-        self.assertEquals(next_page.items, page_2)
-        self.assertEquals(next_page.prev_num, 1)
+        self.assertEqual(next_page.items, page_2)
+        self.assertEqual(next_page.prev_num, 1)
         self.assertTrue(next_page.has_prev)
-        self.assertEquals(next_page.page, 2)
-        self.assertEquals(next_page.next_num, 3)
+        self.assertEqual(next_page.page, 2)
+        self.assertEqual(next_page.next_num, 3)
         self.assertFalse(next_page.has_next)
 
         prev_page = paginate.prev()
 
-        self.assertEquals(prev_page.items, page_1)
+        self.assertEqual(prev_page.items, page_1)
 
     def test_advanced_search(self):
         search_dict = dict(foo_string='smith', foo_number=3)
@@ -104,25 +104,25 @@ class TestQuery(TestQueryBase):
         self.assertEqual(foo, results[0])
 
     def test_join_eager(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager('bars')),
             str(self.db.query(Foo).join('bars').options(orm.contains_eager('bars'))),
             'it should join eager on single string entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars)),
             str(self.db.query(Foo).join(Foo.bars).options(orm.contains_eager(Foo.bars))),
             'it should join eager on single model entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager('bars', 'bazs')),
             str(self.db.query(Foo).join('bars', 'bazs').options(orm.contains_eager('bars').contains_eager('bazs'))),
             'it should join eager on multiple string entities'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).join(Foo.bars, Bar.bazs).options(orm.contains_eager(Foo.bars).contains_eager(Bar.bazs))),
             'it should join eager on multiple model entities'
@@ -131,38 +131,38 @@ class TestQuery(TestQueryBase):
     def test_join_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager('bars', alias=bar_alias)),
             str(self.db.query(Foo).join(bar_alias, 'bars').options(orm.contains_eager('bars', alias=bar_alias))),
             'it should join eager on alias and string entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars, alias=bar_alias)),
             str(self.db.query(Foo).join(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))),
             'it should join eager on alias and model entity'
         )
 
     def test_outerouterjoin_eager(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars')),
             str(self.db.query(Foo).outerjoin('bars').options(orm.contains_eager('bars'))),
             'it should outerjoin eager on single string entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager(Foo.bars)),
             str(self.db.query(Foo).outerjoin(Foo.bars).options(orm.contains_eager(Foo.bars))),
             'it should outerjoin eager on single model entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars', 'bazs')),
             str(self.db.query(Foo).outerjoin('bars', 'bazs').options(orm.contains_eager('bars').contains_eager('bazs'))),
             'it should outerjoin eager on multiple string entities'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).outerjoin(Foo.bars, Bar.bazs).options(orm.contains_eager(Foo.bars).contains_eager(Bar.bazs))),
             'it should outerjoin eager on multiple model entities'
@@ -171,119 +171,119 @@ class TestQuery(TestQueryBase):
     def test_outerouterjoin_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars', alias=bar_alias)),
             str(self.db.query(Foo).outerjoin(bar_alias, 'bars').options(orm.contains_eager('bars', alias=bar_alias))),
             'it should outerjoin eager on alias and string entity'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager(Foo.bars, alias=bar_alias)),
             str(self.db.query(Foo).outerjoin(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))),
             'it should outerjoin eager on alias and model entity'
         )
 
     def test_joinedload(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).joinedload('bars')),
             str(self.db.query(Foo).options(orm.joinedload('bars')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).joinedload('bars', 'bazs')),
             str(self.db.query(Foo).options(orm.joinedload('bars').joinedload('bazs')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).joinedload(Foo.bars)),
             str(self.db.query(Foo).options(orm.joinedload(Foo.bars)))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).joinedload(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).options(orm.joinedload(Foo.bars).joinedload(Bar.bazs)))
         )
 
     def test_immediateload(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).immediateload('bars')),
             str(self.db.query(Foo).options(orm.immediateload('bars')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).immediateload('bars', 'bazs')),
             str(self.db.query(Foo).options(orm.immediateload('bars').immediateload('bazs')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).immediateload(Foo.bars)),
             str(self.db.query(Foo).options(orm.immediateload(Foo.bars)))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).immediateload(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).options(orm.immediateload(Foo.bars).immediateload(Bar.bazs)))
         )
 
     def test_lazyload(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).lazyload('bars')),
             str(self.db.query(Foo).options(orm.lazyload('bars')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).lazyload('bars', 'bazs')),
             str(self.db.query(Foo).options(orm.lazyload('bars').lazyload('bazs')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).lazyload(Foo.bars)),
             str(self.db.query(Foo).options(orm.lazyload(Foo.bars)))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).lazyload(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).options(orm.lazyload(Foo.bars).lazyload(Bar.bazs)))
         )
 
     def test_noload(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).noload('bars')),
             str(self.db.query(Foo).options(orm.noload('bars')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).noload('bars', 'bazs')),
             str(self.db.query(Foo).options(orm.noload('bars').noload('bazs')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).noload(Foo.bars)),
             str(self.db.query(Foo).options(orm.noload(Foo.bars)))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).noload(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).options(orm.noload(Foo.bars).noload(Bar.bazs)))
         )
 
     def test_subqueryload(self):
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).subqueryload('bars')),
             str(self.db.query(Foo).options(orm.subqueryload('bars')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).subqueryload('bars', 'bazs')),
             str(self.db.query(Foo).options(orm.subqueryload('bars').subqueryload('bazs')))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).subqueryload(Foo.bars)),
             str(self.db.query(Foo).options(orm.subqueryload(Foo.bars)))
         )
 
-        self.assertEquals(
+        self.assertEqual(
             str(self.db.query(Foo).subqueryload(Foo.bars, Bar.bazs)),
             str(self.db.query(Foo).options(orm.subqueryload(Foo.bars).subqueryload(Bar.bazs)))
         )
