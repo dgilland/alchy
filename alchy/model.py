@@ -1,5 +1,6 @@
 
 import functools
+from collections import namedtuple
 
 import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
@@ -9,52 +10,58 @@ from sqlalchemy.orm.exc import UnmappedClassError
 import query
 from utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
 
+Event = namedtuple('Event', ['name', 'listener', 'kargs'])
+
 class ModelMeta(DeclarativeMeta):
     def __new__(cls, name, bases, dict_):
         # set __tablename__ (if not defined) to underscore version of class name
         if not dict_.get('__tablename__') and not dict_.get('__table__') is not None and has_primary_key(dict_):
             dict_['__tablename__'] = camelcase_to_underscore(name)
 
+        # set __events__ to expected default so that it's updatable when initializing
+        # e.g. if class definition sets __events__=None but defines decorated events,
+        # then we want the final __events__ attribute to reflect the registered events.
+        # if set to anything that's non-empty/non-dict will lead to an error if decorated events defined
+        if not dict_.get('__events__'):
+            dict_['__events__'] = {}
+
         return DeclarativeMeta.__new__(cls, name, bases, dict_)
 
     def __init__(cls, name, bases, dict_):
-        decorated_events = {}
-        for attr, value in dict_.iteritems():
-            if hasattr(value, '__event__'):
-                event_name,_ = value.__event__
+        events = []
 
-                # initialize event namespace
-                decorated_events.setdefault(event_name, [])
+        # append class attribute defined events
+        if dict_.get('__events__'):
+            # events defined on __events__ can have many forms (e.g. string based, list of tuples, etc)
+            # so we need to iterate over them and parse into standardized Event object
+            for event_name, listeners in dict_['__events__'].iteritems():
+                if not isinstance(listeners, list):
+                    listeners = [listeners]
 
-                # convert namespace to list if not already
-                if not isinstance(decorated_events[event_name], list):
-                    decorated_events[event_name] = [decorated_events[event_name]]
+                for listener in listeners:
+                    if isinstance(listener, tuple):
+                        # listener definition includes event.listen keyword args
+                        listener, kargs = listener
+                    else:
+                        kargs = {}
 
-                # register our event
-                decorated_events[event_name].append(value.__event__)
+                    if not hasattr(listener, '__call__'):
+                        # no __call__ attribute? then assume listener is a string reference to class method
+                        listener = dict_[listener]
 
-        ##
-        # @todo: merge decorated events with dict_['__events__']
-        ##
+                    events.append(Event(event_name, listener, kargs))
 
-        events = dict_.get('__events__', {})
+        # append events which were added via @event decorator
+        events += [value.__event__ for value in dict_.values() if hasattr(value, '__event__')]
 
-        for event_name, listeners in events.iteritems():
-            if not isinstance(listeners, list):
-                listeners = [listeners]
+        if events:
+            # reassemble events dict into consistent form using Event objects as values
+            events_dict = {}
+            for event in events:
+                sqlalchemy.event.listen(cls, event.name, event.listener, **event.kargs)
+                events_dict.setdefault(event.name, []).append(event)
 
-            for listener in listeners:
-                if isinstance(listener, tuple):
-                    # listener definition includes listen keyword args
-                    listener, listen_kargs = listener
-                else:
-                    listen_kargs = {}
-
-                if not hasattr(listener, '__call__'):
-                    # assume listener is string reference to class method
-                    listener = dict_[listener]
-
-                sqlalchemy.event.listen(cls, event_name, listener, **listen_kargs)
+            dict_['__events__'].update(events_dict)
 
         super(ModelMeta, cls).__init__(name, bases, dict_)
 
@@ -295,7 +302,7 @@ def extend_declarative_base(Model, session=None, query_property=None):
 
 def event(event_name, **kargs):
     def _event(f, *args, **kargs):
-        f.__event__ = (event_name, kargs)
+        f.__event__ = Event(event_name, f, kargs)
 
         @functools.wraps(f)
         def wrapper(cls, *args, **kargs):
