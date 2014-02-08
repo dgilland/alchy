@@ -293,9 +293,6 @@ def extend_declarative_base(Model, session=None, query_property=None):
     if session:
         Model.query = query_property(session) if query_property else QueryProperty(session)
 
-    return Model
-
-
 def event(event_name, **kargs):
     def _event(f, *args, **kargs):
         f.__event__ = (event_name, kargs)
@@ -307,3 +304,4 @@ def event(event_name, **kargs):
         return wrapper
 
     return _event
+
