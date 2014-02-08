@@ -104,6 +104,10 @@ class Order(Model):
     _id         = Column(types.Integer(), primary_key=True)
     status      = Column(OrderStatus.db_type(), default=OrderStatus.pending)
 
+class AutoGenTableName(Model):
+    _id = Column(types.Integer(), primary_key=True)
+    name = Column(types.String())
+
 Models = {
     'Foo': Foo,
     'Bar': Bar,
@@ -122,6 +126,7 @@ data = {
         { '_id': 1, 'string': 'Power Play', 'number': 1, 'foo_id': 1 },
         { '_id': 2, 'string': 'Bob Smith', 'number': 7, 'foo_id': 1 },
         { '_id': 3, 'string': 'Arthur Clarke', 'number': 9, 'foo_id': 2 },
+        { '_id': 4, 'string': 'Robert Heinlein', 'number': 10},
     ],
     'Baz': [
         { '_id': 1, 'string': 'Elroy Jenkins', 'number': 3, 'bar_id': 3 },
