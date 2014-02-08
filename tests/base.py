@@ -54,7 +54,7 @@ class TestQueryBase(TestBase):
         self.db.create_all()
 
         for model_name, Model in self.models_dict.iteritems():
-            records = fixtures.data[model_name]
+            records = fixtures.data.get(model_name, [])
             for r in records:
                 self.db.session.add(Model(**r))
 
