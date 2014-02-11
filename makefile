@@ -1,4 +1,16 @@
-.PHONY: build test release
+.PHONY: env test release
+
+##
+# Variables
+##
+
+ENV = . env/bin/activate;
+PYTEST_ARGS = --doctest-modules -v -s
+COVERAGE_ARGS = --cov-config setup.cfg --cov-report term-missing --cov
+
+##
+# Targets
+##
 
 build:
 	rm -rf env
@@ -6,9 +18,18 @@ build:
 	env/bin/pip install -r requirements.txt
 
 test:
-	. env/bin/activate; py.test --doctest-modules -v -s --cov-config pytest.ini --cov-report term-missing --cov alchy alchy tests
+	$(ENV) py.test $(PYTEST_ARGS) $(COVERAGE_ARGS) alchy alchy tests
+
+testall:
+	$(ENV) tox
+
+clean:
+	rm -rf env
+	find . -name \*.pyc -type f -delete
+	find . -name __pycache__ -exec rm -rf {} \;
+	rm -rf dist *.egg*
 
 release:
-	python setup.py sdist upload
-	rm -r dist
-	rm -r *.egg*
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
+	rm -rf dist *.egg*
