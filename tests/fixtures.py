@@ -121,6 +121,7 @@ data = {
         { '_id': 1, 'string': 'Joe Smith', 'number': 3 },
         { '_id': 2, 'string': 'Betty Boop', 'number': 5 },
         { '_id': 3, 'string': 'Phil McKraken', 'number': 2 },
+        { '_id': 4, 'string': 'Bill Smith', 'number': 3 },
     ],
     'Bar': [
         { '_id': 1, 'string': 'Power Play', 'number': 1, 'foo_id': 1 },

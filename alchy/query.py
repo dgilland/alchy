@@ -5,7 +5,6 @@ from sqlalchemy import orm, and_, or_, inspect
 from sqlalchemy.orm.strategy_options import Load
 
 DEFAULT_PER_PAGE = 50
-DEFAULT_SIMPLE_SEARCH_KEY = 'q'
 
 class Query(orm.Query):
 
@@ -157,8 +156,22 @@ class Query(orm.Query):
         filters = [m for m in [model.simple_search(search_string) for model in self.all_entities] if m is not None]
         return self.filter(or_(*filters)) if filters else self
 
-    def search(self, search_dict, simple_search_key=DEFAULT_SIMPLE_SEARCH_KEY):
-        return self.advanced_search(search_dict).simple_search(search_dict.get(simple_search_key, ''))
+    def search(self, search_string=None, search_dict=None, limit=None, offset=None):
+        query = self
+
+        if search_string is not None:
+            query = query.simple_search(search_string)
+
+        if search_dict is not None:
+            query = query.advanced_search(search_dict)
+
+        if limit is not None:
+            query = query.limit(limit)
+
+        if offset is not None:
+            query = query.offset(offset)
+
+        return query
 
 class Pagination(object):
     '''

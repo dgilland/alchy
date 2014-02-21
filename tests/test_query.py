@@ -84,21 +84,31 @@ class TestQuery(TestQueryBase):
             self.assertTrue(search_string in r.string.lower())
 
     def test_search(self):
-        search_dict = dict(q='smith', foo_number=3)
-        results = self.db.query(Foo).search(search_dict).all()
+        search_string = 'smith'
+        search_dict = dict(foo_number=3)
+        results = self.db.query(Foo).search(search_string, search_dict).all()
 
         self.assertTrue(len(results) > 0)
 
         for r in results:
-            self.assertTrue(search_dict['q'] in r.string.lower())
+            self.assertTrue(search_string in r.string.lower())
             self.assertEqual(search_dict['foo_number'], r.number)
+
+    def test_search_limit_offset(self):
+        search_string = 'i'
+        results1 = self.db.query(Foo).search(search_string, limit=1, offset=1).all()
+        results2 = self.db.query(Foo).search(search_string).limit(1).offset(1).all()
+
+        self.assertTrue(len(results1))
+        self.assertEqual(results1, results2)
 
     def test_search_joined(self):
         foo = Foo(string='my foo string', number=7, bars=[Bar(string='my bar string', number=1)])
         self.db.add(foo)
 
-        search_dict = dict(q='my bar', foo_number=7)
-        results = self.db.query(Foo).join(Bar).search(search_dict).all()
+        search_string = 'my bar'
+        search_dict = dict(foo_number=7)
+        results = self.db.query(Foo).join(Bar).search(search_string, search_dict).all()
 
         self.assertTrue(len(results) == 1)
         self.assertEqual(foo, results[0])
