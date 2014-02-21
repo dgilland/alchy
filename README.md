@@ -100,7 +100,7 @@ db.add_commit(user1, user2)
 # ...or add/commit using a list
 db.add_commit(users)
 
-# ...or separting add and commit calls
+# ...or separating add and commit calls
 db.add(user1, user2)
 db.commit()
 
@@ -165,9 +165,9 @@ Use features from the enhanced query class.
 q = User.query.join(UserItem)
 
 # entities
-q.entities = [User]
-q.join_entities = [UserItem]
-q.all_entities = [User, UserItem]
+q.entities == [User]
+q.join_entities == [UserItem]
+q.all_entities == [User, UserItem]
 
 # paging
 q.page(2, per_page=2) == q.limit(2).offset((2-1) * 2)
@@ -189,7 +189,7 @@ page_3 = page2.next()
 # searching
 # @note: requires simple/advanced search config on models to be defined
 # (see `Query` section for details)
-q.search({'q': 'example.com', 'user_name': 'fred', 'item_name': 'shoes'}).all()
+q.search('example.com', {'user_name': 'fred', 'item_name': 'shoes'}).all()
 
 # entity loading
 User.query.join_eager(UserItem)
