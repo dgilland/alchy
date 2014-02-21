@@ -41,6 +41,8 @@ class TestQuery(TestQueryBase):
     def test_query_paginate(self):
         per_page = 2
 
+        self.assertRaises(IndexError, self.db.query(Foo).paginate, 0)
+
         paginate = self.db.query(Foo).paginate(1, per_page)
         page_1 = self.db.query(Foo).limit(per_page).all()
         page_2 = self.db.query(Foo).limit(per_page).offset(per_page).all()
@@ -66,6 +68,8 @@ class TestQuery(TestQueryBase):
 
         next_next_page = next_page.next()
         self.assertFalse(next_next_page.has_next)
+
+        self.assertRaises(IndexError, next_next_page.next, error_out=True)
 
         prev_page = paginate.prev()
 
