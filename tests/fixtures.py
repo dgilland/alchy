@@ -51,6 +51,7 @@ class Bar(Model):
     number          = Column(types.Integer())
     foo_id          = Column(types.Integer(), ForeignKey('foo._id'))
     deferred1_col1  = orm.deferred(Column(types.Boolean()), group='bar_deferred_1')
+    deferred2_col2  = orm.deferred(Column(types.Boolean()), group='bar_deferred_2')
 
     foo = orm.relationship('Foo')
     bazs = orm.relationship('Baz')

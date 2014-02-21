@@ -332,6 +332,12 @@ class TestQuery(TestQueryBase):
         self.assertNotIn('number', item)
         self.assertNotIn('boolean', item)
 
+    def test_load_only_using_load_arg(self):
+        item = self.db.query(Foo).load_only(orm.lazyload(Foo.bars), '_id', 'string').first().bars[0].__dict__
+        self.assertIn('string', item)
+        self.assertNotIn('number', item)
+        self.assertNotIn('boolean', item)
+
     def test_defer_with_string_args(self):
         # with defer()
         item = self.db.query(Foo).defer('number', 'boolean').first().__dict__
@@ -351,6 +357,11 @@ class TestQuery(TestQueryBase):
         self.assertNotIn('number', item)
         self.assertNotIn('boolean', item)
 
+    def test_defer_using_load_arg(self):
+        item = self.db.query(Foo).defer(orm.lazyload(Foo.bars), 'number').first().bars[0].__dict__
+        self.assertIn('string', item)
+        self.assertNotIn('number', item)
+
     def test_undefer_with_string_args(self):
         # without undefer()
         item = self.db.query(Foo).first().__dict__
@@ -367,6 +378,10 @@ class TestQuery(TestQueryBase):
         self.assertIn('deferred1_col1', item)
         self.assertIn('deferred1_col2', item)
 
+    def test_undefer_using_load_arg(self):
+        item = self.db.query(Foo).undefer(orm.lazyload(Foo.bars), 'deferred1_col1').first().bars[0].__dict__
+        self.assertIn('deferred1_col1', item)
+
     def test_undefer_group_with_string_args(self):
         item = self.db.query(Foo).undefer_group('deferred_1').first().__dict__
         self.assertIn('deferred1_col1', item)
@@ -380,6 +395,11 @@ class TestQuery(TestQueryBase):
         self.assertIn('deferred1_col2', item)
         self.assertNotIn('deferred2_col3', item)
         self.assertNotIn('deferred2_col4', item)
+
+    def test_undefer_group_with_load_arg(self):
+        item = self.db.query(Foo).undefer_group(orm.lazyload(Foo.bars), 'bar_deferred_1').first().bars[0].__dict__
+        self.assertIn('deferred1_col1', item)
+        self.assertNotIn('deferred2_col2', item)
 
     def test_map(self):
         items = self.db.query(Foo).all()
@@ -409,4 +429,8 @@ class TestQuery(TestQueryBase):
         test = sum(self.db.query(Foo).pluck('number'))
 
         self.assertEqual(test, expected)
+
+    def test_model_property(self):
+        self.assertIs(Foo.query.Model, Foo)
+        self.assertIs(Foo.query.Model, Foo.query.__model__)
 
