@@ -177,6 +177,10 @@ class TestModel(TestQueryBase):
     def test_get(self):
         self.assertEqual(Foo.get(1), self.db.query(Foo).get(1))
 
+    def test_get_by(self):
+        self.assertEqual(Foo.get_by(string='Joe Smith'), self.db.query(Foo).filter_by(string='Joe Smith').first())
+        self.assertEqual(Foo.get_by(dict(string='Joe Smith')), self.db.query(Foo).filter_by(string='Joe Smith').first())
+
     def test_session(self):
         record = Foo.get(1)
         self.assertIs(record.session, self.db.session.object_session(record))

@@ -244,7 +244,14 @@ class ModelBase(object):
 
     @classmethod
     def get(cls, *args, **kargs):
+        '''Proxy to query.get()'''
         return cls.query.get(*args, **kargs)
+
+    @classmethod
+    def get_by(cls, data_dict=None, **kargs):
+        '''Return first instance filtered by values using query.filter_by()'''
+        data = data_dict if isinstance(data_dict, dict) else kargs
+        return cls.query.filter_by(**data).first()
 
     ##
     # inspect based methods/properties
