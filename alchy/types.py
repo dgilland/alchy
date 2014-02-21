@@ -54,12 +54,12 @@ class DeclarativeEnumType(SchemaType, TypeDecorator):
         return DeclarativeEnumType(self.enum)
 
     def process_bind_param(self, value, dialect):
-        if value is None:
+        if value is None: # pragma: no cover
             return None
         return value.value
 
     def process_result_value(self, value, dialect):
-        if value is None:
+        if value is None: # pragma: no cover
             return None
         return self.enum.from_string(value.strip())
 
