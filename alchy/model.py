@@ -45,8 +45,8 @@ class ModelMeta(DeclarativeMeta):
                     else:
                         kargs = {}
 
-                    if not hasattr(listener, '__call__'):
-                        # no __call__ attribute? then assume listener is a string reference to class method
+                    if not callable(listener):
+                        # assume listener is a string reference to class method
                         listener = dict_[listener]
 
                     events.append(Event(event_name, listener, kargs))
