@@ -41,7 +41,7 @@ class Manager(ManagerBase):
         self.session = None
 
         # declarative base class
-        self.Model = Model or model.make_declarative_base()
+        self.Model = model.make_declarative_base() if Model is None else Model
 
         if config is None:
             config = {}
