@@ -122,13 +122,19 @@ class Query(orm.Query):
         '''Pluck `column` attribute values from `self.all()` results and return as list'''
         return [getattr(r, column, None) for r in self.all()]
 
-    def page(self, page=1, per_page=DEFAULT_PER_PAGE):
+    def page(self, page=1, per_page=None):
         '''Return query with limit and offset applied for page'''
+        if per_page is None:
+            per_page = DEFAULT_PER_PAGE
+
         return self.limit(per_page).offset((page - 1) * per_page)
 
-    def paginate(self, page=1, per_page=DEFAULT_PER_PAGE, error_out=True):
+    def paginate(self, page=1, per_page=None, error_out=True):
         if error_out and page < 1:
             raise IndexError
+
+        if per_page is None:
+            per_page = DEFAULT_PER_PAGE
 
         items = self.page(page, per_page).all()
 
