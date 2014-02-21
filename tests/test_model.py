@@ -204,6 +204,17 @@ class TestModel(TestQueryBase):
 
         self.assertIsNone(Baz.get(_id))
 
+    def test_save(self):
+        record = Foo.get(1)
+        new_number = record.number * record.number + 1
+        record.number = new_number
+
+        record.save()
+        self.db.commit()
+
+        result = self.db.execute('select number from foo where _id=1')
+        self.assertEqual(result.fetchone()[0], new_number)
+
     def test_expire(self):
         record = Foo.get(1)
 

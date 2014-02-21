@@ -227,6 +227,9 @@ class ModelBase(object):
     def flush(self, *args, **kargs):
         return self.session.flush([self], *args, **kargs)
 
+    def save(self, *args, **kargs):
+        return self.session.add(self, *args, **kargs)
+
     def delete(self, *args, **kargs):
         return self.session.delete(self, *args, **kargs)
 
