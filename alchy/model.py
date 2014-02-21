@@ -8,62 +8,28 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.orm.exc import UnmappedClassError
 
 import query
+import events
 from utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
 
-Event = namedtuple('Event', ['name', 'listener', 'kargs'])
-
 class ModelMeta(DeclarativeMeta):
-    def __new__(cls, name, bases, dict_):
+    def __new__(cls, name, bases, dct):
         # set __tablename__ (if not defined) to underscore version of class name
-        if not dict_.get('__tablename__') and not dict_.get('__table__') is not None and has_primary_key(dict_):
-            dict_['__tablename__'] = camelcase_to_underscore(name)
+        if not dct.get('__tablename__') and not dct.get('__table__') is not None and has_primary_key(dct):
+            dct['__tablename__'] = camelcase_to_underscore(name)
 
         # set __events__ to expected default so that it's updatable when initializing
         # e.g. if class definition sets __events__=None but defines decorated events,
         # then we want the final __events__ attribute to reflect the registered events.
         # if set to anything that's non-empty/non-dict will lead to an error if decorated events defined
-        if not dict_.get('__events__'):
-            dict_['__events__'] = {}
+        if not dct.get('__events__'):
+            dct['__events__'] = {}
 
-        return DeclarativeMeta.__new__(cls, name, bases, dict_)
+        return DeclarativeMeta.__new__(cls, name, bases, dct)
 
-    def __init__(cls, name, bases, dict_):
-        events = []
+    def __init__(cls, name, bases, dct):
+        events.register(cls, dct)
 
-        # append class attribute defined events
-        if dict_.get('__events__'):
-            # events defined on __events__ can have many forms (e.g. string based, list of tuples, etc)
-            # so we need to iterate over them and parse into standardized Event object
-            for event_name, listeners in dict_['__events__'].iteritems():
-                if not isinstance(listeners, list):
-                    listeners = [listeners]
-
-                for listener in listeners:
-                    if isinstance(listener, tuple):
-                        # listener definition includes event.listen keyword args
-                        listener, kargs = listener
-                    else:
-                        kargs = {}
-
-                    if not callable(listener):
-                        # assume listener is a string reference to class method
-                        listener = dict_[listener]
-
-                    events.append(Event(event_name, listener, kargs))
-
-        # append events which were added via @event decorator
-        events += [value.__event__ for value in dict_.values() if hasattr(value, '__event__')]
-
-        if events:
-            # reassemble events dict into consistent form using Event objects as values
-            events_dict = {}
-            for event in events:
-                sqlalchemy.event.listen(cls, event.name, event.listener, **event.kargs)
-                events_dict.setdefault(event.name, []).append(event)
-
-            dict_['__events__'].update(events_dict)
-
-        super(ModelMeta, cls).__init__(name, bases, dict_)
+        super(ModelMeta, cls).__init__(name, bases, dct)
 
 
 class ModelBase(object):
@@ -309,16 +275,4 @@ def extend_declarative_base(Model, session=None, query_property=None):
     # attach query attribute to Model if `session` object passed in
     if session:
         Model.query = query_property(session) if query_property else QueryProperty(session)
-
-def event(event_name, **kargs):
-    def _event(f, *args, **kargs):
-        f.__event__ = Event(event_name, f, kargs)
-
-        @functools.wraps(f)
-        def wrapper(cls, *args, **kargs):
-            return f(*args, **kargs)
-
-        return wrapper
-
-    return _event
 

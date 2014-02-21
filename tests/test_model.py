@@ -2,7 +2,7 @@
 import sqlalchemy
 from sqlalchemy import orm, Column, types
 
-from alchy import model, query, manager
+from alchy import model, query, manager, events
 
 from .base import TestQueryBase
 
@@ -319,7 +319,7 @@ class TestModelEvents(TestQueryBase):
         _id = Column(types.Integer(), primary_key=True)
         name = Column(types.String())
 
-        @model.event('before_insert')
+        @events.before_insert
         def before_insert(mapper, connection, target):
             target.name = 'Dewey'
 
