@@ -58,7 +58,10 @@ class TestQuery(TestQueryBase):
         self.assertTrue(next_page.has_prev)
         self.assertEqual(next_page.page, 2)
         self.assertEqual(next_page.next_num, 3)
-        self.assertFalse(next_page.has_next)
+        self.assertTrue(next_page.has_next)
+
+        next_next_page = next_page.next()
+        self.assertFalse(next_next_page.has_next)
 
         prev_page = paginate.prev()
 
