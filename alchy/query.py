@@ -4,12 +4,12 @@ from math import ceil
 from sqlalchemy import orm, and_, or_, inspect
 from sqlalchemy.orm.strategy_options import Load
 
-DEFAULT_PER_PAGE = 50
-
 class Query(orm.Query):
 
     # when used as a query property (e.g. MyModel.query), then this is populated with the originating model
     __model__ = None
+
+    DEFAULT_PER_PAGE = 50
 
     @property
     def Model(self):
@@ -124,7 +124,7 @@ class Query(orm.Query):
     def page(self, page=1, per_page=None):
         '''Return query with limit and offset applied for page'''
         if per_page is None:
-            per_page = DEFAULT_PER_PAGE
+            per_page = self.DEFAULT_PER_PAGE
 
         return self.limit(per_page).offset((page - 1) * per_page)
 
@@ -133,7 +133,7 @@ class Query(orm.Query):
             raise IndexError
 
         if per_page is None:
-            per_page = DEFAULT_PER_PAGE
+            per_page = self.DEFAULT_PER_PAGE
 
         items = self.page(page, per_page).all()
 

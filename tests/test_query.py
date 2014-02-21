@@ -34,6 +34,10 @@ class TestQuery(TestQueryBase):
         self.assertEqual(page_1, self.db.query(Foo).limit(per_page).all())
         self.assertEqual(page_2, self.db.query(Foo).limit(per_page).offset(per_page).all())
 
+    def test_query_page_default_per_page(self):
+        query = Foo.query.page(1)
+        self.assertEqual(query._limit, Foo.query.DEFAULT_PER_PAGE)
+
     def test_query_paginate(self):
         per_page = 2
 
@@ -66,6 +70,10 @@ class TestQuery(TestQueryBase):
         prev_page = paginate.prev()
 
         self.assertEqual(prev_page.items, page_1)
+
+    def test_query_paginate_default_per_page(self):
+        query = Foo.query.paginate(1)
+        self.assertEqual(query.per_page, Foo.query.DEFAULT_PER_PAGE)
 
     def test_advanced_search(self):
         search_dict = dict(foo_string='smith', foo_number=3)
