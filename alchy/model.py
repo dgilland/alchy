@@ -27,9 +27,8 @@ class ModelMeta(DeclarativeMeta):
         return DeclarativeMeta.__new__(cls, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        events.register(cls, dct)
-
         super(ModelMeta, cls).__init__(name, bases, dct)
+        events.register(cls, dct)
 
 
 class ModelBase(object):
