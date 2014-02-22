@@ -30,8 +30,12 @@ def register(cls, dct):
 
                 events.append(Event(event_name, kargs.pop('attribute', None), listener, kargs))
 
-    # append events which were added via @event decorator
-    events += [value.__event__ for value in dct.values() if hasattr(value, '__event__')]
+    # add events which were added via @event decorator
+    for value in dct.values():
+        if hasattr(value, '__event__'):
+            if not isinstance(value.__event__, list): # pragma: no cover
+                value.__event__ = [value.__event__]
+            events.extend(value.__event__)
 
     if events:
         # reassemble events dict into consistent form using Event objects as values
@@ -53,8 +57,13 @@ def make_event_decorator(event_name, attribute=None, **event_kargs):
     so that `register()` can find the event definition.
     '''
     def decorator(f):
+        # set initial value to list so a function can handle multiple events
+        if not hasattr(f, '__event__'):
+            f.__event__ = []
+
         # Attach event object to function which will be picked up in `register()`.
-        f.__event__ = Event(event_name, attribute, f, event_kargs)
+        f.__event__.append(Event(event_name, attribute, f, event_kargs))
+
         # Return function as-is since method definition should be compatible with sqlalchemy.event.listen().
         return f
     return decorator

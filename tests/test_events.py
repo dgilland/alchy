@@ -49,6 +49,7 @@ class TestModelEvents(TestQueryBase):
 
         _id = Column(types.Integer(), primary_key=True)
         name = Column(types.String())
+        number = Column(types.Integer())
         min_hueys = Column(types.Boolean())
         hueys = orm.relationship('Huey')
 
@@ -75,6 +76,11 @@ class TestModelEvents(TestQueryBase):
             if not len(target.hueys) >= 1:
                 target.min_hueys = False
 
+        @events.before_insert
+        @events.before_update
+        def before_edit(mapper, connection, target):
+            target.number = (target.number or 0) + 1
+
     @classmethod
     def setUpClass(cls):
         cls.db = manager.Manager(Model=cls.Model, config=cls.config)
@@ -97,16 +103,19 @@ class TestModelEvents(TestQueryBase):
 
     def test_events_using_decorator(self):
         d = self.Dewey()
+
+        self.assertIsNone(d.number)
+
         self.db.add_commit(d)
 
+        self.assertEqual(d.number, 1)
         self.assertEqual(d.name, 'Dewey')
 
-        d.name = 'Bob'
+        # trigger update event
+        d.name = 'Foo'
+        self.db.commit()
 
-        # call event manually
-        d.before_insert(None, None, d)
-
-        self.assertEqual(d.name, 'Dewey')
+        self.assertEqual(d.number, 2)
 
     def test_attribute_event_set(self):
         name = 'mister'
