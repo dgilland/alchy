@@ -47,18 +47,22 @@ def register(cls, dct):
 
         dct['__events__'].update(events_dict)
 
-##
-# Event factory functions
-##
+#####
+## Event decorators
+####
 
-def make_event_decorator(event_name, attribute=None, **event_kargs):
+def event(event_name, attribute=None, f=None, **event_kargs):
     '''
     Generic event decorator maker which attaches metadata to function object
     so that `register()` can find the event definition.
     '''
+    if callable(f):
+        # being called as a decorator with no arguments
+        return event(event_name)(f)
+
     def decorator(f):
-        # set initial value to list so a function can handle multiple events
         if not hasattr(f, '__event__'):
+            # set initial value to list so a function can handle multiple events
             f.__event__ = []
 
         # Attach event object to function which will be picked up in `register()`.
@@ -68,58 +72,49 @@ def make_event_decorator(event_name, attribute=None, **event_kargs):
         return f
     return decorator
 
-# Attribute events are always called as a decorator with arguments
-# which is equilvalent to `make_event_decorator`. Assigning as an alias
-# for convenience/clarity when making named attribute events.
-attribute_event = make_event_decorator
-
-def mapper_event(event_name, f=None, **event_kargs):
-    '''
-    Event decorator factory for mapper events which can be called with or
-    without arguments.
-    '''
-    if callable(f):
-        # being called as a decorator with no arguments
-        return mapper_event(event_name)(f)
-    else:
-        # being called as decorator with arguments
-        return make_event_decorator(event_name, attribute=None, **event_kargs)
-
 ##
 # Attribute Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
 ##
 
-set_ = partial(attribute_event, 'set')
-append = partial(attribute_event, 'append')
-remove = partial(attribute_event, 'remove')
+set_ = partial(event, 'set')
+append = partial(event, 'append')
+remove = partial(event, 'remove')
 
 ##
 # Mapper Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#mapper-events
 ##
 
-before_delete = partial(mapper_event, 'before_delete')
-before_insert = partial(mapper_event, 'before_insert')
-before_update = partial(mapper_event, 'before_update')
+before_delete = partial(event, 'before_delete', None)
+before_insert = partial(event, 'before_insert', None)
+before_update = partial(event, 'before_update', None)
 
-after_delete = partial(mapper_event, 'after_delete')
-after_insert = partial(mapper_event, 'after_insert')
-after_update = partial(mapper_event, 'after_update')
+after_delete = partial(event, 'after_delete', None)
+after_insert = partial(event, 'after_insert', None)
+after_update = partial(event, 'after_update', None)
 
-append_result = partial(mapper_event, 'append_result')
-create_instance = partial(mapper_event, 'create_instance')
-instrument_class = partial(mapper_event, 'instrument_class')
-before_configured = partial(mapper_event, 'before_configured')
-after_configured = partial(mapper_event, 'after_configured')
-mapper_configured = partial(mapper_event, 'mapper_configured')
-populate_instance = partial(mapper_event, 'populate_instance')
-translate_row = partial(mapper_event, 'translate_row')
+append_result = partial(event, 'append_result', None)
+create_instance = partial(event, 'create_instance', None)
+instrument_class = partial(event, 'instrument_class', None)
+before_configured = partial(event, 'before_configured', None)
+after_configured = partial(event, 'after_configured', None)
+mapper_configured = partial(event, 'mapper_configured', None)
+populate_instance = partial(event, 'populate_instance', None)
+translate_row = partial(event, 'translate_row', None)
 
 ##
 # Instance Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#instance-events
 ##
 
-# @todo
+expire = partial(event, 'expire', None)
+first_init = partial(event, 'first_init', None)
+init = partial(event, 'init', None)
+init_failure = partial(event, 'init_failure', None)
+load = partial(event, 'load', None)
+pickle = partial(event, 'pickle', None)
+unpickle = partial(event, 'unpickle', None)
+refresh = partial(event, 'refresh', None)
+resurrect = partial(event, 'resurrect', None)
 
