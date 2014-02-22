@@ -6,36 +6,6 @@ import sqlalchemy
 
 Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 
-def make_event_decorator(event_name, attribute=None, **event_kargs):
-    def decorator(f):
-        # Attach event object to function which will be picked up in `register()`.
-        f.__event__ = Event(event_name, attribute, f, event_kargs)
-
-        # Notice that `decorated()` below takes a `self` argument but doesn't pass
-        # it to `f()`. This is because we are enforcing a class method definition
-        # similar to @staticemethod where the `self` or `cls` isn't included. But
-        # since we don't want to require @staticmethod and since we don't want the
-        # event listener to have access to self (due to event listener restrictions),
-        # we're consuming `self` here and not passing it along. This is also
-        # required since all events are registered in the metaclass, so the class
-        # method definition needs to be compatible with `sqlalchemy.event.listen()`
-        @wraps(f)
-        def decorated(self, *args, **kargs):
-            return f(*args, **kargs)
-        return decorated
-
-    return decorator
-
-attribute_event = make_event_decorator
-
-def mapper_event(event_name, f=None, **event_kargs):
-    if callable(f):
-        # being called as a decorator with no arguments
-        return mapper_event(event_name)(f)
-    else:
-        # being called as decorator with arguments
-        return make_event_decorator(event_name, attribute=None, **event_kargs)
-
 def register(cls, dct):
     events = []
 
@@ -73,6 +43,38 @@ def register(cls, dct):
 
         dct['__events__'].update(events_dict)
 
+##
+# Event factory functions
+##
+
+def make_event_decorator(event_name, attribute=None, **event_kargs):
+    '''
+    Generic event decorator maker which attaches metadata to function object
+    so that `register()` can find the event definition.
+    '''
+    def decorator(f):
+        # Attach event object to function which will be picked up in `register()`.
+        f.__event__ = Event(event_name, attribute, f, event_kargs)
+        # Return function as-is since method definition should be compatible with sqlalchemy.event.listen().
+        return f
+    return decorator
+
+# Attribute events are always called as a decorator with arguments
+# which is equilvalent to `make_event_decorator`. Assigning as an alias
+# for convenience/clarity when making named attribute events.
+attribute_event = make_event_decorator
+
+def mapper_event(event_name, f=None, **event_kargs):
+    '''
+    Event decorator factory for mapper events which can be called with or
+    without arguments.
+    '''
+    if callable(f):
+        # being called as a decorator with no arguments
+        return mapper_event(event_name)(f)
+    else:
+        # being called as decorator with arguments
+        return make_event_decorator(event_name, attribute=None, **event_kargs)
 
 ##
 # Attribute Events
