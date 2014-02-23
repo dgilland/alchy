@@ -103,10 +103,12 @@ remove = make_attribute_event('remove')
 before_delete = make_event('before_delete')
 before_insert = make_event('before_insert')
 before_update = make_event('before_update')
+before_insert_update = make_event(['before_insert', 'before_update'])
 
 after_delete = make_event('after_delete')
 after_insert = make_event('after_insert')
 after_update = make_event('after_update')
+after_insert_update = make_event(['after_insert', 'after_update'])
 
 append_result = make_event('append_result')
 create_instance = make_event('create_instance')

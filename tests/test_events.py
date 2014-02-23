@@ -88,8 +88,7 @@ class TestEvents(TestEventsBase):
             if not len(target.hueys) >= 1:
                 target.min_hueys = False
 
-        @events.before_insert
-        @events.before_update
+        @events.before_insert_update
         def before_edit(mapper, connection, target):
             target.number = (target.number or 0) + 1
 
