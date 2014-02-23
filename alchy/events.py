@@ -78,45 +78,53 @@ def event(event_names, attribute=None, f=None, **event_kargs):
         return f
     return decorator
 
+def make_attribute_event(event_names):
+    '''Event decorator maker for attribute events.'''
+    return partial(event, event_names)
+
+def make_event(event_names):
+    '''Event decorator maker for mapper or instance events which don't require an attribute.'''
+    # bind `None` to attribute argument
+    return partial(event, event_names, None)
 ##
 # Attribute Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
 ##
 
-set_ = partial(event, 'set')
-append = partial(event, 'append')
-remove = partial(event, 'remove')
+set_ = make_attribute_event('set')
+append = make_attribute_event('append')
+remove = make_attribute_event('remove')
 
 ##
 # Mapper Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#mapper-events
 ##
 
-before_delete = partial(event, 'before_delete', None)
-before_insert = partial(event, 'before_insert', None)
-before_update = partial(event, 'before_update', None)
+before_delete = make_event('before_delete')
+before_insert = make_event('before_insert')
+before_update = make_event('before_update')
 
-after_delete = partial(event, 'after_delete', None)
-after_insert = partial(event, 'after_insert', None)
-after_update = partial(event, 'after_update', None)
+after_delete = make_event('after_delete')
+after_insert = make_event('after_insert')
+after_update = make_event('after_update')
 
-append_result = partial(event, 'append_result', None)
-create_instance = partial(event, 'create_instance', None)
-instrument_class = partial(event, 'instrument_class', None)
-before_configured = partial(event, 'before_configured', None)
-after_configured = partial(event, 'after_configured', None)
-mapper_configured = partial(event, 'mapper_configured', None)
-populate_instance = partial(event, 'populate_instance', None)
-translate_row = partial(event, 'translate_row', None)
+append_result = make_event('append_result')
+create_instance = make_event('create_instance')
+instrument_class = make_event('instrument_class')
+before_configured = make_event('before_configured')
+after_configured = make_event('after_configured')
+mapper_configured = make_event('mapper_configured')
+populate_instance = make_event('populate_instance')
+translate_row = make_event('translate_row')
 
 ##
 # Instance Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#instance-events
 ##
 
-expire = partial(event, 'expire', None)
-load = partial(event, 'load', None)
-refresh = partial(event, 'refresh', None)
+expire = make_event('expire')
+load = make_event('load')
+refresh = make_event('refresh')
 
 # The following events work as intended, but they don't seem like
 # likely candidates for supporting their definition on the model class.
@@ -124,17 +132,17 @@ refresh = partial(event, 'refresh', None)
 # @why: Having an on-some-init event defined on the model class
 # seems inefficient since whatever logic they contain should be
 # handled in model.__init__() anyway.
-#first_init = partial(event, 'first_init', None)
-#init = partial(event, 'init', None)
-#init_failure = partial(event, 'init_failure', None)
+#first_init = make_event('first_init')
+#init = make_event('init')
+#init_failure = make_event('init_failure')
 
 # @why: Again model class would already define pickle support
 # so logic should be contained there and not in a separate event handler.
-#pickle = partial(event, 'pickle', None)
-#unpickle = partial(event, 'unpickle', None)
+#pickle = make_event('pickle')
+#unpickle = make_event('unpickle')
 
 # @why: Well, not really sure how to actually trigger this event
 # so don't want to support it if it doesn't have a test.
 # If someone really wants this event, then it can be enabled.
-#resurrect = partial(event, 'resurrect', None)
+#resurrect = make_event('resurrect')
 
