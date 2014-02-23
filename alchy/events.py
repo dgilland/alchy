@@ -51,22 +51,28 @@ def register(cls, dct):
 ## Event decorators
 ####
 
-def event(event_name, attribute=None, f=None, **event_kargs):
+def event(event_names, attribute=None, f=None, **event_kargs):
     '''
     Generic event decorator maker which attaches metadata to function object
     so that `register()` can find the event definition.
     '''
     if callable(f):
         # being called as a decorator with no arguments
-        return event(event_name)(f)
+        return event(event_names)(f)
 
     def decorator(f):
         if not hasattr(f, '__event__'):
             # set initial value to list so a function can handle multiple events
             f.__event__ = []
 
+        # @note: have to assign to a separately variable name due to global name access issues
+        if not isinstance(event_names, (list, tuple)):
+            _event_names = [event_names]
+        else:
+            _event_names = event_names
+
         # Attach event object to function which will be picked up in `register()`.
-        f.__event__.append(Event(event_name, attribute, f, event_kargs))
+        f.__event__ += [Event(event_name, attribute, f, event_kargs) for event_name in _event_names]
 
         # Return function as-is since method definition should be compatible with sqlalchemy.event.listen().
         return f
