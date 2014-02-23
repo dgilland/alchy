@@ -6,10 +6,22 @@ from alchy import model, query, manager, events
 
 from .base import TestQueryBase
 
-class TestModelEvents(TestQueryBase):
-    '''Test Model events'''
 
-    Model = model.make_declarative_base()
+Model = model.make_declarative_base()
+
+class TestEventsBase(TestQueryBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.db = manager.Manager(Model=Model, config=cls.config)
+
+    def setUp(self):
+        self.db.create_all()
+
+    def tearDown(self):
+        self.db.drop_all()
+
+class TestEvents(TestEventsBase):
+    '''Test Model events'''
 
     class Huey(Model):
         event_tracker = {}
@@ -81,14 +93,10 @@ class TestModelEvents(TestQueryBase):
         def before_edit(mapper, connection, target):
             target.number = (target.number or 0) + 1
 
-    @classmethod
-    def setUpClass(cls):
-        cls.db = manager.Manager(Model=cls.Model, config=cls.config)
+    def tearDown(self):
+        super(TestEvents, self).tearDown()
 
-    def setUp(self):
-        self.db.create_all()
-
-        # clear event tracker before each test
+        # clear event tracker
         self.Huey.event_tracker.clear()
 
     def test_events_using_class_attribute(self):
@@ -146,3 +154,48 @@ class TestModelEvents(TestQueryBase):
         self.assertTrue(d.min_hueys)
         d.hueys.remove(d.hueys[0])
         self.assertFalse(d.min_hueys)
+
+class TestInstanceEvents(TestEventsBase):
+    class Louie(Model):
+        event_tracker = {}
+
+        _id = Column(types.Integer(), primary_key=True)
+        name = Column(types.String())
+
+        @events.expire
+        def on_expire(target, attrs):
+            target.event_tracker['expire'] = True
+
+        @events.load
+        def on_load(target, context):
+            target.event_tracker['load'] = True
+
+        @events.refresh
+        def on_refresh(target, context, attrs):
+            target.event_tracker['refresh'] = True
+
+
+    def tearDown(self):
+        super(TestInstanceEvents, self).tearDown()
+        # clear event tracker
+        self.Louie.event_tracker.clear()
+
+    def test_expire(self):
+        self.db.add(self.Louie())
+        record = self.Louie.get(1)
+        self.assertIsNone(record.event_tracker.get('expire'))
+        record.expire()
+        self.assertTrue(record.event_tracker.get('expire'))
+
+    def test_load(self):
+        self.db.add_commit(self.Louie())
+        record = self.Louie.get(1)
+        self.assertTrue(record.event_tracker.get('load'))
+
+    def test_refresh(self):
+        record = self.Louie()
+        self.db.add_commit(record)
+        self.assertIsNone(record.event_tracker.get('refresh'))
+        self.assertIsNone(record.event_tracker.get('refresh'))
+        self.Louie.get(1)
+        self.assertTrue(record.event_tracker.get('refresh'))

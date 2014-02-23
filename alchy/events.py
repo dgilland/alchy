@@ -109,12 +109,26 @@ translate_row = partial(event, 'translate_row', None)
 ##
 
 expire = partial(event, 'expire', None)
-first_init = partial(event, 'first_init', None)
-init = partial(event, 'init', None)
-init_failure = partial(event, 'init_failure', None)
 load = partial(event, 'load', None)
-pickle = partial(event, 'pickle', None)
-unpickle = partial(event, 'unpickle', None)
 refresh = partial(event, 'refresh', None)
-resurrect = partial(event, 'resurrect', None)
+
+# The following events work as intended, but they don't seem like
+# likely candidates for supporting their definition on the model class.
+
+# @why: Having an on-some-init event defined on the model class
+# seems inefficient since whatever logic they contain should be
+# handled in model.__init__() anyway.
+#first_init = partial(event, 'first_init', None)
+#init = partial(event, 'init', None)
+#init_failure = partial(event, 'init_failure', None)
+
+# @why: Again model class would already define pickle support
+# so logic should be contained there and not in a separate event handler.
+#pickle = partial(event, 'pickle', None)
+#unpickle = partial(event, 'unpickle', None)
+
+# @why: Well, not really sure how to actually trigger this event
+# so don't want to support it if it doesn't have a test.
+# If someone really wants this event, then it can be enabled.
+#resurrect = partial(event, 'resurrect', None)
 
