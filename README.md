@@ -4,6 +4,10 @@ Enhancement library for SQLAlchemy
 
 **Under development**
 
+## Requirements
+
+- `SQLAlchemy>=0.9`
+
 ## Installation
 
 Install using pip:
@@ -20,7 +24,7 @@ The main components of `alchy` are:
 - `Query`: Enhanced subclass of sqlalchemy's `orm.Query` and default query class for `session.query`
 - `ModelBase`: Enhanced base class for models which features a query property
 - `make_declarative_base`: Factory function for creating a delcarative base class from `ModelBase` (separated for use outside of `Manager` instance)
-- Model Events: Support for ORM event listeners defined on model classes
+- `events`: Support for ORM event listeners defined on model classes
 
 ## Quick Start
 
@@ -214,6 +218,23 @@ User.query.reduce(
 )
 ```
 
+Utilize ORM events.
+
+```python
+class User(db.Model):
+    __tablename__ = 'user'
+
+    _id = Column(types.Integer(), primary_key=True)
+    name = Column(types.String())
+    email = Column(types.String())
+    level = Column(types.Integer())
+
+    @alchy.events.before_insert_update
+    def validate(self):
+        '''Validate model instance'''
+        # do validation
+```
+
 Finally, clean up after ourselves.
 
 ```python
@@ -224,14 +245,205 @@ db.drop_all()
 
 TODO
 
+### Instance Methods
+
+#### __init__()
+
+#### update()
+
+#### to_dict()
+
+#### flush()
+
+#### save()
+
+#### delete()
+
+#### expire()
+
+#### refresh()
+
+#### expunge()
+
+### Class Methods
+
+#### get()
+
+#### get_by()
+
+#### simple_search()
+
+#### advanced_search()
+
+### Instance Properties
+
+#### query
+
+#### session
+
+#### strict_update_fields
+
+### Class/Instance Properties
+
+#### attrs
+
+#### descriptors
+
+#### relationships
+
+#### column_attrs
+
+#### columns
+
+### Class Configuration
+
+#### __events___
+
+#### query_class
+
+#### __advanced_search__
+
+#### __simple_search__
+
 ## Model Events
 
 TODO
+
+### Attribute Events
+
+#### @set_
+
+#### @append
+
+#### @remove
+
+### Mapper Events
+
+#### @before_delete
+
+#### @before_insert
+
+#### @before_update
+
+#### @before_insert_update
+
+#### @after_delete
+
+#### @after_insert
+
+#### @after_update
+
+#### @after_insert_update
+
+#### @append_result
+
+#### @create_instance
+
+#### @instrument_class
+
+#### @before_configured
+
+#### @after_configured
+
+#### @mapper_configured
+
+#### @populate_instance
+
+#### @translate_row
+
+### Instance Events
+
+#### @expire
+
+#### @load
+
+#### @refresh
 
 ## Query
 
 TODO
 
+### Methods
+
+#### map()
+
+#### reduce()
+
+#### reduce_right()
+
+#### pluck()
+
+#### page()
+
+#### paginate()
+
+#### advanced_search()
+
+#### simple_search()
+
+#### search()
+
+### Entity Load Methods
+
+#### join_eager()
+
+#### outerjoin_eager()
+
+#### joinedload()
+
+#### immediateload()
+
+#### lazyload()
+
+#### noload()
+
+#### subqueryload()
+
+### Column Load Methods
+
+#### load_only()
+
+#### defer()
+
+#### undefer()
+
+#### undefer_group()
+
 ## Manager
 
 TODO
+
+### Methods
+
+#### __init__()
+
+#### init_engine()
+
+#### init_session()
+
+#### create_all()
+
+#### drop_all()
+
+#### add()
+
+#### add_commit()
+
+#### delete()
+
+#### delete_commit()
+
+#### __getattr__
+
+### Properties
+
+#### metadata
+
+#### engine
+
+## Types
+
+TODO
+
+### DeclarativeEnum
+
