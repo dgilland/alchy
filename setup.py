@@ -11,7 +11,7 @@ from setuptools import setup
 
 setup(
     name = 'alchy',
-    version = '0.3.0',
+    version = '0.4.0',
     url = 'https://github.com/dgilland/alchy',
     license = 'MIT',
     author = 'Derrick Gilland',
@@ -27,8 +27,9 @@ setup(
     classifiers = [
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
         'License :: OSI Approved :: MIT License',
-        'Topic :: Database :: Front-Ends'
+        'Topic :: Database :: Front-Ends',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
     ]
 )
