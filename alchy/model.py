@@ -243,6 +243,16 @@ class ModelBase(object):
     ##
 
     @classproperty
+    def primary_key(cls):
+        '''Return primary key as either single column (one primary key) or tuple otherwise.'''
+        primary = inspect(cls).primary_key
+
+        if len(primary) == 1:
+            primary = primary[0]
+
+        return primary
+
+    @classproperty
     def attrs(cls):
         '''Return ORM attributes'''
         return inspect(cls).attrs.keys()
