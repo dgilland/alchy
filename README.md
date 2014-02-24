@@ -128,6 +128,11 @@ db.add_commit(user)
 # fetch from database
 user_from_db = User.get(user._id)
 
+# convert to dict
+user_dict = user_from_db.to_dict()
+# ...or just pass to dict()
+user_dict = dict(user_from_db)
+
 # make changes
 user_from_db.update(level=5)
 
