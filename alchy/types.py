@@ -25,6 +25,9 @@ class EnumSymbol(object):
     def __str__(self):
         return self.name
 
+    def to_dict(self):
+        return {'value': self.value, 'description': self.description}
+
 class EnumMeta(type):
     '''Generate new DeclarativeEnum classes.'''
 
