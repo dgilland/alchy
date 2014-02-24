@@ -117,11 +117,11 @@ class TestModel(TestQueryBase):
         data = fixtures.data['Foo'][0]
         record = self.db.query(Foo).get(data['_id'])
 
-        as_json = record.to_dict()
+        as_dict = record.to_dict()
 
         # it should use default loading which is lazy
-        self.assertIsSubset(data, as_json)
-        self.assertEqual(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean']))
+        self.assertIsSubset(data, as_dict)
+        self.assertEqual(set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean']))
 
     def test_to_dict_with_joined(self):
         data = fixtures.data['Foo'][0]
@@ -130,14 +130,14 @@ class TestModel(TestQueryBase):
             orm.joinedload('quxs')
         ).get(data['_id'])
 
-        as_json = record.to_dict()
+        as_dict = record.to_dict()
 
         # it should load relationships
-        self.assertIsSubset(data, as_json)
-        self.assertEqual(set(as_json.keys()), set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
+        self.assertIsSubset(data, as_dict)
+        self.assertEqual(set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
 
         # and relationship's relationships
-        self.assertIn('bazs', as_json['bars'][0])
+        self.assertIn('bazs', as_dict['bars'][0])
 
     def test_to_dict_after_commit(self):
         record = Foo()
