@@ -285,8 +285,11 @@ class QueryProperty(object):
         except UnmappedClassError:
             return None
 
-def make_declarative_base(session=None, query_property=None, Model=None):
-    Model = Model or declarative_base(cls=ModelBase, constructor=ModelBase.__init__, metaclass=ModelMeta)
+def make_declarative_base(session=None, query_property=None, Model=None, Base=None):
+    if Model is None:
+        Base = Base or ModelBase
+        Model = declarative_base(cls=Base, constructor=Base.__init__, metaclass=ModelMeta)
+
     extend_declarative_base(Model, session, query_property)
     return Model
 
