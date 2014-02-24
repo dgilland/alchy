@@ -128,6 +128,10 @@ class ModelBase(object):
 
         return d
 
+    def __iter__(self):
+        '''Implement __iter__ so model can be converted to dict via dict(model)'''
+        return self.to_dict().iteritems()
+
     @property
     def strict_update_fields(self):
         '''

@@ -147,6 +147,10 @@ class TestModel(TestQueryBase):
         self.assertEqual(record.to_dict(refresh_on_empty=False), {})
         self.assertNotEqual(record.to_dict(), {})
 
+    def test_dict_to_dict(self):
+        data = Foo.get(1)
+
+        self.assertEqual(dict(data), data.to_dict())
 
     def test_attrs(self):
         baz = Baz.get(1)
