@@ -111,9 +111,10 @@ class ModelBase(object):
         However, with one exception: refresh if current __dict__ is empty.
         '''
         d = {}
+        descriptors = self.descriptors
 
         for field, value in self.__dict__.iteritems():
-            if field.startswith('_sa'):
+            if field not in descriptors:
                 # skip sqlalchemy properties
                 continue
 
