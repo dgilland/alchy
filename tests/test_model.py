@@ -139,6 +139,15 @@ class TestModel(TestQueryBase):
         # and relationship's relationships
         self.assertIn('bazs', as_json['bars'][0])
 
+    def test_to_dict_after_commit(self):
+        record = Foo()
+        self.assertEqual(record.to_dict(), {})
+
+        self.db.add_commit(record)
+        self.assertEqual(record.to_dict(refresh_on_empty=False), {})
+        self.assertNotEqual(record.to_dict(), {})
+
+
     def test_attrs(self):
         baz = Baz.get(1)
 
@@ -234,11 +243,11 @@ class TestModel(TestQueryBase):
         record.expire()
 
         # it's values are empty
-        self.assertEqual(record.to_dict(), {})
+        self.assertEqual(record.to_dict(refresh_on_empty=False), {})
 
         # it's values are reloaded on access
         self.assertEqual(record.number, new_number)
-        self.assertNotEquals(record.to_dict(), {})
+        self.assertNotEquals(record.to_dict(refresh_on_empty=False), {})
 
     def test_refresh(self):
         record = Foo.get(1)

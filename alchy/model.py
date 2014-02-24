@@ -98,14 +98,17 @@ class ModelBase(object):
                         v = None
                     setattr(self, k, v)
 
-    def to_dict(self):
+    def to_dict(self, refresh_on_empty=True):
         '''
         Return dict representation of model.
 
         Drill down to any relationships and serialize those too.
 
         Assume that the current object has been loaded (lazy/joined/etc)
-        and don't try to expand anything, i.e., just serialize the currently loaded data
+        and don't try to expand anything, i.e., just serialize the
+        currently loaded data.
+
+        However, with one exception: refresh if current __dict__ is empty.
         '''
         d = {}
 
@@ -114,7 +117,14 @@ class ModelBase(object):
                 # skip sqlalchemy properties
                 continue
 
-            d[field] = [v.to_dict() for v in value] if is_sequence(value) else value
+            d[field] = [dict(v) for v in value] if is_sequence(value) else value
+
+        if not d and refresh_on_empty and self.session:
+            # Model's __dict__ is empty but has a session associated with it.
+            # Most likely the model was previously committed which resets the __dict__ state.
+            # Refreshing from database will repopulate the model's __dict__.
+            self.refresh()
+            d = self.to_dict(refresh_on_empty=False)
 
         return d
 
