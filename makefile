@@ -32,6 +32,6 @@ clean:
 	rm -rf dist *.egg*
 
 release:
-	python setup.py sdist bdist_wheel
-	twine upload dist/*
+	$(ENV_ACT) python setup.py sdist bdist_wheel
+	$(ENV_ACT) twine upload dist/*
 	rm -rf dist *.egg*
