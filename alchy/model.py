@@ -260,22 +260,22 @@ class ModelBase(object):
     @classproperty
     def descriptors(cls):
         '''Return all ORM descriptors'''
-        return [d for d in inspect(cls).mapper.all_orm_descriptors.keys() if not d.startswith('__')]
+        return [d for d in inspect(cls).all_orm_descriptors.keys() if not d.startswith('__')]
 
     @classproperty
     def relationships(cls):
         '''Return ORM relationships'''
-        return inspect(cls).mapper.relationships.keys()
+        return inspect(cls).relationships.keys()
 
     @classproperty
     def column_attrs(cls):
         '''Return table columns as list of class attributes at the class level'''
-        return inspect(cls).mapper.column_attrs
+        return inspect(cls).column_attrs
 
     @classproperty
     def columns(cls):
         '''Return table columns'''
-        return inspect(cls).mapper.columns.keys()
+        return inspect(cls).columns.keys()
 
 class QueryProperty(object):
     def __init__(self, session):
