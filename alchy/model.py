@@ -118,7 +118,12 @@ class ModelBase(object):
                 # skip sqlalchemy properties
                 continue
 
-            d[field] = [dict(v) for v in value] if is_sequence(value) else value
+            if hasattr(value, 'to_dict'):
+                value = value.to_dict()
+            elif is_sequence(value):
+                value = [v.to_dict() if hasattr(v, 'to_dict') else v for v in value]
+
+            d[field] = value
 
         if not d and refresh_on_empty and self.session:
             # Model's __dict__ is empty but has a session associated with it.
