@@ -37,3 +37,13 @@ release:
 	$(ENV_ACT) python setup.py sdist bdist_wheel
 	$(ENV_ACT) twine upload dist/*
 	rm -rf dist *.egg*
+
+##
+# TravisCI
+##
+
+travisci-install:
+	pip install -r requirements.txt
+
+travisci-test:
+	py.test $(PYTEST_ARGS) $(COVERAGE_ARGS) $(COVERAGE_TARGET) $(PYTEST_TARGET)
