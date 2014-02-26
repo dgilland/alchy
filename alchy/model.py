@@ -98,6 +98,8 @@ class ModelBase(object):
                         v = None
                     setattr(self, k, v)
 
+        return self
+
     def to_dict(self, refresh_on_empty=True):
         '''
         Return dict representation of model.
@@ -210,22 +212,27 @@ class ModelBase(object):
         return orm.object_session(self)
 
     def flush(self, *args, **kargs):
-        return self.session.flush([self], *args, **kargs)
+        self.session.flush([self], *args, **kargs)
+        return self
 
     def save(self, *args, **kargs):
-        return self.session.add(self, *args, **kargs)
+        self.session.add(self, *args, **kargs)
+        return self
 
     def delete(self, *args, **kargs):
         return self.session.delete(self, *args, **kargs)
 
     def expire(self, *args, **kargs):
-        return self.session.expire(self, *args, **kargs)
+        self.session.expire(self, *args, **kargs)
+        return self
 
     def refresh(self, *args, **kargs):
-        return self.session.refresh(self, *args, **kargs)
+        self.session.refresh(self, *args, **kargs)
+        return self
 
     def expunge(self, *args, **kargs):
-        return self.session.expunge(self, *args, **kargs)
+        self.session.expunge(self, *args, **kargs)
+        return self
 
     @classmethod
     def get(cls, *args, **kargs):
