@@ -47,3 +47,5 @@ class TestDeclarativeEnum(TestQueryBase):
             self.assertTrue(hasattr(OrderStatus, status.name))
             self.assertIs(OrderStatus.from_string(status.value), getattr(OrderStatus, status.name))
 
+    def test_to_dict(self):
+        self.assertEqual(OrderStatus.pending.to_dict(), {'value': 'p', 'description': 'Pending'})

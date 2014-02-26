@@ -115,7 +115,7 @@ class ModelBase(object):
 
         for field, value in self.__dict__.iteritems():
             if field not in descriptors:
-                # skip sqlalchemy properties
+                # skip non-descriptors
                 continue
 
             if hasattr(value, 'to_dict'):

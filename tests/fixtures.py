@@ -109,6 +109,11 @@ class AutoGenTableName(Model):
     _id = Column(types.Integer(), primary_key=True)
     name = Column(types.String())
 
+class MultiplePrimaryKey(Model):
+    _id1 = Column(types.Integer(), primary_key=True)
+    _id2 = Column(types.Integer(), primary_key=True)
+    _id3 = Column(types.Integer(), primary_key=True)
+
 Models = {
     'Foo': Foo,
     'Bar': Bar,

@@ -1,13 +1,13 @@
 
 import sqlalchemy
-from sqlalchemy import orm, Column, types
+from sqlalchemy import orm, Column, types, inspect
 
 from alchy import model, query, manager, events
 
 from .base import TestQueryBase
 
 import fixtures
-from fixtures import Foo, Bar, Baz, Qux, AutoGenTableName, Model
+from fixtures import Foo, Bar, Baz, Qux, AutoGenTableName, MultiplePrimaryKey, Model
 
 class TestModel(TestQueryBase):
 
@@ -152,6 +152,15 @@ class TestModel(TestQueryBase):
 
         self.assertEqual(dict(data), data.to_dict())
 
+    def test_to_dict_hook(self):
+        foo = Foo.get(1)
+        def bar_to_dict():
+            return [i for i, bar in enumerate(foo.bars)]
+
+        foo.bars.to_dict = bar_to_dict
+        data = foo.to_dict()
+        self.assertEqual(data['bars'], bar_to_dict())
+
     def test_attrs(self):
         baz = Baz.get(1)
 
@@ -291,4 +300,10 @@ class TestModel(TestQueryBase):
         record = AutoGenTableName(name='myname')
         self.db.add_commit(record)
         self.assertEqual(repr(record), "<AutoGenTableName(_id=1, name=u'myname')>")
+
+    def test_single_primary_key(self):
+        self.assertEqual(Foo.primary_key, inspect(Foo).primary_key[0])
+
+    def test_multiple_primary_keys(self):
+        self.assertEqual(MultiplePrimaryKey.primary_key, inspect(MultiplePrimaryKey).primary_key)
 
