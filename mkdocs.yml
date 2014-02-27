@@ -1,0 +1,11 @@
+site_name: alchy
+site_description: Enhancement library for SQLAlchemy
+site_author: Derrick Gilland
+repo_url: https://github.com/dgilland/alchy
+pages:
+  - [index.md, Home]
+  - [model.md, Model]
+  - [events.md, Events]
+  - [query.md, Query]
+  - [manager.md, Manager]
+theme: flatly
