@@ -1,4 +1,4 @@
-.PHONY: env test release
+.PHONY: build test testall clean release travisci-install travisci-test
 
 ##
 # Variables
