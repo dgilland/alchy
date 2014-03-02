@@ -4,7 +4,9 @@ alchy
 
 The SQLAlchemy enhancement library.
 
-Documentation: https://github.com/dgilland/alchy
+Documentation: http://dgilland.github.io/alchy
+
+Project: https://github.com/dgilland/alchy
 """
 
 from setuptools import setup
