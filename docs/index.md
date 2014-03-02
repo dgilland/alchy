@@ -21,15 +21,16 @@ Enhancement library for SQLAlchemy
 
 ### Compatibility
 
-- `Python 2.6`
-- `Python 2.7`
-- `Python 3.3`
+- Python 2.6
+- Python 2.7
+- Python 3.3
 
 Not tested on any other version but may work nonetheless.
 
 ### Dependencies
 
-- `SQLAlchemy>=0.9`
+- SQLAlchemy >= 0.9.0
+- six >= 1.5.2
 
 ## Installation
 
@@ -47,9 +48,11 @@ First, create our database manager.
 import alchy
 
 db = alchy.Manager(config={
-    'engine': { 'url': 'sqlite://' }
+    'engine': {'url': 'sqlite://'}
 })
 ```
+
+**NOTE:** _A manager instance isn't required to use alchy's other features. It's mostly a database manager which uses components from alchy by default._
 
 Create some declarative model classes.
 
