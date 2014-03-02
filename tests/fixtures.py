@@ -102,7 +102,6 @@ class Qux(Model):
 class OrderStatus(DeclarativeEnum):
     pending     = ('p', 'Pending')
     submitted   = ('s', 'Submitted')
-    cancelled   = ('c', 'Cancelled')
     complete    = ('c', 'Complete')
 
 
