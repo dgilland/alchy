@@ -2,7 +2,10 @@
 
 - Add `ModelBase.primary_key` class property for retrieving primary key(s).
 - Add `Base=None` argument to `make_declarative_base()` to support passing in a subclass of `ModelBase`. Previously had to create a declarative `Model` to pass in a subclassed `ModelBase`.
-- Add chaining support for `ModelBase` methods: `update`, `flush`, `save`, `expire`, `refresh`, and `expunge`.
+- Let any exception occurring in `ModelBase.query` attribute access bubble up (previously, `UnmappedClassError` was caught).
+- Python 2.6 and 3.3 support.
+- PEP8 compliance.
+- New dependency: `six` (for Python 3 support)
 
 ## v0.4.2 (2014-02-24)
 
