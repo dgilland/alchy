@@ -314,7 +314,3 @@ class TestModel(TestQueryBase):
 
     def test_multiple_primary_keys(self):
         self.assertEqual(MultiplePrimaryKey.primary_key, inspect(MultiplePrimaryKey).primary_key)
-
-    def test_chaining(self):
-        foo = Foo.get(1)
-        self.assertIs(foo.update({}).flush().save().expire().refresh().expunge(), foo)
