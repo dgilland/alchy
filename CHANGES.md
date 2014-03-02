@@ -1,4 +1,4 @@
-## vX.X.X (XXXX-XX-XX)
+## v0.5.0 (2014-03-02)
 
 - Add `ModelBase.primary_key` class property for retrieving primary key(s).
 - Add `Base=None` argument to `make_declarative_base()` to support passing in a subclass of `ModelBase`. Previously had to create a declarative `Model` to pass in a subclassed `ModelBase`.

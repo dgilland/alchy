@@ -13,7 +13,7 @@ from setuptools import setup
 
 setup(
     name='alchy',
-    version='0.4.2',
+    version='0.5.0',
     url='https://github.com/dgilland/alchy',
     license='MIT',
     author='Derrick Gilland',
@@ -28,10 +28,12 @@ setup(
     test_suite='tests',
     keywords='sqlalchemy databases',
     classifiers=[
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
         'Topic :: Database :: Front-Ends',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
