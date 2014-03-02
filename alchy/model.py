@@ -5,7 +5,6 @@ from collections import namedtuple
 import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
-from sqlalchemy.orm.exc import UnmappedClassError
 
 import query
 import events
@@ -289,18 +288,16 @@ class QueryProperty(object):
         self.session = session
 
     def __get__(self, model, Model):
-        try:
-            mapper = orm.class_mapper(Model)
-            if mapper:
-                if not getattr(Model, 'query_class', None):
-                    Model.query_class = query.Query
+        mapper = orm.class_mapper(Model)
+        if mapper:
+            if not getattr(Model, 'query_class', None):
+                Model.query_class = query.Query
 
-                q = Model.query_class(mapper, session=self.session())
-                q.__model__ = Model
+            q = Model.query_class(mapper, session=self.session())
+            q.__model__ = Model
 
-                return q
-        except UnmappedClassError:
-            return None
+            return q
+
 
 def make_declarative_base(session=None, query_property=None, Model=None, Base=None):
     if Model is None:

@@ -111,7 +111,7 @@ class TestModel(TestQueryBase):
         class Unmapped(object):
             query = model.QueryProperty(None)
 
-        self.assertRaises(model.UnmappedClassError, Unmapped.query)
+        self.assertRaises(UnmappedClassError, lambda: Unmapped.query)
 
     def test_to_dict_with_lazy(self):
         data = fixtures.data['Foo'][0]
