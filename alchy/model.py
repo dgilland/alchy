@@ -5,10 +5,11 @@ from collections import namedtuple
 import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+import six
 
-import query
-import events
-from utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
+from alchy import query, events
+from alchy.utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
+
 
 class ModelMeta(DeclarativeMeta):
     def __new__(cls, name, bases, dct):
@@ -60,10 +61,8 @@ class ModelBase(object):
     def __init__(self, *args, **kargs):
         self.update(*args, **kargs)
 
-    def __repr__(self):
-        '''
-        Default representation of model
-        '''
+    def __repr__(self):  # pragma: no cover
+        '''Default representation of model'''
         values = ', '.join(['{0}={1}'.format(c, repr(getattr(self, c))) for c in self.columns])
         return '<{0}({1})>'.format(self.__class__.__name__, values)
 
@@ -77,7 +76,7 @@ class ModelBase(object):
         updatable_fields = self.strict_update_fields if strict else data.keys()
         relationships = self.relationships
 
-        for k,v in data.iteritems():
+        for k, v in six.iteritems(data):
             if hasattr(self, k) and k in updatable_fields:
                 # consider v a dict if any of its elements are a dict
                 v_is_dict = any([isinstance(_v, dict) for _v in v]) if is_sequence(v) else isinstance(v, dict)
@@ -114,7 +113,7 @@ class ModelBase(object):
         d = {}
         descriptors = self.descriptors
 
-        for field, value in self.__dict__.iteritems():
+        for field, value in six.iteritems(self.__dict__):
             if field not in descriptors:
                 # skip non-descriptors
                 continue
@@ -137,7 +136,7 @@ class ModelBase(object):
 
     def __iter__(self):
         '''Implement __iter__ so model can be converted to dict via dict(model)'''
-        return self.to_dict().iteritems()
+        return six.iteritems(self.to_dict())
 
     @property
     def strict_update_fields(self):
@@ -157,7 +156,7 @@ class ModelBase(object):
     def get_search(cls, search_dict, filter_fns):
         filters = []
 
-        for key, filter_fn in [(k,v) for k,v in filter_fns.iteritems() if k in search_dict]:
+        for key, filter_fn in [(k, v) for k, v in six.iteritems(filter_fns) if k in search_dict]:
             filters.append(filter_fn(search_dict[key]))
 
         return filters
@@ -187,7 +186,7 @@ class ModelBase(object):
             for term in terms:
                 # create a dict with each `config_search` key and `term` so filters can be applied to each combination
                 # i.e. { config_search_key1: term, config_search_key2: term, ..., config_search_keyN, term }
-                search_dict = dict(zip(fields, [term]*field_count))
+                search_dict = dict(zip(fields, [term] * field_count))
                 term_filters = cls.get_search(search_dict, cls.__simple_search__)
 
                 if term_filters:
@@ -283,6 +282,7 @@ class ModelBase(object):
         '''Return table columns'''
         return inspect(cls).columns.keys()
 
+
 class QueryProperty(object):
     def __init__(self, session):
         self.session = session
@@ -307,8 +307,8 @@ def make_declarative_base(session=None, query_property=None, Model=None, Base=No
     extend_declarative_base(Model, session, query_property)
     return Model
 
+
 def extend_declarative_base(Model, session=None, query_property=None):
     # attach query attribute to Model if `session` object passed in
     if session:
         Model.query = query_property(session) if query_property else QueryProperty(session)
-

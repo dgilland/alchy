@@ -5,9 +5,10 @@ from sqlalchemy.orm.exc import UnmappedError
 
 from alchy import manager, model
 
-from .base import TestBase, TestQueryBase
-import fixtures
-from fixtures import Foo
+from tests.base import TestBase, TestQueryBase
+from tests import fixtures
+from tests.fixtures import Foo
+
 
 class TestManager(TestBase):
 
@@ -68,6 +69,7 @@ class TestManager(TestBase):
         db = manager.Manager(Model=False)
         self.assertRaises(UnmappedError, db.drop_all)
 
+
 class TestManagerSessionExtensions(TestQueryBase):
 
     def get_count(self, table='foo'):
@@ -83,19 +85,19 @@ class TestManagerSessionExtensions(TestQueryBase):
 
         self.db.commit()
 
-        self.assertEqual(self.get_count(), count+5)
+        self.assertEqual(self.get_count(), count + 5)
 
     def test_add_commit(self):
         count = self.get_count()
 
         self.db.add_commit(Foo())
-        self.assertEqual(self.get_count(), count+1)
+        self.assertEqual(self.get_count(), count + 1)
 
         self.db.add_commit(Foo(), Foo())
-        self.assertEqual(self.get_count(), count+3)
+        self.assertEqual(self.get_count(), count + 3)
 
         self.db.add_commit([Foo(), Foo()])
-        self.assertEqual(self.get_count(), count+5)
+        self.assertEqual(self.get_count(), count + 5)
 
     def test_delete(self):
         count = self.get_count()
@@ -109,18 +111,17 @@ class TestManagerSessionExtensions(TestQueryBase):
 
         self.db.commit()
 
-        self.assertEqual(self.get_count(), count-5)
+        self.assertEqual(self.get_count(), count - 5)
 
     def test_delete_commit(self):
         count = self.get_count()
         foos = Foo.query.all()
 
         self.db.delete_commit(foos[0])
-        self.assertEqual(self.get_count(), count-1)
+        self.assertEqual(self.get_count(), count - 1)
 
         self.db.delete_commit(foos[1], foos[2])
-        self.assertEqual(self.get_count(), count-3)
+        self.assertEqual(self.get_count(), count - 3)
 
         self.db.delete_commit([foos[3], foos[4]])
-        self.assertEqual(self.get_count(), count-5)
-
+        self.assertEqual(self.get_count(), count - 5)

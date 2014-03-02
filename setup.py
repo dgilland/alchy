@@ -20,7 +20,8 @@ setup(
     long_description=__doc__,
     packages=['alchy'],
     install_requires=[
-        'SQLAlchemy>=0.9.0'
+        'SQLAlchemy>=0.9.0',
+        'six'
     ],
     test_suite='tests',
     keywords='sqlalchemy databases',
@@ -30,6 +31,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Topic :: Database :: Front-Ends',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
     ]
 )

@@ -3,8 +3,10 @@ from functools import wraps, partial
 from collections import namedtuple
 
 import sqlalchemy
+import six
 
 Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
+
 
 def register(cls, dct):
     events = []
@@ -13,7 +15,7 @@ def register(cls, dct):
     if dct.get('__events__'):
         # events defined on __events__ can have many forms (e.g. string based, list of tuples, etc)
         # so we need to iterate over them and parse into standardized Event object
-        for event_name, listeners in dct['__events__'].iteritems():
+        for event_name, listeners in six.iteritems(dct['__events__']):
             if not isinstance(listeners, list):
                 listeners = [listeners]
 
@@ -33,7 +35,7 @@ def register(cls, dct):
     # add events which were added via @event decorator
     for value in dct.values():
         if hasattr(value, '__event__'):
-            if not isinstance(value.__event__, list): # pragma: no cover
+            if not isinstance(value.__event__, list):  # pragma: no cover
                 value.__event__ = [value.__event__]
             events.extend(value.__event__)
 
@@ -50,6 +52,7 @@ def register(cls, dct):
 #####
 ## Event decorators
 ####
+
 
 def event(event_names, attribute=None, f=None, **event_kargs):
     '''
@@ -78,14 +81,17 @@ def event(event_names, attribute=None, f=None, **event_kargs):
         return f
     return decorator
 
+
 def make_attribute_event(event_names):
     '''Event decorator maker for attribute events.'''
     return partial(event, event_names)
+
 
 def make_event(event_names):
     '''Event decorator maker for mapper or instance events which don't require an attribute.'''
     # bind `None` to attribute argument
     return partial(event, event_names, None)
+
 ##
 # Attribute Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
@@ -147,4 +153,3 @@ refresh = make_event('refresh')
 # so don't want to support it if it doesn't have a test.
 # If someone really wants this event, then it can be enabled.
 #resurrect = make_event('resurrect')
-

@@ -1,14 +1,17 @@
 
 from unittest import TestCase
 
+import six
+
 from alchy import manager
 
-import fixtures
+from tests import fixtures
+
 
 class TestBase(TestCase):
 
     config = {
-        'engine': { 'url': 'sqlite://' }
+        'engine': {'url': 'sqlite://'}
     }
 
     @property
@@ -40,6 +43,64 @@ class TestBase(TestCase):
         for table_name in self.model_table_names:
             self.assertTableNotExists(engine, table_name)
 
+    ##
+    # polyfills for python2.6 supports
+    ##
+    def assertIsNone(self, a, msg=None):
+        try:
+            assert a is None
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIsNotNone(self, a, msg=None):
+        try:
+            assert a is not None
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIs(self, a, b, msg=None):
+        try:
+            assert a is b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIsInstance(self, a, b, msg=None):
+        try:
+            assert isinstance(a, b)
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIn(self, a, b, msg=None):
+        try:
+            assert a in b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertNotIn(self, a, b, msg=None):
+        try:
+            assert a not in b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+
 class TestQueryBase(TestBase):
 
     @classmethod
@@ -53,7 +114,7 @@ class TestQueryBase(TestBase):
     def setUp(self):
         self.db.create_all()
 
-        for model_name, Model in self.models_dict.iteritems():
+        for model_name, Model in six.iteritems(self.models_dict):
             records = fixtures.data.get(model_name, [])
             for r in records:
                 self.db.session.add(Model(**r))
@@ -63,4 +124,3 @@ class TestQueryBase(TestBase):
     def tearDown(self):
         self.db.close()
         self.db.drop_all()
-

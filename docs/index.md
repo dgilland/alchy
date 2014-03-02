@@ -1,8 +1,8 @@
 # alchy
 
+[![Package Version](https://pypip.in/v/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
 [![Build Status](https://travis-ci.org/dgilland/alchy.png?branch=master)](https://travis-ci.org/dgilland/alchy)
 [![Coverage Status](https://coveralls.io/repos/dgilland/alchy/badge.png?branch=master)](https://coveralls.io/r/dgilland/alchy)
-[![Package Version](https://pypip.in/v/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
 [![License](https://pypip.in/license/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
 
 Enhancement library for SQLAlchemy
@@ -19,7 +19,16 @@ Enhancement library for SQLAlchemy
 
 ## Requirements
 
+### Compatibility
+
+- `Python 2.6`
 - `Python 2.7`
+- `Python 3.3`
+
+Not tested on any other version but may work nonetheless.
+
+### Dependencies
+
 - `SQLAlchemy>=0.9`
 
 ## Installation

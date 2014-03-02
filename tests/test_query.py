@@ -3,8 +3,9 @@ from sqlalchemy import orm
 
 from alchy import query
 
-from .base import TestQueryBase
-from fixtures import Foo, Bar, Baz, Qux
+from tests.base import TestQueryBase
+from tests.fixtures import Foo, Bar, Baz, Qux
+
 
 class TestQuery(TestQueryBase):
 
@@ -149,7 +150,11 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).join(Foo.bars, Bar.bazs).options(orm.contains_eager(Foo.bars).contains_eager(Bar.bazs))),
+            str(
+                self.db.query(Foo).join(Foo.bars, Bar.bazs).options(
+                    orm.contains_eager(Foo.bars).contains_eager(Bar.bazs)
+                )
+            ),
             'it should join eager on multiple model entities'
         )
 
@@ -183,13 +188,21 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars', 'bazs')),
-            str(self.db.query(Foo).outerjoin('bars', 'bazs').options(orm.contains_eager('bars').contains_eager('bazs'))),
+            str(
+                self.db.query(Foo).outerjoin('bars', 'bazs').options(
+                    orm.contains_eager('bars').contains_eager('bazs')
+                )
+            ),
             'it should outerjoin eager on multiple string entities'
         )
 
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).outerjoin(Foo.bars, Bar.bazs).options(orm.contains_eager(Foo.bars).contains_eager(Bar.bazs))),
+            str(
+                self.db.query(Foo).outerjoin(Foo.bars, Bar.bazs).options(
+                    orm.contains_eager(Foo.bars).contains_eager(Bar.bazs)
+                )
+            ),
             'it should outerjoin eager on multiple model entities'
         )
 
@@ -203,8 +216,12 @@ class TestQuery(TestQueryBase):
         )
 
         self.assertEqual(
-            str(self.db.query(Foo).outerjoin_eager(Foo.bars, alias=bar_alias)),
-            str(self.db.query(Foo).outerjoin(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))),
+            str(
+                self.db.query(Foo).outerjoin_eager(Foo.bars, alias=bar_alias)
+            ),
+            str(
+                self.db.query(Foo).outerjoin(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))
+            ),
             'it should outerjoin eager on alias and model entity'
         )
 
@@ -403,9 +420,9 @@ class TestQuery(TestQueryBase):
 
     def test_map(self):
         items = self.db.query(Foo).all()
-        expected = [i.number*2 for i in items]
+        expected = [i.number * 2 for i in items]
 
-        test = self.db.query(Foo).map(lambda i: i.number*2)
+        test = self.db.query(Foo).map(lambda i: i.number * 2)
         self.assertEqual(test, expected)
 
     def test_reduce(self):
@@ -433,4 +450,3 @@ class TestQuery(TestQueryBase):
     def test_model_property(self):
         self.assertIs(Foo.query.Model, Foo)
         self.assertIs(Foo.query.Model, Foo.query.__model__)
-

@@ -2,7 +2,8 @@
 from sqlalchemy import engine_from_config, orm
 from sqlalchemy.orm.exc import UnmappedError
 
-import query, model
+from alchy import query, model
+
 
 class ManagerBase(object):
     '''Useful extensions to self.session'''
@@ -32,6 +33,7 @@ class ManagerBase(object):
     def delete_commit(self, *instances):
         '''Delete instances to session and commit in one call'''
         self.delete(*instances).commit()
+
 
 class Manager(ManagerBase):
     '''
@@ -111,4 +113,3 @@ class Manager(ManagerBase):
         Delegate all other attributes to self.session
         '''
         return getattr(self.session, attr)
-

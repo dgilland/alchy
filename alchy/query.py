@@ -4,6 +4,9 @@ from math import ceil
 from sqlalchemy import orm, and_, or_, inspect
 from sqlalchemy.orm.strategy_options import Load
 
+from six.moves import reduce, map
+
+
 class Query(orm.Query):
 
     # when used as a query property (e.g. MyModel.query), then this is populated with the originating model
@@ -107,7 +110,7 @@ class Query(orm.Query):
 
     def map(self, function, *iterable_args):
         '''Call native `map` on `self.all()`'''
-        return map(function, self.all(), *iterable_args)
+        return list(map(function, self.all(), *iterable_args))
 
     def reduce(self, function, initial=None):
         '''Call native `reduce` on `self.all()`'''
@@ -138,7 +141,7 @@ class Query(orm.Query):
         items = self.page(page, per_page).all()
 
         if not items and page != 1 and error_out:
-           raise IndexError
+            raise IndexError
 
         # No need to count if we're on the first page and there are fewer items than we expected.
         if page == 1 and len(items) < per_page:
@@ -172,6 +175,7 @@ class Query(orm.Query):
             query = query.offset(offset)
 
         return query
+
 
 class Pagination(object):
     '''
@@ -215,9 +219,11 @@ class Pagination(object):
         assert self.query is not None, 'a query object is required for this method to work'
         return self.query.paginate(self.page + 1, self.per_page, error_out)
 
+
 def get_load_options(*columns):
     '''
-    Attempt to extract a sqlalchemy object from `columns[0]` and return remaining columns to apply to a query load method
+    Attempt to extract a sqlalchemy object from `columns[0]`
+    and return remaining columns to apply to a query load method.
     '''
     model_inspect = inspect(columns[0], raiseerr=False)
 
@@ -232,4 +238,3 @@ def get_load_options(*columns):
         obj = orm
 
     return (obj, columns)
-

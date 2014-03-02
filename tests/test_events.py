@@ -4,10 +4,11 @@ from sqlalchemy import orm, Column, types, ForeignKey
 
 from alchy import model, query, manager, events
 
-from .base import TestQueryBase
+from tests.base import TestQueryBase
 
 
 Model = model.make_declarative_base()
+
 
 class TestEventsBase(TestQueryBase):
     @classmethod
@@ -19,6 +20,7 @@ class TestEventsBase(TestQueryBase):
 
     def tearDown(self):
         self.db.drop_all()
+
 
 class TestEvents(TestEventsBase):
     '''Test Model events'''
@@ -154,6 +156,7 @@ class TestEvents(TestEventsBase):
         d.hueys.remove(d.hueys[0])
         self.assertFalse(d.min_hueys)
 
+
 class TestInstanceEvents(TestEventsBase):
     class Louie(Model):
         event_tracker = {}
@@ -172,7 +175,6 @@ class TestInstanceEvents(TestEventsBase):
         @events.refresh
         def on_refresh(target, context, attrs):
             target.event_tracker['refresh'] = True
-
 
     def tearDown(self):
         super(TestInstanceEvents, self).tearDown()
