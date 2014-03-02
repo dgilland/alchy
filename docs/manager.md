@@ -1,31 +1,31 @@
-## Manager
+# Manager
 
 TODO
 
-### Methods
+## Methods
 
-#### \_\_init\_\_()
+### \_\_init\_\_()
 
-#### init_engine()
+### init_engine()
 
-#### init_session()
+### init_session()
 
-#### create_all()
+### create_all()
 
-#### drop_all()
+### drop_all()
 
-#### add()
+### add()
 
-#### add_commit()
+### add_commit()
 
-#### delete()
+### delete()
 
-#### delete_commit()
+### delete_commit()
 
-#### __getattr__
+### \_\_getattr\_\_
 
-### Properties
+## Properties
 
-#### metadata
+### metadata
 
-#### engine
+### engine

@@ -1,49 +1,49 @@
-## Query
+# Query
 
 TODO
 
-### Methods
+## Methods
 
-#### map()
+### map()
 
-#### reduce()
+### reduce()
 
-#### reduce_right()
+### reduce_right()
 
-#### pluck()
+### pluck()
 
-#### page()
+### page()
 
-#### paginate()
+### paginate()
 
-#### advanced_search()
+### advanced_search()
 
-#### simple_search()
+### simple_search()
 
-#### search()
+### search()
 
-### Entity Load Methods
+## Entity Load Methods
 
-#### join_eager()
+### join_eager()
 
-#### outerjoin_eager()
+### outerjoin_eager()
 
-#### joinedload()
+### joinedload()
 
-#### immediateload()
+### immediateload()
 
-#### lazyload()
+### lazyload()
 
-#### noload()
+### noload()
 
-#### subqueryload()
+### subqueryload()
 
-### Column Load Methods
+## Column Load Methods
 
-#### load_only()
+### load_only()
 
-#### defer()
+### defer()
 
-#### undefer()
+### undefer()
 
-#### undefer_group()
+### undefer_group()
