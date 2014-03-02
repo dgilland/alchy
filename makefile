@@ -35,12 +35,12 @@ clean:
 	rm -rf .tox
 	find . -name \*.pyc -type f -delete
 	find . -name __pycache__ -exec rm -rf {} \;
-	rm -rf dist *.egg*
+	rm -rf dist *.egg* build
 
 release:
 	$(ENV_ACT) python setup.py sdist bdist_wheel
 	$(ENV_ACT) twine upload dist/*
-	rm -rf dist *.egg*
+	rm -rf dist *.egg* build
 
 ##
 # TravisCI
