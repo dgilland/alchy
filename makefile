@@ -1,4 +1,4 @@
-.PHONY: build test testall clean release travisci-install travisci-test
+.PHONY: build test testall docs preview-docs clean release travisci-install travisci-test
 
 ##
 # Variables
@@ -29,6 +29,12 @@ test:
 testall:
 	rm -rf .tox
 	$(ENV_ACT) tox
+
+docs:
+	$(ENV_ACT) mkdocs build
+
+preview-docs:
+	$(ENV_ACT) mkdocs serve
 
 clean:
 	rm -rf $(ENV_NAME)
