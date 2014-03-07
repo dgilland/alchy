@@ -171,7 +171,7 @@ Model.get_by(first='foo', last='bar')
 
 ### advanced_search()
 
-Map the given search dict to the field/functions defined in [Model.__advanced_search__](#9595advanced_search9595) and AND together returning a query filter.
+Map the given search dict to the field/functions defined in [Model.\_\_advanced_search\_\_](#9595advanced_search9595) and AND together returning a query filter.
 
 ```python
 Model.advanced_search(search_dict)
@@ -181,7 +181,7 @@ model.advanced_search({'field1': 'search1', 'field2': 'search2'})
 
 ### simple_search()
 
-Pass the given search string to each function in [Model.__simple_search__](#9595simple_search9595) and AND together returning a query filter.
+Pass the given search string to each function in [Model.\_\_simple_search\_\_](#9595simple_search9595) and AND together returning a query filter.
 
 ```python
 Model.simple_search(search_string)
