@@ -32,7 +32,7 @@ class TestEvents(TestEventsBase):
         __events__ = {
             'before_insert': 'before_insert',
             'after_insert': ['after_insert1', 'after_insert2', ('after_insert3', {'raw': True})],
-            'set': [('on_set_name', {'attribute': 'name'})]
+            'on_set': [('on_set_name', {'attribute': 'name'})]
         }
 
         _id = Column(types.Integer(), primary_key=True)
@@ -71,7 +71,7 @@ class TestEvents(TestEventsBase):
         def before_insert(mapper, connection, target):
             target.name = 'Dewey'
 
-        @events.set_('name', retval=True)
+        @events.on_set('name', retval=True)
         def on_set_name(target, value, oldvalue, initator):
             if oldvalue is None or (hasattr(oldvalue, '__class__') and oldvalue.__class__.__name__ == 'symbol'):
                 # oldvalue is a symbol for either NO_VALUE or NOT_SET so allow update
@@ -80,12 +80,12 @@ class TestEvents(TestEventsBase):
                 # value previously set, so prevent edit
                 return oldvalue
 
-        @events.append('hueys')
+        @events.on_append('hueys')
         def on_append_hueys(target, value, intiator):
             if len(target.hueys) >= 1:
                 target.min_hueys = True
 
-        @events.remove('hueys')
+        @events.on_remove('hueys')
         def on_remove_hueys(target, value, initator):
             if not len(target.hueys) >= 1:
                 target.min_hueys = False
@@ -164,15 +164,15 @@ class TestInstanceEvents(TestEventsBase):
         _id = Column(types.Integer(), primary_key=True)
         name = Column(types.String())
 
-        @events.expire
+        @events.on_expire
         def on_expire(target, attrs):
             target.event_tracker['expire'] = True
 
-        @events.load
+        @events.on_load
         def on_load(target, context):
             target.event_tracker['load'] = True
 
-        @events.refresh
+        @events.on_refresh
         def on_refresh(target, context, attrs):
             target.event_tracker['refresh'] = True
 

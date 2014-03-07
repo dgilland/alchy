@@ -1,3 +1,7 @@
+## vX.X.X (XXXX-XX-XX)
+
+- Prefix event decorators which did not start with `before_` or `after_` with `on_`. Specifically, `on_set`, `on_append`, `on_remove`, `on_append_result`, `on_create_instance`, `on_instrument_class`, `on_mapper_configured`, `on_populate_instance`, `on_translate_row`, `on_expire`, `on_load`, and `on_refresh`.
+
 ## v0.5.0 (2014-03-02)
 
 - Add `ModelBase.primary_key` class property for retrieving primary key(s).

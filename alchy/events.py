@@ -9,6 +9,8 @@ Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 
 
 def register(cls, dct):
+    '''Register events defined on a class during metaclass creation.'''
+
     events = []
 
     # append class attribute defined events
@@ -44,7 +46,9 @@ def register(cls, dct):
         events_dict = {}
         for event in events:
             obj = cls if event.attribute is None else getattr(cls, event.attribute)
-            sqlalchemy.event.listen(obj, event.name, event.listener, **event.kargs)
+            event_name = event.name.replace('on_', '', 1) if event.name.startswith('on_') else event.name
+
+            sqlalchemy.event.listen(obj, event_name, event.listener, **event.kargs)
             events_dict.setdefault(event.name, []).append(event)
 
         dct['__events__'].update(events_dict)
@@ -97,9 +101,9 @@ def make_event(event_names):
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
 ##
 
-set_ = make_attribute_event('set')
-append = make_attribute_event('append')
-remove = make_attribute_event('remove')
+on_set = make_attribute_event('set')
+on_append = make_attribute_event('append')
+on_remove = make_attribute_event('remove')
 
 ##
 # Mapper Events
@@ -116,40 +120,40 @@ after_insert = make_event('after_insert')
 after_update = make_event('after_update')
 after_insert_update = make_event(['after_insert', 'after_update'])
 
-append_result = make_event('append_result')
-create_instance = make_event('create_instance')
-instrument_class = make_event('instrument_class')
+on_append_result = make_event('append_result')
+on_create_instance = make_event('create_instance')
+on_instrument_class = make_event('instrument_class')
 before_configured = make_event('before_configured')
 after_configured = make_event('after_configured')
-mapper_configured = make_event('mapper_configured')
-populate_instance = make_event('populate_instance')
-translate_row = make_event('translate_row')
+on_mapper_configured = make_event('mapper_configured')
+on_populate_instance = make_event('populate_instance')
+on_translate_row = make_event('translate_row')
 
 ##
 # Instance Events
 # http://docs.sqlalchemy.org/en/latest/orm/events.html#instance-events
 ##
 
-expire = make_event('expire')
-load = make_event('load')
-refresh = make_event('refresh')
+on_expire = make_event('expire')
+on_load = make_event('load')
+on_refresh = make_event('refresh')
 
 # The following events work as intended, but they don't seem like
-# likely candidates for supporting their definition on the model class.
+# candidates for supporting their definition on the model class.
 
 # @why: Having an on-some-init event defined on the model class
 # seems inefficient since whatever logic they contain should be
 # handled in model.__init__() anyway.
-#first_init = make_event('first_init')
-#init = make_event('init')
-#init_failure = make_event('init_failure')
+#on_first_init = make_event('first_init')
+#on_init = make_event('init')
+#on_init_failure = make_event('init_failure')
 
 # @why: Again model class would already define pickle support
 # so logic should be contained there and not in a separate event handler.
-#pickle = make_event('pickle')
-#unpickle = make_event('unpickle')
+#on_pickle = make_event('pickle')
+#on_unpickle = make_event('unpickle')
 
 # @why: Well, not really sure how to actually trigger this event
 # so don't want to support it if it doesn't have a test.
 # If someone really wants this event, then it can be enabled.
-#resurrect = make_event('resurrect')
+#on_resurrect = make_event('resurrect')
