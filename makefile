@@ -1,4 +1,4 @@
-.PHONY: build test testall docs preview-docs clean release travisci-install travisci-test
+.PHONY: build clean install test docs preview-docs test-release release travisci-install travisci-test
 
 ##
 # Variables
@@ -18,6 +18,13 @@ COVERAGE_TARGET = alchy
 
 build: clean install
 
+clean:
+	rm -rf $(ENV_NAME)
+	rm -rf .tox
+	find . -name \*.pyc -type f -delete
+	find . -depth -name __pycache__ -type d -exec rm -rf {} \;
+	rm -rf dist *.egg* build
+
 install:
 	rm -rf $(ENV_NAME)
 	virtualenv $(ENV_NAME) --python=python2.7
@@ -26,22 +33,15 @@ install:
 test:
 	$(ENV_ACT) py.test $(PYTEST_ARGS) $(COVERAGE_ARGS) $(COVERAGE_TARGET) $(PYTEST_TARGET)
 
-testall:
-	rm -rf .tox
-	$(ENV_ACT) tox
-
 docs:
 	$(ENV_ACT) mkdocs build
 
 preview-docs:
 	$(ENV_ACT) mkdocs serve
 
-clean:
-	rm -rf $(ENV_NAME)
+test-release:
 	rm -rf .tox
-	find . -name \*.pyc -type f -delete
-	find . -name __pycache__ -exec rm -rf {} \;
-	rm -rf dist *.egg* build
+	$(ENV_ACT) tox
 
 release:
 	$(ENV_ACT) python setup.py sdist bdist_wheel
