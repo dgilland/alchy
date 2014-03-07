@@ -182,7 +182,7 @@ Model1.query.join(Model2).search('foo bar', {'model1': 'foo', 'model2': 'bar']})
 
 ## Entity Load Methods
 
-The following methods curry functional loading methods onto the query object to make it easier to apply various join methods with query options.
+The following methods curry functional loading methods onto the query object to make it easier to apply various join methods with query options. For more details on SQLAlchemy's Loader API see [Relationship Loading Techniques](http://docs.sqlalchemy.org/en/latest/orm/loading.html).
 
 ### join_eager()
 
