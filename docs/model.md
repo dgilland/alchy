@@ -2,6 +2,26 @@
 
 The base class used when creating the declarative base.
 
+Can be used to easily create your own declarative base without having to use a `Manager` instance:
+
+```python
+# in project/core.py
+from alchy import ModelBase, make_declarative_base
+
+class Base(ModelBase):
+    # augument the ModelBase with super powers
+
+Model = make_declarative_base(Base=Base)
+```
+
+```python
+# in project/models/user.py
+from project.core import Model
+
+class User(Model):
+    # define declarative User model
+```
+
 ## Instance Methods
 
 ### \_\_init\_\_()
