@@ -39,44 +39,22 @@ class Manager(ManagerBase):
     '''
     Manager for session
     '''
-    def __init__(self, Model=None, config=None, session=None, engine=None):
-        self.session = None
-
-        # declarative base class
+    def __init__(self, config, Model=None, engine_config_prefix=''):
         self.Model = model.make_declarative_base() if Model is None else Model
+        self.config = config
 
-        if config is None:
-            config = {}
+        engine_config = self.config['engine']
 
-        self.init_session(config=config.get('session'), session=session)
-        self.init_engine(config=config.get('engine'), engine=engine)
+        self.engine = engine_from_config(engine_config, prefix=engine_config_prefix)
 
-    def init_engine(self, config=None, engine=None, config_prefix=''):
-        '''
-        Initialize engine. Allow for lazy configuration after `__init__()`.
-        If both `config` and `engine` are supplied, then the config generated engine will take precedence.
-        New engine creation will also result in a new `session` object using `engine`.
-        '''
-        if config:
-            engine = engine_from_config(config, prefix=config_prefix)
+        session_config = self.config.get('session', {})
+        session_config['bind'] = self.engine
+        session_config.setdefault('autocommit', False)
+        session_config.setdefault('autoflush', True)
+        session_config.setdefault('query_cls', query.Query)
 
-        self.init_session(config={'bind': engine})
-
-    def init_session(self, config=None, session=None):
-        '''
-        Initialize session. Allow for lazy configuration after `__init__()`.
-        If both `config` and `session` are supplied, `config` will configure `session`.
-        '''
-        self.session = orm.scoped_session(orm.sessionmaker()) if self.session is None else session
-
-        if config is None:
-            config = {}
-
-        config.setdefault('autocommit', False)
-        config.setdefault('autoflush', True)
-        config.setdefault('query_cls', query.Query)
-
-        self.session.configure(**config)
+        self.session = orm.scoped_session(orm.sessionmaker())
+        self.session.configure(**session_config)
 
         if self.Model:
             model.extend_declarative_base(self.Model, self.session)
@@ -84,10 +62,6 @@ class Manager(ManagerBase):
     @property
     def metadata(self):
         return getattr(self.Model, 'metadata', None)
-
-    @property
-    def engine(self):
-        return self.session.get_bind()
 
     def create_all(self):
         '''

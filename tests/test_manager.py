@@ -24,49 +24,19 @@ class TestManager(TestBase):
 
         self.assertModelTablesNotExists(db.engine)
 
-    def test_lazy_engine_config(self):
-        db = manager.Manager(Model=fixtures.Model)
-
-        self.assertRaises(UnboundExecutionError, db.create_all)
-
-        db.init_engine(self.config['engine'])
-
-        db.create_all()
-
-        self.assertModelTablesExist(db.engine)
-
-        db.drop_all()
-
-    def test_lazy_session_config(self):
-        db = manager.Manager(Model=fixtures.Model)
-
-        self.assertRaises(UnboundExecutionError, db.create_all)
-
-        engine = create_engine(self.config['engine']['url'])
-
-        db.init_session({'bind': engine})
-
-        self.assertIs(db.engine, engine)
-
-        db.create_all()
-
-        self.assertModelTablesExist(db.engine)
-
-        db.drop_all()
-
     def test_default_model_config(self):
-        db = manager.Manager()
+        db = manager.Manager(config=self.config)
 
         self.assertTrue(issubclass(db.Model, model.ModelBase))
 
     def test_create_all_exception(self):
         # pass in dummy value for Model
-        db = manager.Manager(Model=False)
+        db = manager.Manager(Model=False, config=self.config)
         self.assertRaises(UnmappedError, db.create_all)
 
     def test_drop_all_exception(self):
         # pass in dummy value for Model
-        db = manager.Manager(Model=False)
+        db = manager.Manager(Model=False, config=self.config)
         self.assertRaises(UnmappedError, db.drop_all)
 
 
