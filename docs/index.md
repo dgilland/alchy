@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/dgilland/alchy/badge.png?branch=master)](https://coveralls.io/r/dgilland/alchy)
 [![License](https://pypip.in/license/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
 
-Enhancement library for SQLAlchemy
+The declarative companion to SQLAlchemy.
 
 ## Overview
 

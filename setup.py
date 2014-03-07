@@ -2,7 +2,7 @@
 alchy
 =====
 
-The SQLAlchemy enhancement library.
+The declarative companion to SQLAlchemy.
 
 Documentation: http://dgilland.github.io/alchy
 
