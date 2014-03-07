@@ -67,10 +67,7 @@ class Manager(ManagerBase):
         Initialize session. Allow for lazy configuration after `__init__()`.
         If both `config` and `session` are supplied, `config` will configure `session`.
         '''
-        self.session = session
-
-        if self.session is None:
-            self.session = orm.scoped_session(orm.sessionmaker())
+        self.session = orm.scoped_session(orm.sessionmaker()) if self.session is None else session
 
         if config is None:
             config = {}
