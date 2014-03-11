@@ -1,4 +1,4 @@
-## vX.X.X (XXXX-XX-XX)
+## v0.6.0 (2014-03-10)
 
 - Prefix event decorators which did not start with `before_` or `after_` with `on_`. Specifically, `on_set`, `on_append`, `on_remove`, `on_append_result`, `on_create_instance`, `on_instrument_class`, `on_mapper_configured`, `on_populate_instance`, `on_translate_row`, `on_expire`, `on_load`, and `on_refresh`. **breaking change**
 - Remove lazy engine/session initialization in `Manager`. Require that `Model` and `config` be passed in at init time. While this removes some functionality, it's done to simplify the `Manager` code so that it's more straightforward. If lazy initialization is needed, then a proxy class should be used. **breaking change**
