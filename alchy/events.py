@@ -46,12 +46,12 @@ def register(cls, dct):
     if events:
         # reassemble events dict into consistent form using Event objects as values
         events_dict = {}
-        for event in events:
-            obj = cls if event.attribute is None else getattr(cls, event.attribute)
-            event_name = event.name.replace('on_', '', 1) if event.name.startswith('on_') else event.name
+        for evt in events:
+            obj = cls if evt.attribute is None else getattr(cls, evt.attribute)
+            event_name = evt.name.replace('on_', '', 1) if evt.name.startswith('on_') else evt.name
 
-            sqlalchemy.event.listen(obj, event_name, event.listener, **event.kargs)
-            events_dict.setdefault(event.name, []).append(event)
+            sqlalchemy.event.listen(obj, event_name, evt.listener, **evt.kargs)
+            events_dict.setdefault(evt.name, []).append(evt)
 
         dct['__events__'].update(events_dict)
 
