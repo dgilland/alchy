@@ -1,10 +1,10 @@
+'''Query subclass used by Manager as default session query class.
+'''
 
 from math import ceil
 
 from sqlalchemy import orm, and_, or_, inspect
 from sqlalchemy.orm.strategy_options import Load
-
-from six.moves import reduce, map
 
 
 class Query(orm.Query):
@@ -111,17 +111,25 @@ class Query(orm.Query):
         obj, names = get_load_options(*names)
         return self.options(obj.undefer_group(names[0]))
 
-    def map(self, function, *iterable_args):
+    def map(self, func):
         '''Call native `map` on `self.all()`'''
-        return list(map(function, self.all(), *iterable_args))
+        return [func(item) for item in self.all()]
 
-    def reduce(self, function, initial=None):
-        '''Call native `reduce` on `self.all()`'''
-        return reduce(function, self.all(), initial)
+    def reduce(self, func, initial=None, reverse=False):
+        '''Reduce `self.all()` using `func`'''
+        items = self.all()
 
-    def reduce_right(self, function, initial=None):
-        '''Call native `reduce` on reversed `self.all()`'''
-        return reduce(function, reversed(self.all()), initial)
+        if reverse:
+            items = reversed(items)
+
+        result = initial
+        for item in items:
+            result = func(result, item)
+        return result
+
+    def reduce_right(self, func, initial=None):
+        '''Reduce reversed `self.all()` using `func`'''
+        return self.reduce(func, initial=initial, reverse=True)
 
     def pluck(self, column):
         '''Pluck `column` attribute values from `self.all()` results and return as list'''
