@@ -1,7 +1,7 @@
 '''Declarative ORM event decorators and event registration.
 '''
 
-from functools import wraps, partial
+from functools import partial
 from collections import namedtuple
 
 import sqlalchemy
@@ -61,19 +61,22 @@ def register(cls, dct):
 ####
 
 
-def event(event_names, attribute=None, f=None, **event_kargs):
-    '''
-    Generic event decorator maker which attaches metadata to function object
+def event(event_names, attribute=None, no_args_func=None, **event_kargs):
+    '''Generic event decorator maker which attaches metadata to function object
     so that `register()` can find the event definition.
     '''
-    if callable(f):
+    if callable(no_args_func):
         # being called as a decorator with no arguments
-        return event(event_names)(f)
+        return event(event_names)(no_args_func)
 
-    def decorator(f):
-        if not hasattr(f, '__event__'):
+    def decorator(func):
+        '''Function decorator that attaches an `__event__` attribute hook which is
+        expected when registering a method as an event handler. See `register()` in
+        this module for details on how this is implemented.
+        '''
+        if not hasattr(func, '__event__'):
             # set initial value to list so a function can handle multiple events
-            f.__event__ = []
+            func.__event__ = []
 
         # @note: have to assign to a separately variable name due to global name access issues
         if not isinstance(event_names, (list, tuple)):
@@ -82,10 +85,10 @@ def event(event_names, attribute=None, f=None, **event_kargs):
             _event_names = event_names
 
         # Attach event object to function which will be picked up in `register()`.
-        f.__event__ += [Event(event_name, attribute, f, event_kargs) for event_name in _event_names]
+        func.__event__ += [Event(event_name, attribute, func, event_kargs) for event_name in _event_names]
 
         # Return function as-is since method definition should be compatible with sqlalchemy.event.listen().
-        return f
+        return func
     return decorator
 
 
