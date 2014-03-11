@@ -134,7 +134,7 @@ Fetch model and operate.
 db.add_commit(User(name='Wilma', email='wilma@example.com'))
 
 # fetch from database
-user = User.get(user._id)
+user = User.get(user1._id)
 
 # convert to dict
 user_dict = user.to_dict()
@@ -169,7 +169,13 @@ Query records from the database.
 
 ```python
 # add some more users
-db.add_commit(User(), User(), User(), User(), User())
+db.add_commit(
+    User(items=[UserItem()]),
+    User(items=[UserItem()]),
+    User(items=[UserItem()]),
+    User(items=[UserItem()]),
+    User(items=[UserItem()])
+)
 
 # there are several syntax options for querying records
 
@@ -202,7 +208,7 @@ page2.query == q.limit(2).offset((2-1) * 2)
 page2.page == 2
 page2.per_page == 2
 page2.total == User.query.count()
-page2.itmes == q.limit(2).offset((2-1) * 2).all()
+page2.items == q.limit(2).offset((2-1) * 2).all()
 page2.prev_num == 1
 page2.has_prev == True
 page2.next_num == 3
@@ -214,12 +220,12 @@ page_3 = page2.next()
 q.search('example.com', {'user_name': 'fred', 'item_name': 'shoes'}).all()
 
 # entity loading
-User.query.join_eager(UserItem)
-User.query.joinedload(UserItem)
-User.query.lazyload(UserItem)
-User.query.immediateload(UserItem)
-User.query.noload(UserItem)
-User.query.subqueryload(UserItem)
+User.query.join_eager(User.items)
+User.query.joinedload(User.items)
+User.query.lazyload(User.items)
+User.query.immediateload(User.items)
+User.query.noload(User.items)
+User.query.subqueryload(User.items)
 
 # column loading
 User.query.load_only('_id', 'name')
