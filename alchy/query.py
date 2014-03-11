@@ -191,9 +191,11 @@ class Query(orm.Query):
 
         return query
 
+
 ##
 # Pagination class and usage adapated from Flask-SQLAlchemy: https://github.com/mitsuhiko/flask-sqlalchemy
 ##
+
 
 class Pagination(object):
     '''

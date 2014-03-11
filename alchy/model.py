@@ -8,6 +8,7 @@ from alchy import query, events
 from alchy.utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
 from alchy._compat import iteritems
 
+
 class ModelMeta(DeclarativeMeta):
     '''ModelBase's metaclass which provides:
 
