@@ -5,7 +5,7 @@ import re
 
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
 
-import six
+from alchy._compat import with_metaclass
 
 
 ##
@@ -49,7 +49,7 @@ class EnumMeta(type):
             if isinstance(v, tuple):
                 sym = reg[v[0]] = EnumSymbol(cls, k, *v)
                 setattr(cls, k, sym)
-        return type.__init__(cls, classname, bases, dict_)
+        type.__init__(cls, classname, bases, dict_)
 
     def __iter__(cls):
         return iter(cls._reg.values())
@@ -82,8 +82,7 @@ class DeclarativeEnumType(SchemaType, TypeDecorator):
         return self.enum.from_string(value.strip())
 
 
-@six.add_metaclass(EnumMeta)
-class DeclarativeEnum(object):
+class DeclarativeEnum(with_metaclass(EnumMeta, object)):
     '''Declarative enumeration.'''
 
     _reg = {}

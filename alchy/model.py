@@ -1,17 +1,12 @@
 '''Declarative base class/factory and query property support.
 '''
 
-import functools
-from collections import namedtuple
-
-import sqlalchemy
 from sqlalchemy import inspect, orm, and_, or_
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
-import six
 
 from alchy import query, events
 from alchy.utils import classproperty, is_sequence, has_primary_key, camelcase_to_underscore
-
+from alchy._compat import iteritems
 
 class ModelMeta(DeclarativeMeta):
     '''ModelBase's metaclass which provides:
@@ -80,7 +75,7 @@ class ModelBase(object):
         updatable_fields = self.strict_update_fields if strict else data.keys()
         relationships = self.relationships
 
-        for field, value in six.iteritems(data):
+        for field, value in iteritems(data):
             if hasattr(self, field) and field in updatable_fields:
                 # consider v a dict if any of its elements are a dict
                 if is_sequence(value):
@@ -117,7 +112,7 @@ class ModelBase(object):
         data = {}
         descriptors = self.descriptors
 
-        for field, value in six.iteritems(self.__dict__):
+        for field, value in iteritems(self.__dict__):
             if field not in descriptors:
                 # skip non-descriptors
                 continue
@@ -140,7 +135,7 @@ class ModelBase(object):
 
     def __iter__(self):
         '''Implement __iter__ so model can be converted to dict via dict(model)'''
-        return six.iteritems(self.to_dict())
+        return iteritems(self.to_dict())
 
     @property
     def strict_update_fields(self):
@@ -161,7 +156,7 @@ class ModelBase(object):
         '''
         filters = []
 
-        for key, filter_fn in [(k, v) for k, v in six.iteritems(filter_fns) if k in search_dict]:
+        for key, filter_fn in [(k, v) for k, v in iteritems(filter_fns) if k in search_dict]:
             filters.append(filter_fn(search_dict[key]))
 
         return filters

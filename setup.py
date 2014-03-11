@@ -22,8 +22,7 @@ setup(
     long_description=__doc__,
     packages=['alchy'],
     install_requires=[
-        'SQLAlchemy>=0.9.0',
-        'six'
+        'SQLAlchemy>=0.9.0'
     ],
     test_suite='tests',
     keywords='sqlalchemy databases',

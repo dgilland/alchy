@@ -5,7 +5,8 @@ import re
 from collections import Iterable
 
 from sqlalchemy import Column
-import six
+
+from alchy._compat import string_types, iteritems
 
 
 class classproperty(object):
