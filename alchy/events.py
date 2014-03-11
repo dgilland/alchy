@@ -5,7 +5,8 @@ from functools import partial
 from collections import namedtuple
 
 import sqlalchemy
-import six
+
+from alchy._compat import iteritems
 
 Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 
@@ -19,7 +20,7 @@ def register(cls, dct):
     if dct.get('__events__'):
         # events defined on __events__ can have many forms (e.g. string based, list of tuples, etc)
         # so we need to iterate over them and parse into standardized Event object
-        for event_name, listeners in six.iteritems(dct['__events__']):
+        for event_name, listeners in iteritems(dct['__events__']):
             if not isinstance(listeners, list):
                 listeners = [listeners]
 

@@ -99,12 +99,18 @@ class Query(orm.Query):
     def defer(self, *columns):
         '''Apply `defer()` to query'''
         obj, columns = get_load_options(*columns)
-        return self.options(reduce(lambda result, i: result.defer(i), columns, obj))
+        opts = obj
+        for column in columns:
+            opts = opts.defer(column)
+        return self.options(opts)
 
     def undefer(self, *columns):
         '''Apply `undefer()` to query'''
         obj, columns = get_load_options(*columns)
-        return self.options(reduce(lambda result, i: result.undefer(i), columns, obj))
+        opts = obj
+        for column in columns:
+            opts = opts.undefer(column)
+        return self.options(opts)
 
     def undefer_group(self, *names):
         '''Apply `undefer_group()` to query'''

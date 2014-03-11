@@ -1,9 +1,8 @@
 
 from unittest import TestCase
 
-import six
-
 from alchy import manager
+from alchy._compat import iteritems
 
 from tests import fixtures
 
@@ -114,7 +113,7 @@ class TestQueryBase(TestBase):
     def setUp(self):
         self.db.create_all()
 
-        for model_name, Model in six.iteritems(self.models_dict):
+        for model_name, Model in iteritems(self.models_dict):
             records = fixtures.data.get(model_name, [])
             for r in records:
                 self.db.session.add(Model(**r))
