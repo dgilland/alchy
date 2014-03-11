@@ -1,3 +1,9 @@
+## v0.7.0 (XXXX-XX-XX)
+
+- Rename `alchy.ManagerBase` to `alchy.ManagerMixin`. **breaking change**
+- Add `pylint` support.
+- Remove dependency on `six`.
+
 ## v0.6.0 (2014-03-10)
 
 - Prefix event decorators which did not start with `before_` or `after_` with `on_`. Specifically, `on_set`, `on_append`, `on_remove`, `on_append_result`, `on_create_instance`, `on_instrument_class`, `on_mapper_configured`, `on_populate_instance`, `on_translate_row`, `on_expire`, `on_load`, and `on_refresh`. **breaking change**
