@@ -75,7 +75,7 @@ class UserItem(db.Model):
     #__tablename__ = 'user_item'
 
     _id = Column(types.Integer(), primary_key=True)
-    user_id = Column(types.Integer(), ForeignKey('users._id'))
+    user_id = Column(types.Integer(), ForeignKey('user._id'))
     name = Column(types.String())
 
     user = orm.relationship('User')
