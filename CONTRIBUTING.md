@@ -77,6 +77,22 @@ Run unittest and linting for all supported Python versions. **NOTE:** This will 
 make test-full
 ```
 
+### make lint
+
+Run `make pylint` and `make pep8` commands.
+
+```
+make lint
+```
+
+### make pylint
+
+Run `pylint` compliance check on code base.
+
+```python
+make pylint
+```
+
 ### make pep8
 
 Run [PEP8][] compliance check on code base.

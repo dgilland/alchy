@@ -43,10 +43,12 @@ test-full:
 
 
 # linting
+lint: pylint pep8
+
 pep8:
 	$(ENV_ACT) tox -e pep8
 
-lint:
+pylint:
 	$(ENV_ACT) pylint $(COVERAGE_TARGET)
 
 
