@@ -80,25 +80,28 @@ class ModelBase(object):
         updatable_fields = self.strict_update_fields if strict else data.keys()
         relationships = self.relationships
 
-        for k, v in six.iteritems(data):
-            if hasattr(self, k) and k in updatable_fields:
+        for field, value in six.iteritems(data):
+            if hasattr(self, field) and field in updatable_fields:
                 # consider v a dict if any of its elements are a dict
-                v_is_dict = any([isinstance(_v, dict) for _v in v]) if is_sequence(v) else isinstance(v, dict)
-
-                attr = getattr(self, k)
-
-                if hasattr(attr, 'update') and v_is_dict:
-                    # nest calls to attr.update if available and input is a data dict
-                    attr.update(v)
+                if is_sequence(value):
+                    is_dict = any([isinstance(val, dict) for val in value])
                 else:
-                    if k in relationships and v_is_dict and not v:
+                    is_dict = isinstance(value, dict)
+
+                attr = getattr(self, field)
+
+                if hasattr(attr, 'update') and is_dict:
+                    # nest calls to attr.update if available and input is a data dict
+                    attr.update(value)
+                else:
+                    if field in relationships and is_dict and not value:
                         # typically, if v is {}, then we're usually updating a relationship attribute
                         # where the relationship has an empty/null value in the database
                         # (e.g. a frontend sends missing relationship attribute as {})
                         # but if we set a relationship attribute = {}, things blow up
                         # so instead, convert {} to None which is valid for standard relationship attribute
-                        v = None
-                    setattr(self, k, v)
+                        value = None
+                    setattr(self, field, value)
 
     def to_dict(self, refresh_on_empty=True):
         '''Return dict representation of model.
@@ -111,7 +114,7 @@ class ModelBase(object):
 
         However, with one exception: refresh if current __dict__ is empty.
         '''
-        d = {}
+        data = {}
         descriptors = self.descriptors
 
         for field, value in six.iteritems(self.__dict__):
@@ -124,16 +127,16 @@ class ModelBase(object):
             elif is_sequence(value):
                 value = [v.to_dict() if hasattr(v, 'to_dict') else v for v in value]
 
-            d[field] = value
+            data[field] = value
 
-        if not d and refresh_on_empty and self.session:
+        if not data and refresh_on_empty and self.session:
             # Model's __dict__ is empty but has a session associated with it.
             # Most likely the model was previously committed which resets the __dict__ state.
             # Refreshing from database will repopulate the model's __dict__.
             self.refresh()
-            d = self.to_dict(refresh_on_empty=False)
+            data = self.to_dict(refresh_on_empty=False)
 
-        return d
+        return data
 
     def __iter__(self):
         '''Implement __iter__ so model can be converted to dict via dict(model)'''
@@ -274,7 +277,7 @@ class ModelBase(object):
     @classproperty
     def descriptors(cls):
         '''Return all ORM descriptors'''
-        return [d for d in inspect(cls).all_orm_descriptors.keys() if not d.startswith('__')]
+        return [descr for descr in inspect(cls).all_orm_descriptors.keys() if not descr.startswith('__')]
 
     @classproperty
     def relationships(cls):
@@ -305,10 +308,10 @@ class QueryProperty(object):
             if not getattr(Model, 'query_class', None):
                 Model.query_class = query.Query
 
-            q = Model.query_class(mapper, session=self.session())
-            q.__model__ = Model
+            query_property = Model.query_class(mapper, session=self.session())
+            query_property.__model__ = Model
 
-            return q
+            return query_property
 
 
 def make_declarative_base(session=None, query_property=None, Model=None, Base=None):
