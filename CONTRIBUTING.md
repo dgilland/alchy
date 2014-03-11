@@ -95,9 +95,8 @@ make preview-docs
 
 ## Areas of Needed Improvement
 
-- Integrate `pylint` to help with code quality (will need a `pylintrc` file as the default options are too strict).
 - Better documentation of functions/modules. Many are missing docstrings. Existing docstrings could be improved. Additional code comments may be needed as well.
-- Improve code quality for readability (e.g. eliminate dense code statements like one-liners which do too much). Using `pylint` here can go a long way.
+- Improve code quality for readability (e.g. eliminate dense code statements like one-liners which do too much).
 - Improve testing infrastructure. While not terrible, the organzation could be improved.
 - More battle testing. Tests currently cover basic usage, but there may be more complex uses-cases that could draw out some edge-case bugs.
 - Potentially improve `Query` loading methods. The current implementation doesn't handle nested loading options which differ than the base loading method used. For example, emulating this `query.options(joinedload(Foo).lazyload(Bar))` is not supported while this `query.options(joinedload(Foo).joinedload(Bar))` is via `query.joinedload(Foo, Bar)`. Would be nice to have a way to drill down into the nested loading strategies without having to use `query.options`. However, if the solution introduces too much complexity for a feature that isn't used/needed often, then it may be best to not attempt to support it.
