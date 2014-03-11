@@ -9,8 +9,8 @@ from sqlalchemy.orm.exc import UnmappedError
 from alchy import query, model
 
 
-class ManagerBase(object):
-    '''Useful extensions to self.session'''
+class ManagerMixin(object):
+    '''Useful extensions to self.session.'''
 
     def add(self, *instances):
         '''Override `session.add()` so it can function like `session.add_all()` and support chaining.'''
@@ -39,10 +39,9 @@ class ManagerBase(object):
         self.delete(*instances).commit()
 
 
-class Manager(ManagerBase):
-    '''
-    Manager for session
-    '''
+class Manager(ManagerMixin):
+    '''Manager for session.'''
+
     def __init__(self, config, Model=None, engine_config_prefix=''):
         self.Model = model.make_declarative_base() if Model is None else Model
         self.config = config
