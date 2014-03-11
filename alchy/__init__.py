@@ -1,3 +1,7 @@
+'''Main package API entry point.
+
+Import core objects here.
+'''
 
 from .model import ModelBase, make_declarative_base
 from .query import Query

@@ -1,3 +1,5 @@
+'''Generic utility functions used in package.
+'''
 
 import re
 from collections import Iterable
@@ -7,10 +9,9 @@ import six
 
 
 class classproperty(object):
-    '''
-    Decorator that adds class properties.
-    Allows for usage like @property but applies the property at the class level.
-    Helps avoid having to use metaclasses or other complex techniques to achieve similar results.
+    '''Decorator that adds class properties. Allows for usage like @property but applies the
+    property at the class level. Helps avoid having to use metaclasses or other complex
+    techniques to achieve similar results.
     '''
     def __init__(self, getter):
         self.getter = getter
@@ -20,18 +21,22 @@ class classproperty(object):
 
 
 def is_sequence(obj):
-    '''Test if `obj` is an iterable but not dict or string'''
-    return isinstance(obj, Iterable) and not isinstance(obj, six.string_types) and not isinstance(obj, dict)
+    '''Test if `obj` is an iterable but not dict or string. Mainly used to determine if `obj` can
+    be treated like a list for iteration purposes.
+    '''
+    return isinstance(obj, Iterable) and not isinstance(obj, string_types) and not isinstance(obj, dict)
 
 
-def has_primary_key(obj):
-    return any(v.primary_key for k, v in six.iteritems(obj) if isinstance(v, Column))
+def has_primary_key(metadict):
+    '''Check if meta class' dict object has a primary key defined.'''
+    return any(column.primary_key for attr, column in iteritems(metadict) if isinstance(column, Column))
 
 
-first_cap_re = re.compile('(.)([A-Z][a-z]+)')
-all_cap_re = re.compile('([a-z0-9])([A-Z])')
+REGEX_FIRST_CAP = re.compile('(.)([A-Z][a-z]+)')
+REGEX_ALL_CAP = re.compile('([a-z0-9])([A-Z])')
 
 
-def camelcase_to_underscore(name):
-    s1 = first_cap_re.sub(r'\1_\2', name)
-    return all_cap_re.sub(r'\1_\2', s1).lower()
+def camelcase_to_underscore(string):
+    '''Convert string from CamelCase to under_score'''
+    first_cap = REGEX_FIRST_CAP.sub(r'\1_\2', string)
+    return REGEX_ALL_CAP.sub(r'\1_\2', first_cap).lower()

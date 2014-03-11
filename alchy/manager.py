@@ -1,3 +1,7 @@
+'''Manager class and mixin.
+
+Provides `Manager` class for interacting with a database session via SQLAlchemy's orm.scoped_session.
+'''
 
 from sqlalchemy import engine_from_config, orm
 from sqlalchemy.orm.exc import UnmappedError
@@ -9,7 +13,7 @@ class ManagerBase(object):
     '''Useful extensions to self.session'''
 
     def add(self, *instances):
-        '''Override `session.add()` so it can function like `session.add_all()` and support chaining'''
+        '''Override `session.add()` so it can function like `session.add_all()` and support chaining.'''
         for instance in instances:
             if isinstance(instance, list):
                 self.add(*instance)
@@ -18,11 +22,11 @@ class ManagerBase(object):
         return self.session
 
     def add_commit(self, *instances):
-        '''Add instances to session and commit in one call'''
+        '''Add instances to session and commit in one call.'''
         self.add(*instances).commit()
 
     def delete(self, *instances):
-        '''Override `session.delete()` so it can function like `session.add_all()` and support chaining'''
+        '''Override `session.delete()` so it can function like `session.add_all()` and support chaining.'''
         for instance in instances:
             if isinstance(instance, list):
                 self.delete(*instance)
@@ -31,7 +35,7 @@ class ManagerBase(object):
         return self.session
 
     def delete_commit(self, *instances):
-        '''Delete instances to session and commit in one call'''
+        '''Delete instances to session and commit in one call.'''
         self.delete(*instances).commit()
 
 
@@ -61,26 +65,21 @@ class Manager(ManagerBase):
 
     @property
     def metadata(self):
+        '''Return `Model`'s metadata object.'''
         return getattr(self.Model, 'metadata', None)
 
     def create_all(self):
-        '''
-        Creates database schema from models
-        '''
+        '''Create database schema from models.'''
         if self.metadata is None:
             raise UnmappedError('Missing declarative base model')
         self.metadata.create_all(bind=self.engine)
 
     def drop_all(self):
-        '''
-        Drops tables defined by models
-        '''
+        '''Drop tables defined by models.'''
         if self.metadata is None:
             raise UnmappedError('Missing declarative base model')
         self.metadata.drop_all(bind=self.engine)
 
     def __getattr__(self, attr):
-        '''
-        Delegate all other attributes to self.session
-        '''
+        '''Delegate all other attributes to self.session.'''
         return getattr(self.session, attr)

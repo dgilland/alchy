@@ -46,6 +46,9 @@ test-full:
 pep8:
 	$(ENV_ACT) tox -e pep8
 
+lint:
+	$(ENV_ACT) pylint $(COVERAGE_TARGET)
+
 
 # documentation
 docs:

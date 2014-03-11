@@ -1,3 +1,5 @@
+'''Declarative base class/factory and query property support.
+'''
 
 import functools
 from collections import namedtuple
@@ -12,7 +14,12 @@ from alchy.utils import classproperty, is_sequence, has_primary_key, camelcase_t
 
 
 class ModelMeta(DeclarativeMeta):
-    def __new__(cls, name, bases, dct):
+    '''ModelBase's metaclass which provides:
+
+        - Tablename autogeneration
+        - Declarative ORM events
+    '''
+    def __new__(mcs, name, bases, dct):
         # set __tablename__ (if not defined) to underscore version of class name
         if not dct.get('__tablename__') and not dct.get('__table__') is not None and has_primary_key(dct):
             dct['__tablename__'] = camelcase_to_underscore(name)
@@ -24,7 +31,7 @@ class ModelMeta(DeclarativeMeta):
         if not dct.get('__events__'):
             dct['__events__'] = {}
 
-        return DeclarativeMeta.__new__(cls, name, bases, dct)
+        return DeclarativeMeta.__new__(mcs, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
         super(ModelMeta, cls).__init__(name, bases, dct)
@@ -62,14 +69,11 @@ class ModelBase(object):
         self.update(*args, **kargs)
 
     def __repr__(self):  # pragma: no cover
-        '''Default representation of model'''
         values = ', '.join(['{0}={1}'.format(c, repr(getattr(self, c))) for c in self.columns])
         return '<{0}({1})>'.format(self.__class__.__name__, values)
 
     def update(self, data_dict=None, strict=False, **kargs):
-        '''
-        Update model with arbitrary set of data
-        '''
+        '''Update model with arbitrary set of data.'''
 
         data = data_dict if isinstance(data_dict, dict) else kargs
 
@@ -97,8 +101,7 @@ class ModelBase(object):
                     setattr(self, k, v)
 
     def to_dict(self, refresh_on_empty=True):
-        '''
-        Return dict representation of model.
+        '''Return dict representation of model.
 
         Drill down to any relationships and serialize those too.
 
@@ -138,11 +141,9 @@ class ModelBase(object):
 
     @property
     def strict_update_fields(self):
-        '''
-        Model fields which are allowed to be updated during strict mode
+        '''Model fields which are allowed to be updated during strict mode.
 
-        Default is to limit to table columns
-        Override as needed in child classes
+        Default is to limit to table columns. Override as needed in child class.
         '''
         return self.columns
 
@@ -152,6 +153,9 @@ class ModelBase(object):
 
     @classmethod
     def get_search(cls, search_dict, filter_fns):
+        '''Generic helper for applying a key-pairs from `search_dict` to key-pairs from `filter_fns`
+        where keys are equal.
+        '''
         filters = []
 
         for key, filter_fn in [(k, v) for k, v in six.iteritems(filter_fns) if k in search_dict]:
@@ -161,6 +165,9 @@ class ModelBase(object):
 
     @classmethod
     def advanced_search(cls, search_dict):
+        '''Return set of filters generated from passing each key-pair from `search_dict` to
+        the filter functions defined in `cls.__advanced_search__`.
+        '''
         filters = None
         if cls.__advanced_search__:
             _filters = cls.get_search(search_dict, cls.__advanced_search__)
@@ -172,6 +179,9 @@ class ModelBase(object):
 
     @classmethod
     def simple_search(cls, search_string):
+        '''Return set of filters generated from passing each space-delimited search term
+        from `search_string` to the filter functions defined in `cls.__simple_search__`.
+        '''
         filters = None
 
         if cls.__simple_search__:
@@ -208,21 +218,27 @@ class ModelBase(object):
         return orm.object_session(self)
 
     def flush(self, *args, **kargs):
+        '''Call `session.flush` on `self`'''
         self.session.flush([self], *args, **kargs)
 
     def save(self, *args, **kargs):
+        '''Call `session.add` on `self`'''
         self.session.add(self, *args, **kargs)
 
     def delete(self, *args, **kargs):
+        '''Call `session.delete` on `self`'''
         return self.session.delete(self, *args, **kargs)
 
     def expire(self, *args, **kargs):
+        '''Call `session.expire` on `self`'''
         self.session.expire(self, *args, **kargs)
 
     def refresh(self, *args, **kargs):
+        '''Call `session.refresh` on `self`'''
         self.session.refresh(self, *args, **kargs)
 
     def expunge(self, *args, **kargs):
+        '''Call `session.expunge` on `self`'''
         self.session.expunge(self, *args, **kargs)
 
     @classmethod
@@ -277,6 +293,9 @@ class ModelBase(object):
 
 
 class QueryProperty(object):
+    '''Query property accessor which gives a model access to query capabilities
+    via Model.query which is equivalent to session.query(Model)
+    '''
     def __init__(self, session):
         self.session = session
 
@@ -293,6 +312,9 @@ class QueryProperty(object):
 
 
 def make_declarative_base(session=None, query_property=None, Model=None, Base=None):
+    '''Factory function for either creating a new declarative base class or extending
+    a previously defined one.
+    '''
     if Model is None:
         Base = Base or ModelBase
         Model = declarative_base(cls=Base, constructor=Base.__init__, metaclass=ModelMeta)
@@ -302,6 +324,10 @@ def make_declarative_base(session=None, query_property=None, Model=None, Base=No
 
 
 def extend_declarative_base(Model, session=None, query_property=None):
+    '''Extend a declarative base class with additional properties.
+
+    - Extend `Model` with query property accessor
+    '''
     # attach query attribute to Model if `session` object passed in
     if session:
         Model.query = query_property(session) if query_property else QueryProperty(session)

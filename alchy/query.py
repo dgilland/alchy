@@ -8,6 +8,8 @@ from six.moves import reduce, map
 
 
 class Query(orm.Query):
+    '''Extension of default Query class used in SQLAlchemy session queries.
+    '''
 
     # when used as a query property (e.g. MyModel.query), then this is populated with the originating model
     __model__ = None
@@ -61,6 +63,7 @@ class Query(orm.Query):
         return self._join_eager(keys, True, **kargs)
 
     def _join_load(self, keys, load_type, **kargs):
+        '''Helper method for returning load strategies.'''
         opt = getattr(orm, load_type)(keys[0], **kargs)
 
         for k in keys[1:]:
@@ -132,6 +135,7 @@ class Query(orm.Query):
         return self.limit(per_page).offset((page - 1) * per_page)
 
     def paginate(self, page=1, per_page=None, error_out=True):
+        '''Return Pagination instance using already defined query parameters.'''
         if error_out and page < 1:
             raise IndexError
 
@@ -152,14 +156,17 @@ class Query(orm.Query):
         return Pagination(self, page, per_page, total, items)
 
     def advanced_search(self, search_dict):
+        '''Apply advanced search filters given `search_dict`.'''
         filters = [m for m in [model.advanced_search(search_dict) for model in self.all_entities] if m is not None]
         return self.filter(and_(*filters)) if filters else self
 
     def simple_search(self, search_string):
+        '''Apply simple search filters given `search_string`.'''
         filters = [m for m in [model.simple_search(search_string) for model in self.all_entities] if m is not None]
         return self.filter(or_(*filters)) if filters else self
 
     def search(self, search_string=None, search_dict=None, limit=None, offset=None):
+        '''Perform combination of simple/advanced searching with optional limit/offset support.'''
         query = self
 
         if search_string is not None:
@@ -176,13 +183,16 @@ class Query(orm.Query):
 
         return query
 
+##
+# Pagination class and usage adapated from Flask-SQLAlchemy: https://github.com/mitsuhiko/flask-sqlalchemy
+##
 
 class Pagination(object):
     '''
-    Internal helper class returned by :meth:`BaseQuery.paginate`.  You
+    Internal helper class returned by `BaseQuery.paginate`.  You
     can also construct it from any other SQLAlchemy query object if you are
     working with other libraries.  Additionally it is possible to pass `None`
-    as query object in which case the :meth:`prev` and :meth:`next` will
+    as query object in which case the `prev` and `next` will
     no longer work.
     '''
 
@@ -210,19 +220,18 @@ class Pagination(object):
         self.has_next = self.page < self.pages
 
     def prev(self, error_out=False):
-        '''Returns a :class:`Pagination` object for the previous page.'''
+        '''Returns a `Pagination` object for the previous page.'''
         assert self.query is not None, 'a query object is required for this method to work'
         return self.query.paginate(self.page - 1, self.per_page, error_out)
 
     def next(self, error_out=False):
-        '''Returns a :class:`Pagination` object for the next page.'''
+        '''Returns a `Pagination` object for the next page.'''
         assert self.query is not None, 'a query object is required for this method to work'
         return self.query.paginate(self.page + 1, self.per_page, error_out)
 
 
 def get_load_options(*columns):
-    '''
-    Attempt to extract a sqlalchemy object from `columns[0]`
+    '''Helper method that attempts to extract a sqlalchemy object from `columns[0]`
     and return remaining columns to apply to a query load method.
     '''
     model_inspect = inspect(columns[0], raiseerr=False)

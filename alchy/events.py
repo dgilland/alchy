@@ -1,3 +1,5 @@
+'''Declarative ORM event decorators and event registration.
+'''
 
 from functools import wraps, partial
 from collections import namedtuple
@@ -52,6 +54,7 @@ def register(cls, dct):
             events_dict.setdefault(event.name, []).append(event)
 
         dct['__events__'].update(events_dict)
+
 
 #####
 ## Event decorators

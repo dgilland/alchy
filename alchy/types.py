@@ -1,3 +1,5 @@
+'''Custom ORM column types.
+'''
 
 import re
 
@@ -8,7 +10,9 @@ import six
 
 ##
 # Declarative Enum type
+# adapted from the Enum Recipe: http://techspot.zzzeek.org/2011/01/14/the-enum-recipe/
 ##
+
 class EnumSymbol(object):
     '''Define a fixed symbol tied to a parent class.'''
 
@@ -32,6 +36,7 @@ class EnumSymbol(object):
         return self.name
 
     def to_dict(self):
+        '''Represent symbol as dict.'''
         return {'value': self.value, 'description': self.description}
 
 
@@ -51,6 +56,8 @@ class EnumMeta(type):
 
 
 class DeclarativeEnumType(SchemaType, TypeDecorator):
+    '''Column type usable in table column definitions.'''
+
     def __init__(self, enum):
         self.enum = enum
         self.impl = Enum(
@@ -82,16 +89,19 @@ class DeclarativeEnum(object):
     _reg = {}
 
     @classmethod
-    def from_string(cls, value):
+    def from_string(cls, string):
+        '''Get enum value from string'''
         try:
-            return cls._reg[value]
+            return cls._reg[string]
         except KeyError:
-            raise ValueError("Invalid value for %r: %r" % (cls.__name__, value))
+            raise ValueError("Invalid value for %r: %r" % (cls.__name__, string))
 
     @classmethod
     def values(cls):
+        '''Return enumeration values.'''
         return cls._reg.keys()
 
     @classmethod
     def db_type(cls):
+        '''Provide database column type for use in table column definitions.'''
         return DeclarativeEnumType(cls)
