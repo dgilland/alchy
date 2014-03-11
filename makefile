@@ -29,7 +29,7 @@ clean:
 
 install:
 	rm -rf $(ENV_NAME)
-	virtualenv $(ENV_NAME)
+	virtualenv --no-site-packages $(ENV_NAME)
 	$(PIP) install -r requirements.txt
 
 
