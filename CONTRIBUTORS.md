@@ -4,4 +4,4 @@ Thanks to the following individuals for contributions:
 
 And the author:
 
-- Derrick Gilland, https://github.com/dgilland
+- Derrick Gilland, dgilland@gmail.com, https://github.com/dgilland
