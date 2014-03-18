@@ -1,3 +1,7 @@
+## vx.x.x (xxxx-xx-xx)
+
+- For `ModelBase.update()` don't nest `update()` calls if field attribute is a `dict`.
+
 ## v0.7.0 (2014-03-13)
 
 - Rename `alchy.ManagerBase` to `alchy.ManagerMixin`. **breaking change**

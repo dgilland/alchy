@@ -86,8 +86,8 @@ class ModelBase(object):
 
                 attr = getattr(self, field)
 
-                if hasattr(attr, 'update') and is_dict:
-                    # nest calls to attr.update if available and input is a data dict
+                if hasattr(attr, 'update') and is_dict and not isinstance(attr, dict):
+                    # nest calls to attr.update
                     attr.update(value)
                 else:
                     if field in relationships and is_dict and not value:
