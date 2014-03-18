@@ -4,6 +4,7 @@
 
 - [Overview](#overview)
 - [Guidelines](#guidelines)
+- [Branching](#branching)
 - [Continuous Integration](#continuous-integration)
 - [Project CLI](#project-cli)
 - [Areas of Needed Improvement](#areas-of-needed-improvement)
@@ -16,7 +17,11 @@
 5. Add test cases if new functionality introduced or bug fixed (100% test coverage).
 6. Ensure tests pass.
 7. Add yourself to `CONTRIBUTORS.md`.
-8. Push to your fork and submit a pull request.
+8. Push to your fork and submit a pull request to the `develop` branch.
+
+## Branching
+
+There are two main development branches: `master` and `develop`. `master` represents the currently released version while `develop` is the latest development work. When submitting a pull request, be sure to submit to `develop`. The originating branch you submit from can be any name though.
 
 ## Guidelines
 
