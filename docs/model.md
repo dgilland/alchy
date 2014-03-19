@@ -256,6 +256,30 @@ Define event listeners on Model without using event decorators. For more details
 
 **NOTE:** The final value of `Model.__events__` will contain an aggregate of the events defined directly on `__events__` and the events defined via event decorators.
 
+```python
+class MyModel(Model):
+    __events__ = {
+        'before_insert': 'on_before_insert',
+        'before_update': 'on_before_update',
+        'on_set': [
+            ('on_set_name', {'attribute': 'name', 'retval': True}),
+            ('on_set_phone', {'attribute': 'phone'})
+        ]
+    }
+
+    def on_before_insert(mapper, connection, target):
+        pass
+
+    def on_before_update(mapper, connection, target):
+        pass
+
+    def on_set_name(target, value, oldvalue, iniator):
+        return value
+
+    def on_set_phone(target, value, oldvalue, iniator):
+        target.phone = oldvalue
+```
+
 ### \_\_advanced_search\_\_
 
 Enable [Model.advanced_search()](#advanced_search) by assigning a dict of functions that accept a value and return a query filter. The keys of the dict map the input keys of the search dict used in [Model.advanced_search()](#advanced_search).
