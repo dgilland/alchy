@@ -122,6 +122,31 @@ class MultiplePrimaryKey(Model):
     _id3 = Column(types.Integer(), primary_key=True)
 
 
+class A(Model):
+    _id = Column(types.Integer(), primary_key=True)
+    a_c = orm.relationship('AC', lazy=False)
+
+    @property
+    def c(self):
+        return dict([(a_c.key, a_c.c) for a_c in self.a_c])
+
+    @property
+    def __to_dict__(self):
+        return set(['_id', 'c'])
+
+
+class AC(Model):
+    a_id = Column(types.Integer(), ForeignKey('a._id'), primary_key=True)
+    c_id = Column(types.Integer(), ForeignKey('c._id'), primary_key=True)
+    key = Column(types.String())
+
+    c = orm.relationship('C', lazy=False)
+
+
+class C(Model):
+    _id = Column(types.Integer(), primary_key=True)
+
+
 Models = {
     'Foo': Foo,
     'Bar': Bar,

@@ -153,7 +153,7 @@ class TestModel(TestQueryBase):
         self.assertEqual(record.to_dict(), {})
 
         self.db.add_commit(record)
-        self.assertEqual(record.to_dict(refresh_on_empty=False), {})
+
         self.assertNotEqual(record.to_dict(), {})
 
     def test_dict_to_dict(self):
@@ -170,6 +170,24 @@ class TestModel(TestQueryBase):
         foo.bars.to_dict = bar_to_dict
         data = foo.to_dict()
         self.assertEqual(data['bars'], bar_to_dict())
+
+    def test_to_dict_with_field_as_dict(self):
+        a = fixtures.A(a_c=[
+            fixtures.AC(key='one', c=fixtures.C()),
+            fixtures.AC(key='two', c=fixtures.C())
+        ])
+
+        self.db.add_commit(a)
+
+        expected = {
+            '_id': 1,
+            'c': {
+                'one': {'_id': 1},
+                'two': {'_id': 2}
+            }
+        }
+
+        self.assertEqual(a.to_dict(), expected)
 
     def test_attrs(self):
         baz = Baz.get(1)
@@ -269,11 +287,11 @@ class TestModel(TestQueryBase):
         record.expire()
 
         # it's values are empty
-        self.assertEqual(record.to_dict(refresh_on_empty=False), {})
+        self.assertEqual(record.descriptor_dict, {})
 
         # it's values are reloaded on access
         self.assertEqual(record.number, new_number)
-        self.assertNotEquals(record.to_dict(refresh_on_empty=False), {})
+        self.assertNotEquals(record.descriptor_dict, {})
 
     def test_refresh(self):
         record = Foo.get(1)

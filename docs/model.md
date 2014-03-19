@@ -50,15 +50,15 @@ model.udpate(data_dict, strict=True)
 
 ### to_dict()
 
-Convert model instance to raw `dict`. Optionally, refresh instance if `dict` is empty using `refresh_on_empty=True`.
+Convert model instance to raw `dict`. The return from [Model.\_\_to_dict\_\_](#9595to_dict9595) is used for the `dict` keys.
 
 ```python
-ModelBase.to_dict(refresh_on_empty=True)
+ModelBase.to_dict()
 
 model.to_dict()
 ```
 
-This method fetches state from `model.__dict__` while filtering keys on valid model descriptors (i.e. internal state values such as `_sa*` are ignored). It is assumed that `__dict__` will contain all database values that should be serialize. Thus, any relationships that need to be serialize but are lazy loaded by default will need to be pre-loaded before calling `to_dict()`. The [Query](query.md) class provides first-class access to SQLAlchemy's Load API which can be useful in these situations.
+This method fetches state from `model.__dict__` while filtering keys on valid model descriptors (i.e. internal state keys such as `_sa*` are ignored). It is assumed that `__dict__` will contain all database values that should be serialize. Thus, any relationships that need to be serialize but are lazy loaded by default will need to be pre-loaded before calling `to_dict()`. The [Query](query.md) class provides first-class access to SQLAlchemy's Load API which can be useful in these situations.
 
 ### flush()
 
@@ -235,6 +235,20 @@ Return Model's columns as list of strings.
 ### query_class
 
 The query class to use when `Model.query` is accessed.
+
+### \_\_to_dict\_\_
+
+Configuration for `to_dict()`. Does any necessary preprocessing and returns a set of string attributes which represent the fields which should be returned when calling `to_dict()`.
+
+By default the model is refreshed if it's `__dict__` state is empty and only the ORM descriptor fields are returned.
+
+This is the property to override if you want to return more/less than the default ORM descriptor fields when calling `to_dict()`.
+
+Generally, we can usually rely on `self.__dict__` (minus any `_sa*` keys) as a representation of model when it's just been loaded from the database. When this is the case, whatever values are present in `__dict__` are the loaded values from the database which include/exclude lazy attributes (columns and relationships).
+
+However, this method falls short after a model has been committed to the databasee (or expired) in which case, `__dict__` will be empty. This can be worked around by calling `self.refresh()` which will reload the data from the database using the default loader strategies.
+
+These are the two main cases this default implementation will try to cover. For anything more complex it would be best to override this property or the `to_dict()` method itself.
 
 ### \_\_events\_\_
 

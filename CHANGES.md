@@ -1,6 +1,8 @@
 ## vx.x.x (xxxx-xx-xx)
 
 - For `ModelBase.update()` don't nest `update()` calls if field attribute is a `dict`.
+- Deprecated `refresh_on_empty` argument to `ModelBase.to_dict()` and instead implement `ModelBase.__to_dict__` configuration property as place to handle processing of model before casting to `dict`. **breaking change**
+- Add `ModelBase.__to_dict__` configuration property which handles preprocessing for model instance and returns a set of fields as strings to be used as dict keys when calling `to_dict()`.
 
 ## v0.7.0 (2014-03-13)
 

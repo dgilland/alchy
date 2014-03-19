@@ -91,46 +91,65 @@ class ModelBase(object):
                     attr.update(value)
                 else:
                     if field in relationships and is_dict and not value:
-                        # typically, if v is {}, then we're usually updating a relationship attribute
-                        # where the relationship has an empty/null value in the database
-                        # (e.g. a frontend sends missing relationship attribute as {})
-                        # but if we set a relationship attribute = {}, things blow up
-                        # so instead, convert {} to None which is valid for standard relationship attribute
+                        # If v is {} and we're trying to update a relationship attribute,
+                        # then we need to set to None to nullify relationship value.
                         value = None
                     setattr(self, field, value)
 
-    def to_dict(self, refresh_on_empty=True):
-        '''Return dict representation of model.
+    @property
+    def __to_dict__(self):
+        '''Configuration for `to_dict()`. Do any necessary preprocessing and return
+        a set of string attributes which represent the fields which should be returned
+        when calling `to_dict()`.
 
-        Drill down to any relationships and serialize those too.
+        By default this model is refreshed if it's __dict__ state is empty and only the
+        ORM descriptor fields are returned.
 
-        Assume that the current object has been loaded (lazy/joined/etc)
-        and don't try to expand anything, i.e., just serialize the
-        currently loaded data.
+        This is the property to override if you want to return more/less than the default
+        ORM descriptor fields.
 
-        However, with one exception: refresh if current __dict__ is empty.
+        Generally, we can usually rely on `self.__dict__` as a representation of model
+        when it's just been loaded from the database. In this case, whatever values are
+        present in `__dict__` are the loaded values from the database which include/exclude
+        lazy attributes (columns and relationships).
+
+        When this fails is after a model has been committed (or expired) in which case,
+        __dict__ will be empty. This can be worked around by calling `self.refresh()` which
+        will reload the data from the database using the default loader strategies.
+
+        These are the two main cases this default implementation will try to cover. For
+        anything more complex it would be best to override this property or the `to_dict()`
+        method.
+        '''
+        if not self.descriptor_dict.keys() and self.session:
+            # if the descriptor dict keys are empty, assume we need to refresh
+            self.refresh()
+
+        return set(self.descriptor_dict.keys())
+
+    @property
+    def descriptor_dict(self):
+        '''Return `self.__dict__` key-filtered by `self.descriptors`'''
+        return dict([(key, value) for key, value in iteritems(self.__dict__) if key in self.descriptors])
+
+    def to_dict(self):
+        '''Return dict representation of model by filtering fields using `self.__to_dict__`.
         '''
         data = {}
-        descriptors = self.descriptors
+        data_fields = self.__to_dict__
 
-        for field, value in iteritems(self.__dict__):
-            if field not in descriptors:
-                # skip non-descriptors
-                continue
+        for field in data_fields:
+            value = getattr(self, field)
 
+            # Nest calls to `to_dict`. Try to find method on base value, sequence values, or dict values
             if hasattr(value, 'to_dict'):
                 value = value.to_dict()
             elif is_sequence(value):
                 value = [v.to_dict() if hasattr(v, 'to_dict') else v for v in value]
+            elif isinstance(value, dict):
+                value = dict([(k, v.to_dict() if hasattr(v, 'to_dict') else v) for k, v in iteritems(value)])
 
             data[field] = value
-
-        if not data and refresh_on_empty and self.session:
-            # Model's __dict__ is empty but has a session associated with it.
-            # Most likely the model was previously committed which resets the __dict__ state.
-            # Refreshing from database will repopulate the model's __dict__.
-            self.refresh()
-            data = self.to_dict(refresh_on_empty=False)
 
         return data
 
