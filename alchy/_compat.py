@@ -11,14 +11,14 @@
 import sys
 
 
-PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
 _identity = lambda x: x
 
 
-if not PY2:
+if PY3:
     text_type = str
     string_types = (str,)
-    integer_types = (int, )
+    integer_types = (int,)
 
     iterkeys = lambda d: iter(d.keys())
     itervalues = lambda d: iter(d.values())
@@ -32,7 +32,6 @@ if not PY2:
         raise value
 
     implements_to_string = _identity
-
 else:
     text_type = unicode
     string_types = (str, unicode)
