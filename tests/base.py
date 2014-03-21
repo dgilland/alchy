@@ -10,7 +10,7 @@ from tests import fixtures
 class TestBase(TestCase):
 
     config = {
-        'engine': {'url': 'sqlite://'}
+        'SQLALCHEMY_DATABASE_URI': 'sqlite://'
     }
 
     @property

@@ -13,12 +13,20 @@ class ModelMeta(DeclarativeMeta):
     '''ModelBase's metaclass which provides:
 
         - Tablename autogeneration
+        - Multiple database binding
         - Declarative ORM events
     '''
     def __new__(mcs, name, bases, dct):
         # set __tablename__ (if not defined) to underscore version of class name
-        if not dct.get('__tablename__') and not dct.get('__table__') is not None and has_primary_key(dct):
+        if not dct.get('__tablename__') and dct.get('__table__') is None and has_primary_key(dct):
             dct['__tablename__'] = camelcase_to_underscore(name)
+
+        # add bind key to table info via __table_args__
+        if not dct.get('__table_args__'):
+            dct['__table_args__'] = {}
+
+        dct['__table_args__'].setdefault('info', {})
+        dct['__table_args__']['info']['bind_key'] = dct.get('__bind_key__')
 
         # set __events__ to expected default so that it's updatable when initializing
         # e.g. if class definition sets __events__=None but defines decorated events,
