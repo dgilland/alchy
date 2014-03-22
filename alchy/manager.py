@@ -49,7 +49,7 @@ class ManagerMixin(object):
 class Manager(ManagerMixin):
     '''Manager for session.'''
 
-    def __init__(self, config, session_options=None, Model=None):
+    def __init__(self, config=None, session_options=None, Model=None):
 
         self.config = Config(defaults={
             'SQLALCHEMY_DATABASE_URI': 'sqlite://',
@@ -61,7 +61,10 @@ class Manager(ManagerMixin):
             'SQLALCHEMY_MAX_OVERFLOW': None
         })
 
-        self.config.from_object(config)
+        if isinstance(config, dict):
+            self.config.update(config)
+        elif config is not None:
+            self.config.from_object(config)
 
         self._engines = {}
         self._binds = {}
