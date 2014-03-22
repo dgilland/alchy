@@ -128,7 +128,6 @@ class TestMultipleEngineBinds(TestBase):
 
         _id = Column(types.Integer(), primary_key=True)
 
-
     def setUp(self):
         self.db = manager.Manager(config=self.config, Model=self.Model)
         self.db.create_all()
@@ -224,7 +223,6 @@ class TestMultipleEngineBinds(TestBase):
             self.engine2.execute('select * from bind2')
         except Exception as e:
             self.assertIn('no such table', str(e))
-
 
         self.db.create_all(bind=['bind1', 'bind2'])
 
