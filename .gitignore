@@ -40,3 +40,6 @@ nosetests.xml
 
 # docs build folder
 /site
+
+# test sqlite databases
+*.test.db

@@ -24,6 +24,7 @@ clean:
 	rm -rf .tox
 	rm -rf .coverage
 	find . -name \*.pyc -type f -delete
+	find . -name \*.test.db -type f -delete
 	find . -depth -name __pycache__ -type d -exec rm -rf {} \;
 	rm -rf dist *.egg* build
 

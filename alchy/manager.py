@@ -154,7 +154,7 @@ class Manager(ManagerMixin):
 
     def create_scoped_session(self, options=None):
         '''Create scoped session which internally calls `self.create_session`.'''
-        if options is None:
+        if options is None: # pragma: no cover
             options = {}
         return orm.scoped_session(partial(self.create_session, options))
 
