@@ -1,3 +1,12 @@
+## Unreleased
+
+- Remove `engine_config_prefix` argument to `Manager()`. **breaking change**
+- Add explicit `session_options` argument to `Manager()`. **breaking change**
+- Change the `Manager.config` options to follow Flask-SQLAlchemy. **breaking change**
+- Allow `Manager.config` to be either a `dict`, `class`, or `module object`.
+- Add multiple database engine support using a single `Manager` instance.
+- Add `__bind_key__` configuration option for `ModelBase` for binding model to specific database bind (similar to Flask-SQLAlchemy).
+
 ## v0.8.0 (2014-03-18)
 
 - For `ModelBase.update()` don't nest `update()` calls if field attribute is a `dict`.
