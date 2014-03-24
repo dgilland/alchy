@@ -309,3 +309,20 @@ class MyModel(Model):
 
 MyModel.simple_search('search')
 ```
+
+### \_\_bind_key\_\_
+
+Bind a model to a particular database URI using keys from `Manager.config['SQLALCHEMY_BINDS']`. By default a model will be bound to `Manager.config['SQLALCHEMY_DATABASE_URI']`.
+
+```python
+config['SQLALCHEMY_BINDS'] = {
+    'users': 'postgres://localhost/users',
+    'metadata': 'sqlite://meta.db'
+}
+
+class User(Model):
+    __bind_key__ = 'users'
+
+class Metadata(Model):
+    __bind_key__ = 'metadata'
+```
