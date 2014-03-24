@@ -5,9 +5,9 @@ from sqlalchemy.orm.exc import UnmappedError
 
 from alchy import manager, model
 
-from tests.base import TestBase, TestQueryBase
-from tests import fixtures
-from tests.fixtures import Foo
+from .base import TestBase, TestQueryBase
+from . import fixtures
+from .fixtures import Foo
 
 
 class TestManager(TestBase):

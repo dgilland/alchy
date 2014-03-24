@@ -4,7 +4,7 @@ from unittest import TestCase
 from alchy import manager
 from alchy._compat import iteritems
 
-from tests import fixtures
+from . import fixtures
 
 
 class TestBase(TestCase):

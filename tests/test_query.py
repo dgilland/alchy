@@ -3,8 +3,8 @@ from sqlalchemy import orm
 
 from alchy import query
 
-from tests.base import TestQueryBase
-from tests.fixtures import Foo, Bar, Baz, Qux
+from .base import TestQueryBase
+from .fixtures import Foo, Bar, Baz, Qux
 
 
 class TestQuery(TestQueryBase):

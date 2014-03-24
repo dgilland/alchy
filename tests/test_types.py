@@ -3,8 +3,8 @@ import pickle
 
 import sqlalchemy
 
-from tests.base import TestQueryBase
-from tests.fixtures import OrderStatus, Order
+from .base import TestQueryBase
+from .fixtures import OrderStatus, Order
 
 
 class TestDeclarativeEnum(TestQueryBase):

@@ -4,7 +4,7 @@ from sqlalchemy import orm, Column, types, ForeignKey
 
 from alchy import model, query, manager, events
 
-from tests.base import TestQueryBase
+from .base import TestQueryBase
 
 
 Model = model.make_declarative_base()

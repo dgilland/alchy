@@ -5,9 +5,9 @@ from sqlalchemy.orm.exc import UnmappedClassError
 
 from alchy import model, query, manager, events
 
-from tests.base import TestQueryBase
-from tests import fixtures
-from tests.fixtures import Foo, Bar, Baz, Qux, AutoGenTableName, MultiplePrimaryKey, Model
+from .base import TestQueryBase
+from . import fixtures
+from .fixtures import Foo, Bar, Baz, Qux, AutoGenTableName, MultiplePrimaryKey, Model
 
 
 class TestModel(TestQueryBase):
