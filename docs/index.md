@@ -29,7 +29,6 @@ The declarative companion to SQLAlchemy.
 ### Dependencies
 
 - SQLAlchemy >= 0.9.0
-- six >= 1.5.2
 
 ## Installation
 
