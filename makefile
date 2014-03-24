@@ -19,8 +19,12 @@ COVERAGE_TARGET = alchy
 # project initialization/clean-up
 build: clean install
 
-clean:
+clean: clean-env clean-files
+
+clean-env:
 	rm -rf $(ENV_NAME)
+
+clean-files:
 	rm -rf .tox
 	rm -rf .coverage
 	find . -name \*.pyc -type f -delete
