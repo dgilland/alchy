@@ -8,6 +8,14 @@ from .query import Query
 from .manager import Manager, ManagerMixin
 from .session import Session
 
-__version__ = '0.8.0'
-__author__ = 'Derrick Gilland <dgilland@gmail.com>'
+from .__meta__ import (
+    __title__,
+    __summary__,
+    __url__,
+    __version__,
+    __author__,
+    __email__,
+    __license__
+)
+
 __all__ = ['ModelBase', 'make_declarative_base', 'Query', 'Manager', 'ManagerMixin', 'Session']
