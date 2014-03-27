@@ -1,4 +1,4 @@
-#pylint: skip-file
+# pylint: skip-file
 '''Python 2/3 compatibility
 
     Some py2/py3 compatibility support based on a stripped down
