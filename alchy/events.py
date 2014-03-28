@@ -58,7 +58,7 @@ def register(cls, dct):
 
 
 #####
-## Event decorators
+# Event decorators
 ####
 
 
@@ -151,16 +151,16 @@ on_refresh = make_event('refresh')
 # @why: Having an on-some-init event defined on the model class
 # seems inefficient since whatever logic they contain should be
 # handled in model.__init__() anyway.
-#on_first_init = make_event('first_init')
-#on_init = make_event('init')
-#on_init_failure = make_event('init_failure')
+# on_first_init = make_event('first_init')
+# on_init = make_event('init')
+# on_init_failure = make_event('init_failure')
 
 # @why: Again model class would already define pickle support
 # so logic should be contained there and not in a separate event handler.
-#on_pickle = make_event('pickle')
-#on_unpickle = make_event('unpickle')
+# on_pickle = make_event('pickle')
+# on_unpickle = make_event('unpickle')
 
 # @why: Well, not really sure how to actually trigger this event
 # so don't want to support it if it doesn't have a test.
 # If someone really wants this event, then it can be enabled.
-#on_resurrect = make_event('resurrect')
+# on_resurrect = make_event('resurrect')

@@ -1,6 +1,6 @@
 # alchy
 
-[![Package Version](https://pypip.in/v/alchy/badge.png?v=0.8.0)](https://pypi.python.org/pypi/alchy/)
+[![Package Version](https://pypip.in/v/alchy/badge.png?v=0.9.0)](https://pypi.python.org/pypi/alchy/)
 [![Build Status](https://travis-ci.org/dgilland/alchy.png?branch=master)](https://travis-ci.org/dgilland/alchy)
 [![Coverage Status](https://coveralls.io/repos/dgilland/alchy/badge.png?branch=master)](https://coveralls.io/r/dgilland/alchy)
 [![License](https://pypip.in/license/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
@@ -25,6 +25,7 @@ The declarative companion to SQLAlchemy.
 - Python 2.7
 - Python 3.2
 - Python 3.3
+- Python 3.4
 
 ### Dependencies
 

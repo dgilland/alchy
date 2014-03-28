@@ -1,4 +1,4 @@
-## Unreleased
+## v0.9.0 (2014-03-26)
 
 - Remove `engine_config_prefix` argument to `Manager()`. **breaking change**
 - Add explicit `session_options` argument to `Manager()`. **breaking change**
