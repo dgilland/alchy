@@ -273,7 +273,7 @@ User.query.reduce(
 
 Utilize ORM events.
 
-```
+```python
 from alchy import events
 
 class User(Model):
