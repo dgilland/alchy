@@ -129,7 +129,7 @@ class ModelBase(object):
         anything more complex it would be best to override this property or the `to_dict()`
         method.
         '''
-        if not self.descriptor_dict.keys() and self.session:
+        if not self.descriptor_dict.keys() and orm.object_session(self):
             # if the descriptor dict keys are empty, assume we need to refresh
             self.refresh()
 
@@ -239,9 +239,14 @@ class ModelBase(object):
     ##
 
     @property
-    def session(self):
+    def object_session(self):
         '''Return session belonging to self'''
         return orm.object_session(self)
+
+    @classproperty
+    def session(self):
+        '''Return session from query property'''
+        return self.query.session
 
     def flush(self, *args, **kargs):
         '''Call `session.flush` on `self`'''

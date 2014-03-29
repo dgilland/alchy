@@ -1,3 +1,8 @@
+## UNRELEASED
+
+- Change `ModelBase.session` to proxy `ModelBase.query.session`.
+- Add `ModelBase.object_session` proxy to `orm.object_session(ModelBase)`.
+
 ## v0.9.0 (2014-03-26)
 
 - Remove `engine_config_prefix` argument to `Manager()`. **breaking change**

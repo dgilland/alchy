@@ -128,12 +128,12 @@ model.expunge()
 
 ## Instance Properties
 
-### session
+### object_session
 
 Proxy to `orm.object_session(model)`.
 
 ```python
-model.session
+model.object_session
 ```
 
 ### strict_update_fields
@@ -205,6 +205,10 @@ The query class used to instantiate `query` can be set using [Model.query_class]
 This interface is inspired by [Flask-SQLAlchemy](http://pythonhosted.org/Flask-SQLAlchemy/api.html?highlight=query#flask.ext.sqlalchemy.Model).
 
 ## Class/Instance Properties
+
+### session
+
+Proxy to `Model.query.session`.
 
 ### primary_key
 

@@ -234,9 +234,12 @@ class TestModel(TestQueryBase):
         self.assertEqual(Foo.get_by(string='Joe Smith'), self.db.query(Foo).filter_by(string='Joe Smith').first())
         self.assertEqual(Foo.get_by(dict(string='Joe Smith')), self.db.query(Foo).filter_by(string='Joe Smith').first())
 
-    def test_session(self):
+    def test_object_session(self):
         record = Foo.get(1)
-        self.assertIs(record.session, self.db.session.object_session(record))
+        self.assertIs(record.object_session, self.db.session.object_session(record))
+
+    def test_query_session(self):
+        self.assertIs(Foo.session, Foo.query.session)
 
     def test_flush(self):
         record = Baz()
