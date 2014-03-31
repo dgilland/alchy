@@ -1,4 +1,4 @@
-## UNRELEASED
+## v0.9.1 (2014-03-30)
 
 - Change `ModelBase.session` to proxy `ModelBase.query.session`.
 - Add `ModelBase.object_session` proxy to `orm.object_session(ModelBase)`.
