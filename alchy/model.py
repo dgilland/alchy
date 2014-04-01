@@ -244,9 +244,9 @@ class ModelBase(object):
         return orm.object_session(self)
 
     @classproperty
-    def session(self):
+    def session(cls):
         '''Return session from query property'''
-        return self.query.session
+        return cls.query.session
 
     def flush(self, *args, **kargs):
         '''Call `session.flush` on `self`'''
