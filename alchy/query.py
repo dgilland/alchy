@@ -4,7 +4,26 @@
 from math import ceil
 
 from sqlalchemy import orm, and_, or_, inspect
-from sqlalchemy.orm.strategy_options import Load
+try:
+    from sqlalchemy.orm.strategy_options import Load
+except ImportError:  # pragma: no cover
+    import warnings
+    from sqlalchemy import __version__ as sqla_version
+
+    warn_msg = ' '.join([
+        'The installed version of SQLAlchemy=={0} is not compatible with the alchy.Query loading API.'
+        'Use with caution!'
+    ]).format(sqla_version)
+
+    warnings.warn(warn_msg, RuntimeWarning)
+
+    class Load(object):
+        '''Dummy Load class which just fails when used.'''
+        def __call__(self, *args, **kargs):
+            raise NotImplementedError(warn_msg)
+
+        def __getattr__(self, attr):
+            self()
 
 
 class Query(orm.Query):

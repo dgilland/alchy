@@ -31,6 +31,8 @@ The declarative companion to SQLAlchemy.
 
 - SQLAlchemy >= 0.9.0
 
+**NOTE:** Earlier versions of SQLAlchemy (e.g. v0.8.x) can be used at user's own risk. The missing feature in that case would be `alchy.Query`'s loading API which will not function correctly/reliably in all cases. However, this allows one to use the other features of `alchy` when one cannot upgrade to SQLAlchemy >= 0.9.0.
+
 ## Installation
 
 Install using pip:
