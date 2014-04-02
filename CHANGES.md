@@ -1,6 +1,7 @@
 ## UNRELEASED
 
 - Issue warning instead of failing when installed version of SQLAlchemy isn't compatible with `alchy.Query`'s loading API (i.e. missing `sqlalchemy.orm.strategy_options.Load`). This allows `alchy` to be used with earlier versions of SQLAlchemy at user's own risk.
+- Add `alchy.search` module which provides compatible search functions for `ModelBase.__advanced_search__` and `ModelBase.__simple_search__`.
 
 ## v0.9.1 (2014-03-30)
 

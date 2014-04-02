@@ -147,6 +147,11 @@ class C(Model):
     _id = Column(types.Integer(), primary_key=True)
 
 
+class Search(Model):
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+
+
 Models = {
     'Foo': Foo,
     'Bar': Bar,
