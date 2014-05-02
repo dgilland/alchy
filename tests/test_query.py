@@ -82,6 +82,11 @@ class TestQuery(TestQueryBase):
         query = Foo.query.paginate(1)
         self.assertEqual(query.per_page, Foo.query.DEFAULT_PER_PAGE)
 
+    def test_query_paginate_per_page_zero(self):
+        query = Foo.query.paginate(per_page=0)
+        self.assertEqual(query.per_page, 0)
+        self.assertTrue(query.total > 0)
+
     def test_advanced_search(self):
         search_dict = dict(foo_string='smith', foo_number=3)
         results = self.db.query(Foo).advanced_search(search_dict).all()
