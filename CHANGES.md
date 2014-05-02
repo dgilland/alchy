@@ -1,3 +1,8 @@
+## vX.X.X (XXXX-XX-XX)
+
+- PEP8 compliance with default settings.
+- Remove `query_property` argument from `make_declarative_base()` and `extend_declarative_base()`. **breaking change**
+
 ## v0.10.0 (2014-04-02)
 
 - Issue warning instead of failing when installed version of SQLAlchemy isn't compatible with `alchy.Query`'s loading API (i.e. missing `sqlalchemy.orm.strategy_options.Load`). This allows `alchy` to be used with earlier versions of SQLAlchemy at user's own risk.
