@@ -1,4 +1,4 @@
-.PHONY: build clean install test test-full docs preview-docs release travisci-install travisci-test
+.PHONY: build clean install test test-full lint pep8 pylint docs preview-docs release travisci-install travisci-test
 
 ##
 # Variables
@@ -51,7 +51,7 @@ test-full:
 lint: pylint pep8
 
 pep8:
-	$(ENV_ACT) tox -e pep8
+	$(ENV_ACT) pep8 $(PYTEST_TARGET)
 
 pylint:
 	$(ENV_ACT) pylint $(COVERAGE_TARGET)
@@ -62,7 +62,7 @@ docs:
 	$(ENV_ACT) mkdocs build
 
 preview-docs:
-	$(ENV_ACT) mkdocs serve
+	$(ENV_ACT) mkdocs serve --dev-addr=0.0.0.0:8001
 
 
 # code release
