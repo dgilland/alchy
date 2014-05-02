@@ -1,5 +1,5 @@
 
-from unittest2 import TestCase
+from unittest import TestCase
 
 from alchy import manager
 from alchy._compat import iteritems
@@ -41,6 +41,63 @@ class TestBase(TestCase):
     def assertModelTablesNotExists(self, engine):
         for table_name in self.model_table_names:
             self.assertTableNotExists(engine, table_name)
+
+    ##
+    # polyfills for python2.6 supports
+    ##
+    def assertIsNone(self, a, msg=None):
+        try:
+            assert a is None
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIsNotNone(self, a, msg=None):
+        try:
+            assert a is not None
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIs(self, a, b, msg=None):
+        try:
+            assert a is b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIsInstance(self, a, b, msg=None):
+        try:
+            assert isinstance(a, b)
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertIn(self, a, b, msg=None):
+        try:
+            assert a in b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
+
+    def assertNotIn(self, a, b, msg=None):
+        try:
+            assert a not in b
+        except AssertionError:
+            if msg:
+                raise AssertionError(msg)
+            else:
+                raise
 
 
 class TestQueryBase(TestBase):
