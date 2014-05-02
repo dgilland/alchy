@@ -370,7 +370,7 @@ class QueryProperty(object):
             return query_property
 
 
-def make_declarative_base(session=None, query_property=None, Model=None, Base=None):
+def make_declarative_base(session=None, Model=None, Base=None):
     """Factory function for either creating a new declarative base class or
     extending a previously defined one.
     """
@@ -379,15 +379,16 @@ def make_declarative_base(session=None, query_property=None, Model=None, Base=No
         Model = declarative_base(
             cls=Base, constructor=Base.__init__, metaclass=ModelMeta)
 
-    extend_declarative_base(Model, session, query_property)
+    extend_declarative_base(Model, session)
+
     return Model
 
 
-def extend_declarative_base(Model, session=None, query_property=None):
+def extend_declarative_base(Model, session=None):
     """Extend a declarative base class with additional properties.
 
     - Extend `Model` with query property accessor
     """
     # Attach query attribute to Model if `session` object passed in.
     if session:
-        Model.query = query_property(session) if query_property else QueryProperty(session)
+        Model.query = QueryProperty(session)
