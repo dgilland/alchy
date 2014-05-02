@@ -33,7 +33,8 @@ class TestQuery(TestQueryBase):
         self.assertTrue(len(page_2) > 0)
 
         self.assertEqual(page_1, self.db.query(Foo).limit(per_page).all())
-        self.assertEqual(page_2, self.db.query(Foo).limit(per_page).offset(per_page).all())
+        self.assertEqual(
+            page_2, self.db.query(Foo).limit(per_page).offset(per_page).all())
 
     def test_query_page_default_per_page(self):
         query = Foo.query.page(1)
@@ -56,7 +57,8 @@ class TestQuery(TestQueryBase):
         self.assertTrue(paginate.has_next)
         self.assertEqual(paginate.per_page, per_page)
         self.assertEqual(paginate.total, self.db.query(Foo).count())
-        self.assertEqual(paginate.pages, int(query.ceil(paginate.total / float(per_page))))
+        self.assertEqual(
+            paginate.pages, int(query.ceil(paginate.total / float(per_page))))
 
         next_page = paginate.next()
 
@@ -112,19 +114,25 @@ class TestQuery(TestQueryBase):
 
     def test_search_limit_offset(self):
         search_string = 'i'
-        results1 = self.db.query(Foo).search(search_string, limit=1, offset=1).all()
-        results2 = self.db.query(Foo).search(search_string).limit(1).offset(1).all()
+        results1 = self.db.query(Foo).search(
+            search_string, limit=1, offset=1).all()
+        results2 = self.db.query(Foo).search(
+            search_string).limit(1).offset(1).all()
 
         self.assertTrue(len(results1))
         self.assertEqual(results1, results2)
 
     def test_search_joined(self):
-        foo = Foo(string='my foo string', number=7, bars=[Bar(string='my bar string', number=1)])
+        foo = Foo(
+            string='my foo string',
+            number=7,
+            bars=[Bar(string='my bar string', number=1)])
         self.db.add(foo)
 
         search_string = 'my bar'
         search_dict = dict(foo_number=7)
-        results = self.db.query(Foo).join(Bar).search(search_string, search_dict).all()
+        results = self.db.query(Foo).join(Bar).search(
+            search_string, search_dict).all()
 
         self.assertTrue(len(results) == 1)
         self.assertEqual(foo, results[0])
@@ -132,19 +140,25 @@ class TestQuery(TestQueryBase):
     def test_join_eager(self):
         self.assertEqual(
             str(self.db.query(Foo).join_eager('bars')),
-            str(self.db.query(Foo).join('bars').options(orm.contains_eager('bars'))),
+            str((self.db.query(Foo)
+                 .join('bars')
+                 .options(orm.contains_eager('bars')))),
             'it should join eager on single string entity'
         )
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars)),
-            str(self.db.query(Foo).join(Foo.bars).options(orm.contains_eager(Foo.bars))),
+            str((self.db.query(Foo)
+                 .join(Foo.bars)
+                 .options(orm.contains_eager(Foo.bars)))),
             'it should join eager on single model entity'
         )
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager('bars', 'bazs')),
-            str(self.db.query(Foo).join('bars', 'bazs').options(orm.contains_eager('bars').contains_eager('bazs'))),
+            str((self.db.query(Foo)
+                 .join('bars', 'bazs')
+                 .options(orm.contains_eager('bars').contains_eager('bazs')))),
             'it should join eager on multiple string entities'
         )
 
@@ -163,26 +177,34 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager('bars', alias=bar_alias)),
-            str(self.db.query(Foo).join(bar_alias, 'bars').options(orm.contains_eager('bars', alias=bar_alias))),
+            str((self.db.query(Foo)
+                 .join(bar_alias, 'bars')
+                 .options(orm.contains_eager('bars', alias=bar_alias)))),
             'it should join eager on alias and string entity'
         )
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager(Foo.bars, alias=bar_alias)),
-            str(self.db.query(Foo).join(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))),
+            str((self.db.query(Foo)
+                 .join(bar_alias, Foo.bars)
+                 .options(orm.contains_eager(Foo.bars, alias=bar_alias)))),
             'it should join eager on alias and model entity'
         )
 
     def test_outerouterjoin_eager(self):
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars')),
-            str(self.db.query(Foo).outerjoin('bars').options(orm.contains_eager('bars'))),
+            str((self.db.query(Foo)
+                 .outerjoin('bars')
+                 .options(orm.contains_eager('bars')))),
             'it should outerjoin eager on single string entity'
         )
 
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager(Foo.bars)),
-            str(self.db.query(Foo).outerjoin(Foo.bars).options(orm.contains_eager(Foo.bars))),
+            str((self.db.query(Foo)
+                 .outerjoin(Foo.bars)
+                 .options(orm.contains_eager(Foo.bars)))),
             'it should outerjoin eager on single model entity'
         )
 
@@ -211,17 +233,17 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars', alias=bar_alias)),
-            str(self.db.query(Foo).outerjoin(bar_alias, 'bars').options(orm.contains_eager('bars', alias=bar_alias))),
+            str((self.db.query(Foo)
+                 .outerjoin(bar_alias, 'bars')
+                 .options(orm.contains_eager('bars', alias=bar_alias)))),
             'it should outerjoin eager on alias and string entity'
         )
 
         self.assertEqual(
-            str(
-                self.db.query(Foo).outerjoin_eager(Foo.bars, alias=bar_alias)
-            ),
-            str(
-                self.db.query(Foo).outerjoin(bar_alias, Foo.bars).options(orm.contains_eager(Foo.bars, alias=bar_alias))
-            ),
+            str(self.db.query(Foo).outerjoin_eager(Foo.bars, alias=bar_alias)),
+            str((self.db.query(Foo)
+                 .outerjoin(bar_alias, Foo.bars)
+                 .options(orm.contains_eager(Foo.bars, alias=bar_alias)))),
             'it should outerjoin eager on alias and model entity'
         )
 
@@ -233,7 +255,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).joinedload('bars', 'bazs')),
-            str(self.db.query(Foo).options(orm.joinedload('bars').joinedload('bazs')))
+            str((self.db.query(Foo)
+                 .options(orm.joinedload('bars').joinedload('bazs'))))
         )
 
         self.assertEqual(
@@ -243,7 +266,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).joinedload(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).options(orm.joinedload(Foo.bars).joinedload(Bar.bazs)))
+            str((self.db.query(Foo)
+                 .options(orm.joinedload(Foo.bars).joinedload(Bar.bazs))))
         )
 
     def test_immediateload(self):
@@ -254,7 +278,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).immediateload('bars', 'bazs')),
-            str(self.db.query(Foo).options(orm.immediateload('bars').immediateload('bazs')))
+            str((self.db.query(Foo)
+                 .options(orm.immediateload('bars').immediateload('bazs'))))
         )
 
         self.assertEqual(
@@ -264,7 +289,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).immediateload(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).options(orm.immediateload(Foo.bars).immediateload(Bar.bazs)))
+            str((self.db.query(Foo)
+                .options(orm.immediateload(Foo.bars).immediateload(Bar.bazs))))
         )
 
     def test_lazyload(self):
@@ -275,7 +301,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).lazyload('bars', 'bazs')),
-            str(self.db.query(Foo).options(orm.lazyload('bars').lazyload('bazs')))
+            str((self.db.query(Foo)
+                 .options(orm.lazyload('bars').lazyload('bazs'))))
         )
 
         self.assertEqual(
@@ -285,7 +312,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).lazyload(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).options(orm.lazyload(Foo.bars).lazyload(Bar.bazs)))
+            str((self.db.query(Foo)
+                 .options(orm.lazyload(Foo.bars).lazyload(Bar.bazs))))
         )
 
     def test_noload(self):
@@ -306,7 +334,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).noload(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).options(orm.noload(Foo.bars).noload(Bar.bazs)))
+            str((self.db.query(Foo)
+                 .options(orm.noload(Foo.bars).noload(Bar.bazs))))
         )
 
     def test_subqueryload(self):
@@ -317,7 +346,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).subqueryload('bars', 'bazs')),
-            str(self.db.query(Foo).options(orm.subqueryload('bars').subqueryload('bazs')))
+            str((self.db.query(Foo)
+                 .options(orm.subqueryload('bars').subqueryload('bazs'))))
         )
 
         self.assertEqual(
@@ -327,7 +357,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str(self.db.query(Foo).subqueryload(Foo.bars, Bar.bazs)),
-            str(self.db.query(Foo).options(orm.subqueryload(Foo.bars).subqueryload(Bar.bazs)))
+            str((self.db.query(Foo)
+                 .options(orm.subqueryload(Foo.bars).subqueryload(Bar.bazs))))
         )
 
     def test_load_only_with_string_args(self):
@@ -344,13 +375,17 @@ class TestQuery(TestQueryBase):
         self.assertIn('boolean', item)
 
     def test_load_only_using_model_arg(self):
-        item = self.db.query(Foo).load_only(Foo, '_id', 'string').first().__dict__
+        item = (self.db.query(Foo)
+                .load_only(Foo, '_id', 'string')
+                .first().__dict__)
         self.assertIn('string', item)
         self.assertNotIn('number', item)
         self.assertNotIn('boolean', item)
 
     def test_load_only_using_load_arg(self):
-        item = self.db.query(Foo).load_only(orm.lazyload(Foo.bars), '_id', 'string').first().bars[0].__dict__
+        item = (self.db.query(Foo)
+                .load_only(orm.lazyload(Foo.bars), '_id', 'string')
+                .first().bars[0].__dict__)
         self.assertIn('string', item)
         self.assertNotIn('number', item)
         self.assertNotIn('boolean', item)
@@ -369,13 +404,17 @@ class TestQuery(TestQueryBase):
         self.assertIn('boolean', item)
 
     def test_defer_using_model_arg(self):
-        item = self.db.query(Foo).defer(Foo, 'number', 'boolean').first().__dict__
+        item = (self.db.query(Foo)
+                .defer(Foo, 'number', 'boolean')
+                .first().__dict__)
         self.assertIn('string', item)
         self.assertNotIn('number', item)
         self.assertNotIn('boolean', item)
 
     def test_defer_using_load_arg(self):
-        item = self.db.query(Foo).defer(orm.lazyload(Foo.bars), 'number').first().bars[0].__dict__
+        item = (self.db.query(Foo)
+                .defer(orm.lazyload(Foo.bars), 'number')
+                .first().bars[0].__dict__)
         self.assertIn('string', item)
         self.assertNotIn('number', item)
 
@@ -386,17 +425,23 @@ class TestQuery(TestQueryBase):
         self.assertNotIn('deferred1_col2', item)
 
         # with undefer()
-        item = self.db.query(Foo).undefer('deferred1_col1', 'deferred1_col2').first().__dict__
+        item = (self.db.query(Foo)
+                .undefer('deferred1_col1', 'deferred1_col2')
+                .first().__dict__)
         self.assertIn('deferred1_col1', item)
         self.assertIn('deferred1_col2', item)
 
     def test_undefer_using_model_arg(self):
-        item = self.db.query(Foo).undefer(Foo, 'deferred1_col1', 'deferred1_col2').first().__dict__
+        item = (self.db.query(Foo)
+                .undefer(Foo, 'deferred1_col1', 'deferred1_col2')
+                .first().__dict__)
         self.assertIn('deferred1_col1', item)
         self.assertIn('deferred1_col2', item)
 
     def test_undefer_using_load_arg(self):
-        item = self.db.query(Foo).undefer(orm.lazyload(Foo.bars), 'deferred1_col1').first().bars[0].__dict__
+        item = (self.db.query(Foo)
+                .undefer(orm.lazyload(Foo.bars), 'deferred1_col1')
+                .first().bars[0].__dict__)
         self.assertIn('deferred1_col1', item)
 
     def test_undefer_group_with_string_args(self):
@@ -407,14 +452,18 @@ class TestQuery(TestQueryBase):
         self.assertNotIn('deferred2_col4', item)
 
     def test_undefer_group_with_model_arg(self):
-        item = self.db.query(Foo).undefer_group(Foo, 'deferred_1').first().__dict__
+        item = (self.db.query(Foo)
+                .undefer_group(Foo, 'deferred_1')
+                .first().__dict__)
         self.assertIn('deferred1_col1', item)
         self.assertIn('deferred1_col2', item)
         self.assertNotIn('deferred2_col3', item)
         self.assertNotIn('deferred2_col4', item)
 
     def test_undefer_group_with_load_arg(self):
-        item = self.db.query(Foo).undefer_group(orm.lazyload(Foo.bars), 'bar_deferred_1').first().bars[0].__dict__
+        item = (self.db.query(Foo)
+                .undefer_group(orm.lazyload(Foo.bars), 'bar_deferred_1')
+                .first().bars[0].__dict__)
         self.assertIn('deferred1_col1', item)
         self.assertNotIn('deferred2_col2', item)
 
@@ -429,7 +478,8 @@ class TestQuery(TestQueryBase):
         items = self.db.query(Foo).all()
         expected = sum([i.number for i in items])
 
-        test = self.db.query(Foo).reduce(lambda result, i: result + i.number, 0)
+        test = (self.db.query(Foo)
+                .reduce(lambda result, i: result + i.number, 0))
         self.assertEqual(test, expected)
 
     def test_reduce_right(self):
@@ -438,7 +488,8 @@ class TestQuery(TestQueryBase):
         for i in reversed(items):
             expected = (i.number * expected) + 1
 
-        test = self.db.query(Foo).reduce_right(lambda result, i: (i.number * result) + 1, 1)
+        test = (self.db.query(Foo)
+                .reduce_right(lambda result, i: (i.number * result) + 1, 1))
         self.assertEqual(test, expected)
 
     def test_pluck(self):

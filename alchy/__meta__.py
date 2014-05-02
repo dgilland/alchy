@@ -1,5 +1,5 @@
-'''Define project metadata
-'''
+"""Define project metadata
+"""
 
 __all__ = [
     '__title__',

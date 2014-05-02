@@ -10,7 +10,8 @@ from .fixtures import OrderStatus, Order
 class TestDeclarativeEnum(TestQueryBase):
 
     def test_type(self):
-        self.assertIsInstance(OrderStatus.db_type().impl, sqlalchemy.types.Enum)
+        self.assertIsInstance(
+            OrderStatus.db_type().impl, sqlalchemy.types.Enum)
 
     def test_attributes(self):
         test_order = self.db.query(Order).first()
@@ -46,7 +47,11 @@ class TestDeclarativeEnum(TestQueryBase):
 
         for status in OrderStatus:
             self.assertTrue(hasattr(OrderStatus, status.name))
-            self.assertIs(OrderStatus.from_string(status.value), getattr(OrderStatus, status.name))
+            self.assertIs(
+                OrderStatus.from_string(status.value),
+                getattr(OrderStatus, status.name))
 
     def test_to_dict(self):
-        self.assertEqual(OrderStatus.pending.to_dict(), {'value': 'p', 'description': 'Pending'})
+        self.assertEqual(
+            OrderStatus.pending.to_dict(),
+            {'value': 'p', 'description': 'Pending'})

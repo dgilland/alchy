@@ -43,7 +43,8 @@ class TestManager(TestBase):
 class TestManagerSessionExtensions(TestQueryBase):
 
     def get_count(self, table='foo'):
-        return self.db.execute('select count(*) from {0}'.format(table)).scalar()
+        return self.db.execute(
+            'select count(*) from {0}'.format(table)).scalar()
 
     def test_add(self):
         count = self.get_count()
@@ -51,7 +52,8 @@ class TestManagerSessionExtensions(TestQueryBase):
         self.db.add(Foo(), Foo())
         self.db.add([Foo(), Foo()])
 
-        self.assertEqual(self.db.execute('select count(*) from foo').scalar(), count)
+        self.assertEqual(self.db.execute(
+            'select count(*) from foo').scalar(), count)
 
         self.db.commit()
 
@@ -140,16 +142,22 @@ class TestMultipleEngineBinds(TestBase):
         self.db.drop_all()
 
     def test_bind_engines(self):
-        '''Test that each bind engine is accessible and configured properly.'''
-        self.assertEqual(str(self.db.engine.url), self.config.binds[0])
-        self.assertEqual(str(self.db.get_engine('bind1').url), self.config.binds[1])
-        self.assertEqual(str(self.db.get_engine('bind2').url), self.config.binds[2])
+        """Test that each bind engine is accessible and configured properly."""
+        self.assertEqual(
+            str(self.db.engine.url), self.config.binds[0])
+        self.assertEqual(
+            str(self.db.get_engine('bind1').url), self.config.binds[1])
+        self.assertEqual(
+            str(self.db.get_engine('bind2').url), self.config.binds[2])
 
     def test_bind_tables(self):
-        '''Test that tables are created in the proper database.'''
-        self.assertEqual(self.engine0.execute('select * from bind0').fetchall(), [])
-        self.assertEqual(self.engine1.execute('select * from bind1').fetchall(), [])
-        self.assertEqual(self.engine2.execute('select * from bind2').fetchall(), [])
+        """Test that tables are created in the proper database."""
+        self.assertEqual(
+            self.engine0.execute('select * from bind0').fetchall(), [])
+        self.assertEqual(
+            self.engine1.execute('select * from bind1').fetchall(), [])
+        self.assertEqual(
+            self.engine2.execute('select * from bind2').fetchall(), [])
 
         try:
             self.engine0.execute('select * from bind1')
@@ -182,26 +190,35 @@ class TestMultipleEngineBinds(TestBase):
             self.assertIn('no such table', str(e))
 
     def test_bind_inserts(self):
-        '''Test that records are inserted into the proper database when using models.'''
+        """Test that records are inserted into the proper database when using
+        models."""
         self.db.add_commit(self.Bind0())
         self.db.add_commit(self.Bind1())
         self.db.add_commit(self.Bind2())
 
         self.assertTrue(self.Bind0.query.count() > 0)
-        self.assertEqual(self.Bind0.query.count(), self.engine0.execute('select count(*) from bind0').fetchone()[0])
+        self.assertEqual(
+            self.Bind0.query.count(),
+            self.engine0.execute('select count(*) from bind0').fetchone()[0])
 
         self.assertTrue(self.Bind1.query.count() > 0)
-        self.assertEqual(self.Bind1.query.count(), self.engine1.execute('select count(*) from bind1').fetchone()[0])
+        self.assertEqual(
+            self.Bind1.query.count(),
+            self.engine1.execute('select count(*) from bind1').fetchone()[0])
 
         self.assertTrue(self.Bind2.query.count() > 0)
-        self.assertEqual(self.Bind2.query.count(), self.engine2.execute('select count(*) from bind2').fetchone()[0])
+        self.assertEqual(
+            self.Bind2.query.count(),
+            self.engine2.execute('select count(*) from bind2').fetchone()[0])
 
     def test_create_drop_all_by_bind(self):
-        '''Test that create/drop all can be used to target a specific bind.'''
+        """Test that create/drop all can be used to target a specific bind."""
         self.db.drop_all(bind='bind1')
 
-        self.assertEqual(self.engine0.execute('select * from bind0').fetchall(), [])
-        self.assertEqual(self.engine2.execute('select * from bind2').fetchall(), [])
+        self.assertEqual(
+            self.engine0.execute('select * from bind0').fetchall(), [])
+        self.assertEqual(
+            self.engine2.execute('select * from bind2').fetchall(), [])
 
         try:
             self.engine1.execute('select * from bind1')
@@ -210,7 +227,8 @@ class TestMultipleEngineBinds(TestBase):
 
         self.db.create_all(bind='bind1')
 
-        self.assertEqual(self.engine1.execute('select * from bind1').fetchall(), [])
+        self.assertEqual(
+            self.engine1.execute('select * from bind1').fetchall(), [])
 
         self.db.drop_all(bind=['bind1', 'bind2'])
 
@@ -226,12 +244,15 @@ class TestMultipleEngineBinds(TestBase):
 
         self.db.create_all(bind=['bind1', 'bind2'])
 
-        self.assertEqual(self.engine1.execute('select * from bind1').fetchall(), [])
-        self.assertEqual(self.engine2.execute('select * from bind2').fetchall(), [])
+        self.assertEqual(
+            self.engine1.execute('select * from bind1').fetchall(), [])
+        self.assertEqual(
+            self.engine2.execute('select * from bind2').fetchall(), [])
 
     def test_reflect(self):
-        '''Test that existing database tables can be reflected.'''
-        rdb = manager.Manager(config={'SQLALCHEMY_DATABASE_URI': self.config.binds[0]})
+        """Test that existing database tables can be reflected."""
+        rdb = manager.Manager(
+            config={'SQLALCHEMY_DATABASE_URI': self.config.binds[0]})
 
         self.assertEqual(len(rdb.metadata.tables), 0)
 

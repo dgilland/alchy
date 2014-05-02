@@ -1,21 +1,22 @@
-'''Session class that supports binds.
-'''
+"""Session class that supports binds.
+"""
 
 from sqlalchemy.orm.session import Session as SessionBase
 
 
 class Session(SessionBase):
-    '''The session is the default session that Manager uses.
+    """The session is the default session that Manager uses.
     It extends the default session system with bind selection.
-    '''
+    """
 
     def __init__(self, manager, **options):
         self.manager = manager
         bind = options.pop('bind', manager.engine)
-        super(Session, self).__init__(bind=bind, binds=manager.binds_map, **options)
+        super(Session, self).__init__(
+            bind=bind, binds=manager.binds_map, **options)
 
     def get_bind(self, mapper, clause=None):
-        '''Return engine bind using mapper info's bind_key if present.'''
+        """Return engine bind using mapper info's bind_key if present."""
         # mapper is None if someone tries to just get a connection
         if mapper is not None:
             info = getattr(mapper.mapped_table, 'info', {})

@@ -1,5 +1,5 @@
-'''Custom ORM column types.
-'''
+"""Custom ORM column types.
+"""
 
 import re
 
@@ -10,11 +10,12 @@ from alchy._compat import with_metaclass
 
 ##
 # Declarative Enum type
-# adapted from the Enum Recipe: http://techspot.zzzeek.org/2011/01/14/the-enum-recipe/
+# Adapted from the Enum Recipe:
+# http://techspot.zzzeek.org/2011/01/14/the-enum-recipe/
 ##
 
 class EnumSymbol(object):
-    '''Define a fixed symbol tied to a parent class.'''
+    """Define a fixed symbol tied to a parent class."""
 
     def __init__(self, cls_, name, value, description):
         self.cls_ = cls_
@@ -23,7 +24,9 @@ class EnumSymbol(object):
         self.description = description
 
     def __reduce__(self):
-        '''Allow unpickling to return the symbol linked to the DeclarativeEnum class.'''
+        """Allow unpickling to return the symbol linked to the DeclarativeEnum
+        class.
+        """
         return getattr, (self.cls_, self.name)
 
     def __iter__(self):
@@ -36,12 +39,12 @@ class EnumSymbol(object):
         return self.name
 
     def to_dict(self):
-        '''Represent symbol as dict.'''
+        """Represent symbol as dict."""
         return {'value': self.value, 'description': self.description}
 
 
 class EnumMeta(type):
-    '''Generate new DeclarativeEnum classes.'''
+    """Generate new DeclarativeEnum classes."""
 
     def __init__(cls, classname, bases, dict_):
         cls._reg = reg = cls._reg.copy()
@@ -56,13 +59,15 @@ class EnumMeta(type):
 
 
 class DeclarativeEnumType(SchemaType, TypeDecorator):
-    '''Column type usable in table column definitions.'''
+    """Column type usable in table column definitions."""
 
     def __init__(self, enum):
         self.enum = enum
         self.impl = Enum(
             *enum.values(),
-            name="ck%s" % re.sub('([A-Z])', lambda m: "_" + m.group(1).lower(), enum.__name__)
+            name="ck%s" % re.sub('([A-Z])',
+                                 lambda m: "_" + m.group(1).lower(),
+                                 enum.__name__)
         )
 
     def _set_table(self, table, column):
@@ -83,24 +88,25 @@ class DeclarativeEnumType(SchemaType, TypeDecorator):
 
 
 class DeclarativeEnum(with_metaclass(EnumMeta, object)):
-    '''Declarative enumeration.'''
+    """Declarative enumeration."""
 
     _reg = {}
 
     @classmethod
     def from_string(cls, string):
-        '''Get enum value from string'''
+        """Get enum value from string"""
         try:
             return cls._reg[string]
         except KeyError:
-            raise ValueError("Invalid value for %r: %r" % (cls.__name__, string))
+            raise ValueError(
+                "Invalid value for %r: %r" % (cls.__name__, string))
 
     @classmethod
     def values(cls):
-        '''Return enumeration values.'''
+        """Return enumeration values."""
         return cls._reg.keys()
 
     @classmethod
     def db_type(cls):
-        '''Provide database column type for use in table column definitions.'''
+        """Provide database column type for use in table column definitions."""
         return DeclarativeEnumType(cls)

@@ -23,7 +23,7 @@ class TestEventsBase(TestQueryBase):
 
 
 class TestEvents(TestEventsBase):
-    '''Test Model events'''
+    """Test Model events"""
 
     class Huey(Model):
         event_tracker = {}
@@ -31,7 +31,11 @@ class TestEvents(TestEventsBase):
         __tablename__ = 'huey'
         __events__ = {
             'before_insert': 'before_insert',
-            'after_insert': ['after_insert1', 'after_insert2', ('after_insert3', {'raw': True})],
+            'after_insert': [
+                'after_insert1',
+                'after_insert2',
+                ('after_insert3', {'raw': True})
+            ],
             'on_set': [('on_set_name', {'attribute': 'name'})]
         }
 
@@ -73,8 +77,11 @@ class TestEvents(TestEventsBase):
 
         @events.on_set('name', retval=True)
         def on_set_name(target, value, oldvalue, initator):
-            if oldvalue is None or (hasattr(oldvalue, '__class__') and oldvalue.__class__.__name__ == 'symbol'):
-                # oldvalue is a symbol for either NO_VALUE or NOT_SET so allow update
+            if oldvalue is None or (
+                    hasattr(oldvalue, '__class__')
+                    and oldvalue.__class__.__name__ == 'symbol'):
+                # oldvalue is a symbol for either NO_VALUE or NOT_SET so allow
+                # update
                 return value
             else:
                 # value previously set, so prevent edit

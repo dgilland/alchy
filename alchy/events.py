@@ -1,5 +1,5 @@
-'''Declarative ORM event decorators and event registration.
-'''
+"""Declarative ORM event decorators and event registration.
+"""
 
 from functools import partial
 from collections import namedtuple
@@ -12,14 +12,15 @@ Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 
 
 def register(cls, dct):
-    '''Register events defined on a class during metaclass creation.'''
+    """Register events defined on a class during metaclass creation."""
 
     events = []
 
     # append class attribute defined events
     if dct.get('__events__'):
-        # events defined on __events__ can have many forms (e.g. string based, list of tuples, etc)
-        # so we need to iterate over them and parse into standardized Event object
+        # Events defined on __events__ can have many forms (e.g. string based,
+        # list of tuples, etc). So we need to iterate over them and parse into
+        # standardized Event object.
         for event_name, listeners in iteritems(dct['__events__']):
             if not isinstance(listeners, list):
                 listeners = [listeners]
@@ -35,7 +36,8 @@ def register(cls, dct):
                     # assume listener is a string reference to class method
                     listener = dct[listener]
 
-                events.append(Event(event_name, kargs.pop('attribute', None), listener, kargs))
+                events.append(Event(
+                    event_name, kargs.pop('attribute', None), listener, kargs))
 
     # add events which were added via @event decorator
     for value in dct.values():
@@ -45,11 +47,19 @@ def register(cls, dct):
             events.extend(value.__event__)
 
     if events:
-        # reassemble events dict into consistent form using Event objects as values
+        # Reassemble events dict into consistent form using Event objects as
+        # values.
         events_dict = {}
         for evt in events:
-            obj = cls if evt.attribute is None else getattr(cls, evt.attribute)
-            event_name = evt.name.replace('on_', '', 1) if evt.name.startswith('on_') else evt.name
+            if evt.attribute is None:
+                obj = cls
+            else:
+                obj = getattr(cls, evt.attribute)
+
+            if evt.name.startswith('on_'):
+                event_name = evt.name.replace('on_', '', 1)
+            else:
+                event_name = evt.name
 
             sqlalchemy.event.listen(obj, event_name, evt.listener, **evt.kargs)
             events_dict.setdefault(evt.name, []).append(evt)
@@ -63,43 +73,49 @@ def register(cls, dct):
 
 
 def event(event_names, attribute=None, no_args_func=None, **event_kargs):
-    '''Generic event decorator maker which attaches metadata to function object
+    """Generic event decorator maker which attaches metadata to function object
     so that `register()` can find the event definition.
-    '''
+    """
     if callable(no_args_func):
         # being called as a decorator with no arguments
         return event(event_names)(no_args_func)
 
     def decorator(func):
-        '''Function decorator that attaches an `__event__` attribute hook which is
-        expected when registering a method as an event handler. See `register()` in
-        this module for details on how this is implemented.
-        '''
+        """Function decorator that attaches an `__event__` attribute hook which
+        is expected when registering a method as an event handler. See
+        `register()` in this module for details on how this is implemented.
+        """
         if not hasattr(func, '__event__'):
-            # set initial value to list so a function can handle multiple events
+            # Set initial value to list so function can handle multiple events.
             func.__event__ = []
 
-        # @note: have to assign to a separately variable name due to global name access issues
+        # NOTE: Have to assign to a separate variable name due to global name
+        # access issues.
         if not isinstance(event_names, (list, tuple)):
             _event_names = [event_names]
         else:
             _event_names = event_names
 
-        # Attach event object to function which will be picked up in `register()`.
-        func.__event__ += [Event(event_name, attribute, func, event_kargs) for event_name in _event_names]
+        # Attach event object to function which will be picked up in
+        # `register()`.
+        func.__event__ += [Event(event_name, attribute, func, event_kargs)
+                           for event_name in _event_names]
 
-        # Return function as-is since method definition should be compatible with sqlalchemy.event.listen().
+        # Return function as-is since method definition should be compatible
+        # with sqlalchemy.event.listen().
         return func
     return decorator
 
 
 def make_attribute_event(event_names):
-    '''Event decorator maker for attribute events.'''
+    """Event decorator maker for attribute events."""
     return partial(event, event_names)
 
 
 def make_event(event_names):
-    '''Event decorator maker for mapper or instance events which don't require an attribute.'''
+    """Event decorator maker for mapper or instance events which don't require
+    an attribute.
+    """
     # bind `None` to attribute argument
     return partial(event, event_names, None)
 

@@ -1,7 +1,7 @@
-'''Main package API entry point.
+"""Main package API entry point.
 
 Import core objects here.
-'''
+"""
 
 from .model import ModelBase, make_declarative_base
 from .query import Query
@@ -18,4 +18,11 @@ from .__meta__ import (
     __license__
 )
 
-__all__ = ['ModelBase', 'make_declarative_base', 'Query', 'Manager', 'ManagerMixin', 'Session']
+__all__ = [
+    'ModelBase',
+    'make_declarative_base',
+    'Query',
+    'Manager',
+    'ManagerMixin',
+    'Session'
+]

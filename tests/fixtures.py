@@ -12,14 +12,14 @@ Model = model.make_declarative_base()
 class Foo(Model):
     __tablename__ = 'foo'
 
-    _id             = Column(types.Integer(), primary_key=True)
-    string          = Column(types.String())
-    number          = Column(types.Integer())
-    boolean         = Column(types.Boolean(), default=True)
-    deferred1_col1  = orm.deferred(Column(types.Boolean()), group='deferred_1')
-    deferred1_col2  = orm.deferred(Column(types.Boolean()), group='deferred_1')
-    deferred2_col3  = orm.deferred(Column(types.Boolean()), group='deferred_2')
-    deferred2_col4  = orm.deferred(Column(types.Boolean()), group='deferred_2')
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+    number = Column(types.Integer())
+    boolean = Column(types.Boolean(), default=True)
+    deferred1_col1 = orm.deferred(Column(types.Boolean()), group='deferred_1')
+    deferred1_col2 = orm.deferred(Column(types.Boolean()), group='deferred_1')
+    deferred2_col3 = orm.deferred(Column(types.Boolean()), group='deferred_2')
+    deferred2_col4 = orm.deferred(Column(types.Boolean()), group='deferred_2')
 
     bars = orm.relationship('Bar', lazy=True)
     quxs = orm.relationship('Qux', lazy=True)
@@ -49,12 +49,14 @@ class Foo(Model):
 class Bar(Model):
     __tablename__ = 'bar'
 
-    _id             = Column(types.Integer(), primary_key=True)
-    string          = Column(types.String())
-    number          = Column(types.Integer())
-    foo_id          = Column(types.Integer(), ForeignKey('foo._id'))
-    deferred1_col1  = orm.deferred(Column(types.Boolean()), group='bar_deferred_1')
-    deferred2_col2  = orm.deferred(Column(types.Boolean()), group='bar_deferred_2')
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+    number = Column(types.Integer())
+    foo_id = Column(types.Integer(), ForeignKey('foo._id'))
+    deferred1_col1 = orm.deferred(
+        Column(types.Boolean()), group='bar_deferred_1')
+    deferred2_col2 = orm.deferred(
+        Column(types.Boolean()), group='bar_deferred_2')
 
     foo = orm.relationship('Foo')
     bazs = orm.relationship('Baz')
@@ -72,10 +74,10 @@ class Bar(Model):
 class Baz(Model):
     __tablename__ = 'baz'
 
-    _id         = Column(types.Integer(), primary_key=True)
-    string      = Column(types.String())
-    number      = Column(types.Integer())
-    bar_id      = Column(types.Integer(), ForeignKey('bar._id'))
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+    number = Column(types.Integer())
+    bar_id = Column(types.Integer(), ForeignKey('bar._id'))
 
     bar = orm.relationship('Bar')
 
@@ -91,24 +93,24 @@ class Baz(Model):
 class Qux(Model):
     __tablename__ = 'qux'
 
-    _id         = Column(types.Integer(), primary_key=True)
-    string      = Column(types.String())
-    number      = Column(types.Integer())
-    foo_id      = Column(types.Integer(), ForeignKey('foo._id'))
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+    number = Column(types.Integer())
+    foo_id = Column(types.Integer(), ForeignKey('foo._id'))
 
     foo = orm.relationship('Foo')
 
 
 class OrderStatus(DeclarativeEnum):
-    pending     = ('p', 'Pending')
-    submitted   = ('s', 'Submitted')
-    complete    = ('c', 'Complete')
+    pending = ('p', 'Pending')
+    submitted = ('s', 'Submitted')
+    complete = ('c', 'Complete')
 
 
 class Order(Model):
     __tablename__ = 'orders'
-    _id         = Column(types.Integer(), primary_key=True)
-    status      = Column(OrderStatus.db_type(), default=OrderStatus.pending)
+    _id = Column(types.Integer(), primary_key=True)
+    status = Column(OrderStatus.db_type(), default=OrderStatus.pending)
 
 
 class AutoGenTableName(Model):

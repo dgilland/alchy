@@ -7,7 +7,8 @@ from alchy import model, query, manager, events
 
 from .base import TestQueryBase
 from . import fixtures
-from .fixtures import Foo, Bar, Baz, Qux, AutoGenTableName, MultiplePrimaryKey, Model
+from .fixtures import (
+    Foo, Bar, Baz, Qux, AutoGenTableName, MultiplePrimaryKey, Model)
 
 
 class TestModel(TestQueryBase):
@@ -31,10 +32,12 @@ class TestModel(TestQueryBase):
         self.assertFalse(hasattr(record, 'ignored_field'))
 
     def assertIsSubset(self, subset, superset):
-        self.assertTrue(all(item in superset.items() for item in subset.items()))
+        self.assertTrue(
+            all(item in superset.items() for item in subset.items()))
 
     def assertIsNotSubset(self, subset, superset):
-        self.assertRaises(AssertionError, self.assertIsSubset, subset, superset)
+        self.assertRaises(
+            AssertionError, self.assertIsSubset, subset, superset)
 
     def test_update(self):
         data = self.records['Foo'][0]
@@ -88,10 +91,14 @@ class TestModel(TestQueryBase):
 
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)
-        self.assertEqual(self.db.query(Foo).filter_by(number=3).all(), Foo.query.filter_by(number=3).all())
+        self.assertEqual(
+            self.db.query(Foo).filter_by(number=3).all(),
+            Foo.query.filter_by(number=3).all())
 
     def test_query_class_missing_default(self):
-        """Test that models defined with query_class=None have default Query class for query_property"""
+        """Test that models defined with query_class=None have default Query
+        class for query_property.
+        """
         class TestModel(Model):
             __tablename__ = 'test'
             _id = Column(types.Integer(), primary_key=True)
@@ -108,12 +115,12 @@ class TestModel(TestQueryBase):
         self.assertEqual(
             TestModel.query.all(),
             records,
-            "Model's query property should return same results as session query"
+            "Model query property should return same results as session query"
         )
         self.assertIsInstance(
             TestModel.query,
             query.Query,
-            "Model's query property should be an instance of query.Query"
+            "Model query property should be an instance of query.Query"
         )
 
     def test_query_property_with_unmapped(self):
@@ -130,7 +137,8 @@ class TestModel(TestQueryBase):
 
         # it should use default loading which is lazy
         self.assertIsSubset(data, as_dict)
-        self.assertEqual(set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean']))
+        self.assertEqual(
+            set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean']))
 
     def test_to_dict_with_joined(self):
         data = fixtures.data['Foo'][0]
@@ -143,7 +151,9 @@ class TestModel(TestQueryBase):
 
         # it should load relationships
         self.assertIsSubset(data, as_dict)
-        self.assertEqual(set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
+        self.assertEqual(
+            set(as_dict.keys()),
+            set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
 
         # and relationship's relationships
         self.assertIn('bazs', as_dict['bars'][0])
@@ -194,14 +204,16 @@ class TestModel(TestQueryBase):
 
         # it should be a class and instance property
         self.assertEqual(Baz.attrs, baz.attrs)
-        self.assertEqual(set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
+        self.assertEqual(
+            set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
 
     def test_columns(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
         self.assertEqual(Baz.columns, baz.columns)
-        self.assertEqual(set(Baz.columns), set(['_id', 'string', 'number', 'bar_id']))
+        self.assertEqual(
+            set(Baz.columns), set(['_id', 'string', 'number', 'bar_id']))
 
     def test_column_attrs(self):
         baz = Baz.get(1)
@@ -210,7 +222,10 @@ class TestModel(TestQueryBase):
         self.assertEqual(Baz.column_attrs, baz.column_attrs)
         self.assertEqual(
             set(Baz.column_attrs),
-            set([Baz._id.property, Baz.string.property, Baz.number.property, Baz.bar_id.property])
+            set([Baz._id.property,
+                 Baz.string.property,
+                 Baz.number.property,
+                 Baz.bar_id.property])
         )
 
     def test_descriptors(self):
@@ -218,7 +233,9 @@ class TestModel(TestQueryBase):
 
         # it should be a class and instance property
         self.assertEqual(Baz.descriptors, baz.descriptors)
-        self.assertEqual(set(Baz.descriptors), set(['_id', 'string', 'number', 'bar_id', 'bar', 'hybrid_number']))
+        self.assertEqual(
+            set(Baz.descriptors),
+            set(['_id', 'string', 'number', 'bar_id', 'bar', 'hybrid_number']))
 
     def test_relationships(self):
         baz = Baz.get(1)
@@ -231,12 +248,17 @@ class TestModel(TestQueryBase):
         self.assertEqual(Foo.get(1), self.db.query(Foo).get(1))
 
     def test_get_by(self):
-        self.assertEqual(Foo.get_by(string='Joe Smith'), self.db.query(Foo).filter_by(string='Joe Smith').first())
-        self.assertEqual(Foo.get_by(dict(string='Joe Smith')), self.db.query(Foo).filter_by(string='Joe Smith').first())
+        self.assertEqual(
+            Foo.get_by(string='Joe Smith'),
+            self.db.query(Foo).filter_by(string='Joe Smith').first())
+        self.assertEqual(
+            Foo.get_by(dict(string='Joe Smith')),
+            self.db.query(Foo).filter_by(string='Joe Smith').first())
 
     def test_object_session(self):
         record = Foo.get(1)
-        self.assertIs(record.object_session, self.db.session.object_session(record))
+        self.assertIs(
+            record.object_session, self.db.session.object_session(record))
 
     def test_query_session(self):
         self.assertIs(Foo.session, Foo.query.session)
@@ -282,7 +304,9 @@ class TestModel(TestQueryBase):
         new_number = number * number + 1
 
         # execute non-ORM transaction
-        self.db.execute('update foo set number = :n where _id = 1', params={'n': new_number})
+        self.db.execute(
+            'update foo set number = :n where _id = 1',
+            params={'n': new_number})
 
         # it's value hasn't changed
         self.assertEqual(record.number, number)
@@ -303,7 +327,9 @@ class TestModel(TestQueryBase):
         new_number = number * number + 1
 
         # execute non-ORM transaction
-        self.db.execute('update foo set number = :n where _id = 1', params={'n': new_number})
+        self.db.execute(
+            'update foo set number = :n where _id = 1',
+            params={'n': new_number})
 
         # it's value hasn't changed
         self.assertEqual(record.number, number)
@@ -334,4 +360,6 @@ class TestModel(TestQueryBase):
         self.assertEqual(Foo.primary_key, inspect(Foo).primary_key[0])
 
     def test_multiple_primary_keys(self):
-        self.assertEqual(MultiplePrimaryKey.primary_key, inspect(MultiplePrimaryKey).primary_key)
+        self.assertEqual(
+            MultiplePrimaryKey.primary_key,
+            inspect(MultiplePrimaryKey).primary_key)
