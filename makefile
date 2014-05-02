@@ -1,4 +1,4 @@
-.PHONY: build clean install test test-full lint pep8 pylint docs preview-docs release travisci-install travisci-test
+.PHONY: build clean clean-env clean-files install test test-full lint pep8 pylint docs preview-docs release travisci-install travisci-test
 
 ##
 # Variables
