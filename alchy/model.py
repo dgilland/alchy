@@ -1,7 +1,7 @@
 """Declarative base class/factory and query property support.
 """
 
-from sqlalchemy import inspect, orm, and_, or_
+from sqlalchemy import inspect, orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 from . import query, events
@@ -67,7 +67,6 @@ class ModelBase(object):
     # Note: requires setting Class.query = QueryProperty(session) when session
     # available. See `make_declarative_base()` for automatic implementation.
     query = None
-
 
     def __init__(self, *args, **kargs):
         self.update(*args, **kargs)

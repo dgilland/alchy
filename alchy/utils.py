@@ -40,7 +40,8 @@ def has_primary_key(metadict):
 def base_columns_from_subquery(subquery):
     """Return non-aliased, base columns from subquery."""
     # base_columns is a set so we need to cast to list.
-    return [(column, list(column.base_columns)) for column in subquery.c.values()]
+    return [(column, list(column.base_columns))
+            for column in subquery.c.values()]
 
 
 def join_subquery_on_columns(subquery, columns):
@@ -52,20 +53,21 @@ def join_subquery_on_columns(subquery, columns):
         # Don't support joining to subquery column with more than 1 base
         # column.
         if len(base_columns) == 1 and base_columns[0] in columns:
-            join_on.append(subquery_column==base_columns[0])
+            join_on.append(subquery_column == base_columns[0])
 
     if join_on:
         return and_(*join_on)
     else:  # pragma: no cover
         return None
 
+
 def camelcase_to_underscore(string):
     """Convert string from CamelCase to under_score"""
-    REGEX_FIRST_CAP = re.compile('(.)([A-Z][a-z]+)')
-    REGEX_ALL_CAP = re.compile('([a-z0-9])([A-Z])')
+    regex_first_cap = re.compile('(.)([A-Z][a-z]+)')
+    regex_all_cap = re.compile('([a-z0-9])([A-Z])')
 
-    first_cap = REGEX_FIRST_CAP.sub(r'\1_\2', string)
-    return REGEX_ALL_CAP.sub(r'\1_\2', first_cap).lower()
+    first_cap = regex_first_cap.sub(r'\1_\2', string)
+    return regex_all_cap.sub(r'\1_\2', first_cap).lower()
 
 
 def iterflatten(items):

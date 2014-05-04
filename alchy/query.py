@@ -25,6 +25,7 @@ except ImportError:  # pragma: no cover
         def __getattr__(self, attr):
             self()
 
+from ._compat import iteritems
 from .utils import join_subquery_on_columns
 
 
@@ -187,6 +188,7 @@ class Query(orm.Query):
 
         return Pagination(self, page, per_page, total, items)
 
+
 class QueryModel(Query):
     """Class used for default query property class. It's assumed that is how
     this class will be used so there may be cases where some of its functions
@@ -237,6 +239,7 @@ class QueryModel(Query):
         return and_(*term_filters)
 
     def simple_filter(self, search_terms=None):
+        """Return the compiled simple search filter mapped to search_terms."""
         if search_terms is None:  # pragma: no cover
             search_terms = []
 
