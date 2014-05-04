@@ -123,10 +123,10 @@ class TestQuery(TestQueryBase):
         string_choices = ['one', 'two', 'three']
         string2_choices = ['four', 'five', 'six']
 
-        for i in xrange(50):
+        for i in range(50):
             string = string_choices[i % len(string_choices)]
             string2 = string2_choices[i % len(string_choices)]
-            bars = [Bar(string=i) for _ in xrange(2)]
+            bars = [Bar(string=i) for _ in range(2)]
             self.db.add_commit(Foo(string=string, string2=string2, bars=bars))
 
         search_string = 'one four'

@@ -221,7 +221,7 @@ class QueryModel(Query):
         if isinstance(keys, dict):
             return keys
         else:
-            return {key: self.__search_filters__[key] for key in keys}
+            return dict([(key, self.__search_filters__[key]) for key in keys])
 
     def advanced_filter(self, search_dict=None):
         """Return the compiled advanced search filter mapped to search_dict."""
@@ -230,8 +230,8 @@ class QueryModel(Query):
 
         filter_funcs = self.get_search_filters(self.__advanced_search__)
         term_filters = [filter_funcs[key](value)
-                       for key, value in search_dict.iteritems()
-                       if key in filter_funcs]
+                        for key, value in iteritems(search_dict)
+                        if key in filter_funcs]
 
         # All filters should match for an advanced search.
         return and_(*term_filters)
