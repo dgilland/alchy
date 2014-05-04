@@ -6,7 +6,8 @@ from collections import namedtuple
 
 import sqlalchemy
 
-from alchy._compat import iteritems
+from ._compat import iteritems
+
 
 Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 

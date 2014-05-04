@@ -5,7 +5,7 @@ import re
 
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
 
-from alchy._compat import with_metaclass
+from ._compat import with_metaclass
 
 
 ##

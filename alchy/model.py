@@ -4,10 +4,10 @@
 from sqlalchemy import inspect, orm, and_, or_
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
-from alchy import query, events
-from alchy.utils import (
+from . import query, events
+from .utils import (
     classproperty, is_sequence, has_primary_key, camelcase_to_underscore)
-from alchy._compat import iteritems
+from ._compat import iteritems
 
 
 class ModelMeta(DeclarativeMeta):

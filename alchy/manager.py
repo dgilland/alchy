@@ -12,7 +12,7 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm.exc import UnmappedError
 
 from .model import make_declarative_base, extend_declarative_base
-from .query import Query
+from .query import QueryModel
 from .session import Session
 from ._compat import string_types, itervalues
 
