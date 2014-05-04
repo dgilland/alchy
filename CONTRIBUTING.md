@@ -27,7 +27,7 @@ There are two main development branches: `master` and `develop`. `master` repres
 
 Some simple guidelines to follow when contributing code:
 
-- Adhere to [PEP8][] except as specified in `setup.cfg`, section `pep8`.
+- Adhere to [PEP8][].
 - Clean, well documented code.
 - All tests pass.
 - 100% test coverage.
@@ -108,7 +108,7 @@ make pep8
 
 ### make preview-docs
 
-Preview docs using `mkdocs serve`. Docs will be accessible at http://localhost:8000 by default.
+Preview docs using `mkdocs serve`. Docs will be accessible at http://localhost:8001 by default.
 
 ```
 make preview-docs
