@@ -1,16 +1,18 @@
 # Model Search
 
-The `alchy.search` module contains a collection of SQLAlchemy Column Operator factory functions which are meant to be used for [Model.\_\_advanced_search\_\_](model.md#9595advanced_search9595) and [Model.\_\_simple_search\_\_](model.md#9595simple_search9595). These functions are syntatic sugar to make it easier to define compatible search functions.
+The `alchy.search` module contains a collection of SQLAlchemy Column Operator factory functions which are meant to be used for [QueryModel.search](model.md#search). These functions are syntatic sugar to make it easier to define compatible search functions. However, due to the fact that a model's query class has to be defined before the model and given that the model column attributes need to be defined before using the search factories, the only way to use the search factories on the query class is if `__search_filters__` is defined as a property that returns the filter dict.
 
-For example, without `alchy.search` one would define an `__advanced_search__` similar to:
+For example, without `alchy.search` one would define a `__search_filters__` similar to:
 
 ```python
-class User(Model):
-	email = Column(types.String())
+class UserQuery(QueryModel):
+    __search_filters = {
+        'email': lambda value: User.email.like(value)
+    }
 
-	__advanced_search__ = {
-		'email': lambda value: User.email.contains(value)
-	}
+class User(Model):
+    query_class = UserQuery
+    email = Column(types.String(100))
 ```
 
 Using `alchy.search` the above becomes:
@@ -18,12 +20,16 @@ Using `alchy.search` the above becomes:
 ```python
 from alchy import search
 
-class User(Model):
-	email = Column(types.String())
+class UserQuery(QueryModel):
+    @property
+    def __search_filters__(self):
+        return {
+            'email': like(User.email)
+        }
 
-	__advanced_search__ = {
-		'email': search.contains(email)
-	}
+class User(Model):
+    query_class = UserQuery
+    email = Column(types.String(100))
 ```
 
 The available `alchy.search` functions:

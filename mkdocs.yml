@@ -6,7 +6,7 @@ pages:
   - [index.md, Home]
   - [model.md, Model]
   - [events.md, Events]
-  - [search.md, Search]
   - [query.md, Query]
+  - [search.md, Search]
   - [manager.md, Manager]
 theme: flatly

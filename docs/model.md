@@ -169,26 +169,6 @@ Equivalent to `Model.query.filter_by().first()` which is equivalent to `db.sessi
 Model.get_by(first='foo', last='bar')
 ```
 
-### advanced_search()
-
-Map the given search dict to the field/functions defined in [Model.\_\_advanced_search\_\_](#9595advanced_search9595) and AND together returning a query filter.
-
-```python
-Model.advanced_search(search_dict)
-
-model.advanced_search({'field1': 'search1', 'field2': 'search2'})
-```
-
-### simple_search()
-
-Pass the given search string to each function in [Model.\_\_simple_search\_\_](#9595simple_search9595) and AND together returning a query filter.
-
-```python
-Model.simple_search(search_string)
-
-model.simple_search('search')
-```
-
 ## Class Properties
 
 ### query
@@ -282,36 +262,6 @@ class MyModel(Model):
 
     def on_set_phone(target, value, oldvalue, iniator):
         target.phone = oldvalue
-```
-
-### \_\_advanced_search\_\_
-
-Enable [Model.advanced_search()](#advanced_search) by assigning a dict of functions that accept a value and return a query filter. The keys of the dict map the input keys of the search dict used in [Model.advanced_search()](#advanced_search).
-
-```python
-class MyModel(Model):
-    __advanced_search__ = {
-        'field1': lambda value: MyModel.field1.like('%{0}%'.format(value)),
-        'prefix_field2': lambda value: MyModel.field2.like('%{0}%'.format(value)),
-        'min_field3': lambda value: MyModel.field3 >= value,
-        'max_field3': lambda value: MyModel.field2 <= value
-    }
-
-MyModel.advanced_search({'field1': 'search1', 'prefix_field2': 'search2', min_field3: 42})
-```
-
-### \_\_simple_search\_\_
-
-Enable [Model.simple_search()](#simple_search) by assigning a dict of functions that accept a value and return a query filter. The keys of the dict are essentially irrelevant. They are used to keep the definition syntax consistent with [Model.__advanced_search__](#9595advanced_search9595).
-
-```python
-class MyModel(Model):
-    __simple_search__ = {
-        'field1': lambda value: MyModel.field1.like('%{0}%'.format(value)),
-        'prefix_field2': lambda value: MyModel.field2.like('%{0}%'.format(value))
-    }
-
-MyModel.simple_search('search')
 ```
 
 ### \_\_bind_key\_\_
