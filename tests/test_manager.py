@@ -1,4 +1,7 @@
 
+import os
+import glob
+
 from sqlalchemy import Column, types
 from sqlalchemy.exc import UnboundExecutionError
 from sqlalchemy.orm.exc import UnmappedError
@@ -139,7 +142,8 @@ class TestMultipleEngineBinds(TestBase):
         self.engine2 = self.db.get_engine('bind2')
 
     def tearDown(self):
-        self.db.drop_all()
+        for db in glob.glob('*.test.db'):
+            os.remove(db)
 
     def test_bind_engines(self):
         """Test that each bind engine is accessible and configured properly."""
