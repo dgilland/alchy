@@ -1,7 +1,13 @@
-## vX.X.X (XXXX-XX-XX)
+## v0.11.0 (XXXX-XX-XX)
 
 - PEP8 compliance with default settings.
 - Remove `query_property` argument from `make_declarative_base()` and `extend_declarative_base()`. **breaking change**
+- Add `ModelBase.primary_keys` class property which returns a tuple always (`ModelBase.primary_key` returns a single key if only one present or a tuple if multiple).
+- Move location of class `QueryProperty` from `alchy.model` to `alchy.query`. **breaking change**
+- Create new `Query` subclass named `QueryModel` which is to be used within a query property context. Replace `Query` with `QueryModel` as default query class. **breaking change**
+- Move `__advanced_search__` and `__simple_search__` class attributes from `ModelBase` to `QueryModel`. **breaking change**
+- Introduce `QueryModel.__search_filters__` which can define a canonical set of search filters which can then be referenced in the list version of `__advanced_search__` and `__simple_search__`.
+- Modify the logic of `QueryModel.search()` to use a subquery joined onto the originating query in order to support pagination when one-to-many and many-to-many joins are present on the originating query. **breaking change**
 
 ## v0.10.0 (2014-04-02)
 

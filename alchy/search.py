@@ -1,26 +1,32 @@
 """SQLAlchemy query filter factories usable in
-alchy.ModelBase.__advanced_search__ and __simple_search__.
+alchy.QueryModel.__search_filter__.
 
 These are factory functions that return common filter operations as functions
 which are then assigned to the model class' search config attributes.
 
 For example:
 
-    class User(Model):
-        email = Column(types.String(100))
+    class UserQuery(QueryModel):
+        @property
+        def __search_filters__(self):
+            return {
+                'email': like(User.email)
+            }
 
-        __advanced_search__ = {
-            'email': like(email)
-        }
+    class User(Model):
+        query_class = UserQuery
+        email = Column(types.String(100))
 
 without using the factory function:
 
-    class User(Model):
-        email = Column(types.String(100))
-
-        __advanced_search__ = {
+    class UserQuery(QueryModel):
+        __search_filters = {
             'email': lambda value: User.email.like(value)
         }
+
+    class User(Model):
+        query_class = UserQuery
+        email = Column(types.String(100))
 
 The general naming convention for each comparator is:
 

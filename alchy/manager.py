@@ -77,7 +77,7 @@ class Manager(ManagerMixin):
         if session_options is None:
             session_options = {}
 
-        session_options.setdefault('query_cls', Query)
+        session_options.setdefault('query_cls', QueryModel)
         session_options.setdefault('autocommit', False)
         session_options.setdefault('autoflush', True)
 

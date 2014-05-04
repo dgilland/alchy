@@ -60,7 +60,7 @@ class ModelBase(object):
     __events__ = {}
 
     # query class to use for self.query
-    query_class = query.Query
+    query_class = query.QueryModel
 
     # An instance of `query_class`.
     # Can be used to query the database for instances of this model
@@ -68,10 +68,6 @@ class ModelBase(object):
     # available. See `make_declarative_base()` for automatic implementation.
     query = None
 
-    # Specify sqla.session.query.filter() options for advanced and simple
-    # searches. E.g. { key: lambda value: Model.column_name == val }
-    __advanced_search__ = {}
-    __simple_search__ = {}
 
     def __init__(self, *args, **kargs):
         self.update(*args, **kargs)
@@ -130,14 +126,14 @@ class ModelBase(object):
         the database which include/exclude lazy attributes (columns and
         relationships).
 
-        When this fails is after a model has been committed (or expired) in
-        which case, __dict__ will be empty. This can be worked around by
-        calling `self.refresh()` which will reload the data from the database
-        using the default loader strategies.
+        One issue to be aware of is that after a model has been committed (or
+        expired), __dict__ will be empty. This can be worked around by calling
+        `self.refresh()` which will reload the data from the database using the
+        default loader strategies.
 
         These are the two main cases this default implementation will try to
         cover. For anything more complex it would be best to override this
-        property or the `to_dict()` method.
+        property or the `to_dict()` method itself.
         """
         if not self.descriptor_dict.keys() and orm.object_session(self):
             # if the descriptor dict keys are empty, assume we need to refresh
@@ -188,75 +184,6 @@ class ModelBase(object):
         class.
         """
         return self.columns
-
-    ##
-    # search/filtering methods
-    ##
-
-    @classmethod
-    def get_search(cls, search_dict, filter_fns):
-        """Generic helper for applying a key-pairs from `search_dict` to
-        key-pairs from `filter_fns` where keys are equal.
-        """
-        filters = []
-
-        for key, filter_fn in [(k, v)
-                               for k, v in iteritems(filter_fns)
-                               if k in search_dict]:
-            filters.append(filter_fn(search_dict[key]))
-
-        return filters
-
-    @classmethod
-    def advanced_search(cls, search_dict):
-        """Return set of filters generated from passing each key-pair from
-        `search_dict` to the filter functions defined in
-        `cls.__advanced_search__`.
-        """
-        filters = None
-        if cls.__advanced_search__:
-            _filters = cls.get_search(search_dict, cls.__advanced_search__)
-
-            if _filters:
-                filters = and_(*_filters)
-
-        return filters
-
-    @classmethod
-    def simple_search(cls, search_string):
-        """Return set of filters generated from passing each space-delimited
-        search term from `search_string` to the filter functions defined in
-        `cls.__simple_search__`.
-        """
-        filters = None
-
-        if cls.__simple_search__:
-            terms = [s for s in search_string.split()]
-            fields = cls.__simple_search__.keys()
-            field_count = len(fields)
-
-            search_filters = []
-
-            for term in terms:
-                # Create a dict with each `config_search` key and `term` so
-                # filters can be applied to each combination, i.e.,
-                # { config_search_key1: term, config_search_key2: term, ...,
-                #   config_search_keyN, term }
-                search_dict = dict(zip(fields, [term] * field_count))
-                term_filters = cls.get_search(
-                    search_dict, cls.__simple_search__)
-
-                if term_filters:
-                    # `or` filters together since only 1 filter needs to match
-                    # for `term`
-                    search_filters.append(or_(*term_filters))
-
-            if search_filters:
-                # `and` all search conditions together. Each `term` should have
-                # an OR'd set of filters that evaluates to True.
-                filters = and_(*search_filters)
-
-        return filters
 
     ##
     # session based methods/properties
@@ -324,6 +251,11 @@ class ModelBase(object):
         return primary
 
     @classproperty
+    def primary_keys(cls):
+        """Return primary keys as tuple."""
+        return inspect(cls).primary_key
+
+    @classproperty
     def attrs(cls):
         """Return ORM attributes"""
         return inspect(cls).attrs.keys()
@@ -351,25 +283,6 @@ class ModelBase(object):
         return inspect(cls).columns.keys()
 
 
-class QueryProperty(object):
-    """Query property accessor which gives a model access to query capabilities
-    via Model.query which is equivalent to session.query(Model)
-    """
-    def __init__(self, session):
-        self.session = session
-
-    def __get__(self, model, Model):
-        mapper = orm.class_mapper(Model)
-        if mapper:
-            if not getattr(Model, 'query_class', None):
-                Model.query_class = query.Query
-
-            query_property = Model.query_class(mapper, session=self.session())
-            query_property.__model__ = Model
-
-            return query_property
-
-
 def make_declarative_base(session=None, Model=None, Base=None):
     """Factory function for either creating a new declarative base class or
     extending a previously defined one.
@@ -391,4 +304,4 @@ def extend_declarative_base(Model, session=None):
     """
     # Attach query attribute to Model if `session` object passed in.
     if session:
-        Model.query = QueryProperty(session)
+        Model.query = query.QueryProperty(session)

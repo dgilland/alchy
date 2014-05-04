@@ -4,6 +4,7 @@
 from math import ceil
 
 from sqlalchemy import orm, and_, or_, inspect
+
 try:
     from sqlalchemy.orm.strategy_options import Load
 except ImportError:  # pragma: no cover
@@ -24,21 +25,15 @@ except ImportError:  # pragma: no cover
         def __getattr__(self, attr):
             self()
 
+from .utils import join_subquery_on_columns
+
 
 class Query(orm.Query):
     """Extension of default Query class used in SQLAlchemy session queries.
     """
 
-    # When used as a query property (e.g. MyModel.query), then this is
-    # populated with the originating model.
-    __model__ = None
-
+    # Default per_page argument for pagination when per_page not specified.
     DEFAULT_PER_PAGE = 50
-
-    @property
-    def Model(self):
-        """Return originating model class when Query used a query property"""
-        return self.__model__
 
     @property
     def entities(self):
@@ -192,42 +187,134 @@ class Query(orm.Query):
 
         return Pagination(self, page, per_page, total, items)
 
-    def advanced_search(self, search_dict):
-        """Apply advanced search filters given `search_dict`."""
-        filters = [model_filter
-                   for model_filter in [model.advanced_search(search_dict)
-                                        for model in self.all_entities]
-                   if model_filter is not None]
-        return self.filter(and_(*filters)) if filters else self
+class QueryModel(Query):
+    """Class used for default query property class. It's assumed that is how
+    this class will be used so there may be cases where some of its functions
+    won't work properly outside that context.
+    """
 
-    def simple_search(self, search_string):
-        """Apply simple search filters given `search_string`."""
-        filters = [model_filter
-                   for model_filter in [model.simple_search(search_string)
-                                        for model in self.all_entities]
-                   if model_filter is not None]
-        return self.filter(or_(*filters)) if filters else self
+    # All available search filter functions indexed by a canonical name which
+    # will be referenced in advanced/simple search. All filter functions should
+    # take a single value and return an SQLAlchemy filter expression.
+    # I.e. {key: lambda value: Model.column_name.contains(value)}
+    __search_filters__ = {}
+
+    # Advanced search models search by named parameters. Generally found on
+    # advanced search forms where each field maps to a specific database field
+    # that will be queried against. If defined as a list, each item should be
+    # a key from __search_filters__. The matching __search_filters__ function
+    # will be used in the query. If defined as a dict, it should have the same
+    # format as __search_filters__.
+    __advanced_search__ = []
+
+    # Simple search models search by phrase (like Google search). Defined like
+    # __advanced_search__.
+    __simple_search__ = []
+
+    @property
+    def Model(self):
+        """Return primary entity model class."""
+        return self.entities[0]
+
+    def get_search_filters(self, keys):
+        """Return __search_filters__ filtered by keys."""
+        if isinstance(keys, dict):
+            return keys
+        else:
+            return {key: self.__search_filters__[key] for key in keys}
+
+    def advanced_filter(self, search_dict=None):
+        """Return the compiled advanced search filter mapped to search_dict."""
+        if search_dict is None:  # pragma: no cover
+            search_dict = {}
+
+        filter_funcs = self.get_search_filters(self.__advanced_search__)
+        term_filters = [filter_funcs[key](value)
+                       for key, value in search_dict.iteritems()
+                       if key in filter_funcs]
+
+        # All filters should match for an advanced search.
+        return and_(*term_filters)
+
+    def simple_filter(self, search_terms=None):
+        if search_terms is None:  # pragma: no cover
+            search_terms = []
+
+        filter_funcs = self.get_search_filters(self.__simple_search__)
+
+        # Only support AND'ing search terms together. Apply each simple search
+        # filter to each search term and group them together.
+        term_filters = [[func(term) for func in filter_funcs.values()]
+                        for term in search_terms]
+
+        # Each item in term_filters is a list of filters applied to one of
+        # the search terms contained in search_string. We need at least one
+        # simple filter to match for each term. We need all search terms to
+        # have at least simple filter match.
+        return and_(*[or_(*filters) for filters in term_filters])
 
     def search(self, search_string=None, search_dict=None,
-               limit=None, offset=None):
+               limit=None, offset=None, order_by=None):
         """Perform combination of simple/advanced searching with optional
         limit/offset support.
         """
-        query = self
+        model_primary_keys = self.Model.primary_keys
+
+        # Apply search filtering and pagination to Model's primary keys so we
+        # can use the query as a subquery. In order to properly handle
+        # pagination, we should use a subquery so that the outer level joins
+        # won't cause records to be excluded when those includes *-to-many
+        # relationships. For example, if we were returning a query of user +
+        # user keywords (one-to-many), then for something like the first 25
+        # users, we may actually have more than that many records since we're
+        # joining on many records from the user keywords table.
+        model_query = original = self.session.query(
+            *model_primary_keys).distinct()
 
         if search_string is not None:
-            query = query.simple_search(search_string)
+            model_query = model_query.filter(
+                self.simple_filter(search_string.split()))
 
         if search_dict is not None:
-            query = query.advanced_search(search_dict)
+            model_query = model_query.filter(
+                self.advanced_filter(search_dict))
 
         if limit is not None:
-            query = query.limit(limit)
+            model_query = model_query.limit(limit)
 
         if offset is not None:
-            query = query.offset(offset)
+            model_query = model_query.offset(offset)
+
+        if order_by is not None:
+            model_query = model_query.order_by(order_by)
+
+        if model_query != original:
+            subquery = model_query.subquery()
+
+            query = self.join(subquery, join_subquery_on_columns(
+                subquery, model_primary_keys))
+        else:
+            query = self
 
         return query
+
+
+class QueryProperty(object):
+    """Query property accessor which gives a model access to query capabilities
+    via Model.query which is equivalent to session.query(Model)
+    """
+    def __init__(self, session):
+        self.session = session
+
+    def __get__(self, model, Model):
+        mapper = orm.class_mapper(Model)
+        if mapper:
+            if not getattr(Model, 'query_class', None):
+                Model.query_class = QueryModel
+
+            query_property = Model.query_class(mapper, session=self.session())
+
+            return query_property
 
 
 ##

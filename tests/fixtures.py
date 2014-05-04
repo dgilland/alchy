@@ -9,11 +9,25 @@ from alchy.types import DeclarativeEnum
 Model = model.make_declarative_base()
 
 
+class FooQuery(query.QueryModel):
+    __search_filters__ = {
+        'foo_string': lambda value: Foo.string.contains(value),
+        'foo_string2': lambda value: Foo.string2.contains(value),
+        'foo_number': lambda value: Foo.number == value,
+        'bar_string': lambda value: Foo.bars.any(Bar.string.contains(value))
+    }
+
+    __advanced_search__ = ['foo_string', 'foo_string2', 'foo_number']
+    __simple_search__ = ['foo_string', 'foo_string2', 'bar_string']
+
+
 class Foo(Model):
     __tablename__ = 'foo'
+    query_class = FooQuery
 
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
+    string2 = Column(types.String())
     number = Column(types.Integer())
     boolean = Column(types.Boolean(), default=True)
     deferred1_col1 = orm.deferred(Column(types.Boolean()), group='deferred_1')
@@ -23,15 +37,6 @@ class Foo(Model):
 
     bars = orm.relationship('Bar', lazy=True)
     quxs = orm.relationship('Qux', lazy=True)
-
-    __advanced_search__ = {
-        'foo_string': lambda value: Foo.string.like('%{0}%'.format(value)),
-        'foo_number': lambda value: Foo.number == value
-    }
-
-    __simple_search__ = {
-        'foo_string': __advanced_search__['foo_string']
-    }
 
     @orm.validates('number')
     def validate_number(self, key, value):
@@ -46,8 +51,20 @@ class Foo(Model):
         )
 
 
+class BarQuery(query.QueryModel):
+    __advanced_search__ = {
+        'bar_string': lambda value: Bar.string.contains(value),
+        'bar_number': lambda value: Bar.number == value
+    }
+
+    __simple_search__ = {
+        'bar_string': lambda value: Bar.string.contains(value)
+    }
+
+
 class Bar(Model):
     __tablename__ = 'bar'
+    query_class = BarQuery
 
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
@@ -60,15 +77,6 @@ class Bar(Model):
 
     foo = orm.relationship('Foo')
     bazs = orm.relationship('Baz')
-
-    __advanced_search__ = {
-        'bar_string': lambda value: Bar.string.like('%{0}%'.format(value)),
-        'bar_number': lambda value: Bar.number == value
-    }
-
-    __simple_search__ = {
-        'bar_string': __advanced_search__['bar_string']
-    }
 
 
 class Baz(Model):

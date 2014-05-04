@@ -89,7 +89,7 @@ class TestQuery(TestQueryBase):
 
     def test_advanced_search(self):
         search_dict = dict(foo_string='smith', foo_number=3)
-        results = self.db.query(Foo).advanced_search(search_dict).all()
+        results = Foo.query.search(search_dict=search_dict).all()
 
         self.assertTrue(len(results) > 0)
 
@@ -99,17 +99,19 @@ class TestQuery(TestQueryBase):
 
     def test_simple_search(self):
         search_string = 'smith'
-        results = self.db.query(Foo).simple_search(search_string).all()
 
-        self.assertTrue(len(results) > 0)
+        for Model in [Foo, Bar]:
+            results = Model.query.search(search_string=search_string).all()
 
-        for r in results:
-            self.assertTrue(search_string in r.string.lower())
+            self.assertTrue(len(results) > 0)
+
+            for r in results:
+                self.assertTrue(search_string in r.string.lower())
 
     def test_search(self):
         search_string = 'smith'
         search_dict = dict(foo_number=3)
-        results = self.db.query(Foo).search(search_string, search_dict).all()
+        results = Foo.query.search(search_string, search_dict).all()
 
         self.assertTrue(len(results) > 0)
 
@@ -117,30 +119,48 @@ class TestQuery(TestQueryBase):
             self.assertTrue(search_string in r.string.lower())
             self.assertEqual(search_dict['foo_number'], r.number)
 
+    def test_search_one_to_many(self):
+        string_choices = ['one', 'two', 'three']
+        string2_choices = ['four', 'five', 'six']
+
+        for i in xrange(50):
+            string = string_choices[i % len(string_choices)]
+            string2 = string2_choices[i % len(string_choices)]
+            bars = [Bar(string=i) for _ in xrange(2)]
+            self.db.add_commit(Foo(string=string, string2=string2, bars=bars))
+
+        search_string = 'one four'
+        limit = 10
+
+        results = Foo.query.join(Foo.bars).search(
+            search_string, limit=limit).all()
+
+        self.assertEqual(len(results), limit)
+
+        search_string = '49'
+
+        results = Foo.query.join(Foo.bars).search(search_string).all()
+
+        self.assertEqual(len(results), 1)
+
+    def test_search_order_by(self):
+        ids = Foo.query.search('i').pluck('_id')
+        ids_desc = Foo.query.search('i', order_by=Foo._id.desc()).pluck('_id')
+
+        self.assertEqual(ids_desc, list(reversed(ids)))
+
+    def test_search_empty(self):
+        self.assertEqual(str(Foo.query.search()), str(Foo.query))
+
     def test_search_limit_offset(self):
         search_string = 'i'
-        results1 = self.db.query(Foo).search(
+        results1 = Foo.query.search(
             search_string, limit=1, offset=1).all()
-        results2 = self.db.query(Foo).search(
+        results2 = Foo.query.search(
             search_string).limit(1).offset(1).all()
 
         self.assertTrue(len(results1))
         self.assertEqual(results1, results2)
-
-    def test_search_joined(self):
-        foo = Foo(
-            string='my foo string',
-            number=7,
-            bars=[Bar(string='my bar string', number=1)])
-        self.db.add(foo)
-
-        search_string = 'my bar'
-        search_dict = dict(foo_number=7)
-        results = self.db.query(Foo).join(Bar).search(
-            search_string, search_dict).all()
-
-        self.assertTrue(len(results) == 1)
-        self.assertEqual(foo, results[0])
 
     def test_join_eager(self):
         self.assertEqual(
@@ -505,4 +525,4 @@ class TestQuery(TestQueryBase):
 
     def test_model_property(self):
         self.assertIs(Foo.query.Model, Foo)
-        self.assertIs(Foo.query.Model, Foo.query.__model__)
+        self.assertIs(Foo.query.Model, Foo.query.entities[0])

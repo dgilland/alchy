@@ -138,7 +138,7 @@ class TestModel(TestQueryBase):
         # it should use default loading which is lazy
         self.assertIsSubset(data, as_dict)
         self.assertEqual(
-            set(as_dict.keys()), set(['_id', 'string', 'number', 'boolean']))
+            set(as_dict.keys()), set(['_id', 'string', 'string2', 'number', 'boolean']))
 
     def test_to_dict_with_joined(self):
         data = fixtures.data['Foo'][0]
@@ -153,7 +153,7 @@ class TestModel(TestQueryBase):
         self.assertIsSubset(data, as_dict)
         self.assertEqual(
             set(as_dict.keys()),
-            set(['_id', 'string', 'number', 'boolean', 'quxs', 'bars']))
+            set(['_id', 'string', 'string2', 'number', 'boolean', 'quxs', 'bars']))
 
         # and relationship's relationships
         self.assertIn('bazs', as_dict['bars'][0])
