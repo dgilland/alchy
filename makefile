@@ -1,4 +1,4 @@
-.PHONY: build clean clean-env clean-files install test test-full lint pep8 pylint docs preview-docs release travisci-install travisci-test
+.PHONY: build clean clean-env clean-files install test test-full test-tox lint pep8 pylint docs preview-docs release travisci-install travisci-test
 
 ##
 # Variables
@@ -42,7 +42,9 @@ install:
 test:
 	$(ENV_ACT) py.test $(PYTEST_ARGS) $(COVERAGE_ARGS) $(COVERAGE_TARGET) $(PYTEST_TARGET)
 
-test-full:
+test-full: test-tox clean-files
+
+test-tox:
 	rm -rf .tox
 	$(ENV_ACT) tox
 
