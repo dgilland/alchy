@@ -147,7 +147,6 @@ class TestSearch(TestBase):
             Search.many, search.eq(SearchMany.string))(self.value)
         target = Search.many.any(SearchMany.string == self.value)
 
-
         self.assertEqual(str(test), str(target))
 
     def test_notany_(self):
@@ -161,7 +160,6 @@ class TestSearch(TestBase):
         test = search.has(
             Search.one, search.eq(SearchOne.string))(self.value)
         target = Search.one.has(SearchOne.string == self.value)
-
 
         self.assertEqual(str(test), str(target))
 

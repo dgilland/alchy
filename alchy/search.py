@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """SQLAlchemy query filter factories usable in
 alchy.QueryModel.__search_filter__.
 
@@ -34,37 +35,41 @@ The general naming convention for each comparator is:
 - negative comparator: notbase (e.g. "notlike")
 """
 
-from functools import partial
-
 from sqlalchemy import not_
 
 
 class ColumnOperator(object):
+    """Base class for column operator based search factories."""
     op = None
 
     def __init__(self, column):
         self.column = column
 
     def compare(self, value):
+        """Return comparision with value."""
         return getattr(self.column, self.op)(value)
 
     def __call__(self, value):
+        """Makes comparision."""
         if hasattr(self.column, '__call__'):
             self.column = self.column()
         return self.compare(value)
 
 
 class NegateOperator(ColumnOperator):
+    """Negates a ColumnOperator class."""
     def __call__(self, value):
         return not_(super(NegateOperator, self).__call__(value))
 
 
 class RelationshipOperator(ColumnOperator):
+    """Base class for relationship operator based search factories."""
     def __init__(self, column, column_operator):
         self.column = column
         self.column_operator = column_operator
 
     def compare(self, value):
+        """Return comparision with value."""
         return getattr(self.column, self.op)(self.column_operator(value))
 
 
