@@ -8,49 +8,136 @@ from .fixtures import Search
 
 
 class TestSearch(TestBase):
-    function_mapping = [
-        ('like', 'like'),
-        ('notlike', 'notlike'),
-        ('ilike', 'ilike'),
-        ('notilike', 'notilike'),
-        ('endswith', 'endswith'),
-        ('notendswith', (not_, 'endswith')),
-        ('startswith', 'startswith'),
-        ('notstartswith', (not_, 'startswith')),
-        ('contains', 'contains'),
-        ('notcontains', (not_, 'contains')),
-        ('eq', '__eq__'),
-        ('noteq', (not_, '__eq__')),
-        ('gt', '__gt__'),
-        ('notgt', (not_, '__gt__')),
-        ('ge', '__ge__'),
-        ('notge', (not_, '__ge__')),
-        ('lt', '__lt__'),
-        ('notlt', (not_, '__lt__')),
-        ('le', '__le__'),
-        ('notle', (not_, '__le__')),
-        ('in_', 'in_'),
-        ('notin_', 'notin_')
-    ]
+    value = 'foo'
 
-    def test_search_functions(self):
-        value = 'foo'
+    def test_like(self):
+        test = search.like(Search.string)(self.value)
+        target = Search.string.like(self.value)
 
-        for search_name, column_operator in self.function_mapping:
-            search_func = getattr(search, search_name)(Search.string)
+        self.assertEqual(str(test), str(target))
 
-            if isinstance(column_operator, tuple):
-                negate, column_operator = column_operator
-            else:
-                negate = None
+    def test_notlike(self):
+        test = search.notlike(Search.string)(self.value)
+        target = not_(Search.string.like(self.value))
 
-            operator_func = getattr(Search.string, column_operator)
-            operator_expression = operator_func(value)
+        self.assertEqual(str(test), str(target))
 
-            if negate:
-                operator_expression = negate(operator_expression)
+    def test_ilike(self):
+        test = search.ilike(Search.string)(self.value)
+        target = Search.string.ilike(self.value)
 
-            self.assertEqual(
-                str(search_func(value)),
-                str(operator_expression)
-            )
+        self.assertEqual(str(test), str(target))
+
+    def test_notilike(self):
+        test = search.notilike(Search.string)(self.value)
+        target = not_(Search.string.ilike(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_startswith(self):
+        test = search.startswith(Search.string)(self.value)
+        target = Search.string.startswith(self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notstartswith(self):
+        test = search.notstartswith(Search.string)(self.value)
+        target = not_(Search.string.startswith(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_endswith(self):
+        test = search.endswith(Search.string)(self.value)
+        target = Search.string.endswith(self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notendswith(self):
+        test = search.notendswith(Search.string)(self.value)
+        target = not_(Search.string.endswith(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_contains(self):
+        test = search.contains(Search.string)(self.value)
+        target = Search.string.contains(self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notcontains(self):
+        test = search.notcontains(Search.string)(self.value)
+        target = not_(Search.string.contains(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_in_(self):
+        test = search.in_(Search.string)(self.value)
+        target = Search.string.in_(self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notin_(self):
+        test = search.notin_(Search.string)(self.value)
+        target = not_(Search.string.in_(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_eq(self):
+        test = search.eq(Search.string)(self.value)
+        target = Search.string == self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_noteq(self):
+        test = search.noteq(Search.string)(self.value)
+        target = Search.string != self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_gt(self):
+        test = search.gt(Search.string)(self.value)
+        target = Search.string > self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notgt(self):
+        test = search.notgt(Search.string)(self.value)
+        target = not_(Search.string > self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_ge(self):
+        test = search.ge(Search.string)(self.value)
+        target = Search.string >= self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notge(self):
+        test = search.notge(Search.string)(self.value)
+        target = not_(Search.string >= self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_lt(self):
+        test = search.lt(Search.string)(self.value)
+        target = Search.string < self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notlt(self):
+        test = search.notlt(Search.string)(self.value)
+        target = not_(Search.string < self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_le(self):
+        test = search.le(Search.string)(self.value)
+        target = Search.string <= self.value
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notle(self):
+        test = search.notle(Search.string)(self.value)
+        target = not_(Search.string <= self.value)
+
+        self.assertEqual(str(test), str(target))

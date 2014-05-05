@@ -8,6 +8,7 @@
 - Move `__advanced_search__` and `__simple_search__` class attributes from `ModelBase` to `QueryModel`. **breaking change**
 - Introduce `QueryModel.__search_filters__` which can define a canonical set of search filters which can then be referenced in the list version of `__advanced_search__` and `__simple_search__`.
 - Modify the logic of `QueryModel.search()` to use a subquery joined onto the originating query in order to support pagination when one-to-many and many-to-many joins are present on the originating query. **breaking change**
+- Support passing in a callable that returns a column attribute for `alchy.search.<method>()`. Allows for `alchy.search.contains(lambda: Foo.id)` to be used at the class attribute level when `Foo.id` will be defined later.
 
 ## v0.10.0 (2014-04-02)
 

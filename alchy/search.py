@@ -17,7 +17,7 @@ For example:
         query_class = UserQuery
         email = Column(types.String(100))
 
-without using the factory function:
+without using the search function:
 
     class UserQuery(QueryModel):
         __search_filters = {
@@ -34,125 +34,152 @@ The general naming convention for each comparator is:
 - negative comparator: notbase (e.g. "notlike")
 """
 
+from functools import partial
+
 from sqlalchemy import not_
 
 
-def negate(base_func):
-    """Factory negate function generator."""
-    def _negate(*args, **kargs):
-        """Negating function generator"""
-        def _base_func(*_args, **_kargs):
-            """Negating function"""
-            return not_(base_func(*args, **kargs)(*_args, **_kargs))
-        return _base_func
-    return _negate
+class ColumnOperator(object):
+    op = None
+
+    def __init__(self, column):
+        self.column = column
+
+    def compare(self, value):
+        return getattr(self.column, self.op)(value)
+
+    def __call__(self, value):
+        if hasattr(self.column, '__call__'):
+            self.column = self.column()
+        return self.compare(value)
 
 
-def like(column):
+class NegateOperator(ColumnOperator):
+    def __call__(self, value):
+        return not_(super(NegateOperator, self).__call__(value))
+
+
+class RelationshipOperator(ColumnOperator):
+    def __init__(self, column, column_operator):
+        self.column = column
+        self.column_operator = column_operator
+
+    def compare(self, value):
+        return getattr(self.column, self.op)(self.column_operator(value))
+
+
+class like(ColumnOperator):
     """Return like filter function using ORM column field."""
-    def _like(value):
-        """Return like filter."""
-        return column.like(value)
-    return _like
-
-notlike = negate(like)
+    op = 'like'
 
 
-def ilike(column):
+class notlike(like, NegateOperator):
+    """Return not like filter function using ORM column field."""
+    pass
+
+
+class ilike(ColumnOperator):
     """Return ilike filter function using ORM column field."""
-    def _ilike(value):
-        """Return ilike filter."""
-        return column.ilike(value)
-    return _ilike
-
-notilike = negate(ilike)
+    op = 'ilike'
 
 
-def startswith(column):
+class notilike(ilike, NegateOperator):
+    """Return not ilike filter function using ORM column field."""
+    pass
+
+
+class startswith(ColumnOperator):
     """Return startswith filter function using ORM column field."""
-    def _startswith(value):
-        """Return startswith filter."""
-        return column.startswith(value)
-    return _startswith
-
-notstartswith = negate(startswith)
+    op = 'startswith'
 
 
-def endswith(column):
+class notstartswith(startswith, NegateOperator):
+    """Return not startswith filter function using ORM column field."""
+    pass
+
+
+class endswith(ColumnOperator):
     """Return endswith filter function using ORM column field."""
-    def _endswith(value):
-        """Return endswith filter."""
-        return column.endswith(value)
-    return _endswith
-
-notendswith = negate(endswith)
+    op = 'endswith'
 
 
-def contains(column):
-    """Return contain filter function using ORM column field."""
-    def _contains(value):
-        """Return contains filter."""
-        return column.contains(value)
-    return _contains
-
-notcontains = negate(contains)
+class notendswith(endswith, NegateOperator):
+    """Return not endswith filter function using ORM column field."""
+    pass
 
 
-def in_(column):
-    """Return in filter function using ORM column field."""
-    def _in_(value):
-        """Return in filter."""
-        return column.in_(value)
-    return _in_
-
-notin_ = negate(in_)
+class contains(ColumnOperator):
+    """Return contains filter function using ORM column field."""
+    op = 'contains'
 
 
-def eq(column):
+class notcontains(contains, NegateOperator):
+    """Return not contains filter function using ORM column field."""
+    pass
+
+
+class in_(ColumnOperator):
+    """Return in_ filter function using ORM column field."""
+    op = 'in_'
+
+
+class notin_(in_, NegateOperator):
+    """Return not in_ filter function using ORM column field."""
+    pass
+
+
+class eq(ColumnOperator):
     """Return == filter function using ORM column field."""
-    def _eq(value):
-        """Return == filter."""
-        return column == value
-    return _eq
-
-noteq = negate(eq)
+    def compare(self, value):
+        return self.column == value
 
 
-def gt(column):
+class noteq(eq, NegateOperator):
+    """Return not(==) filter function using ORM column field."""
+    pass
+
+
+class gt(ColumnOperator):
     """Return > filter function using ORM column field."""
-    def _gt(value):
-        """Return > filter."""
-        return column > value
-    return _gt
-
-notgt = negate(gt)
+    def compare(self, value):
+        return self.column > value
 
 
-def ge(column):
+class notgt(gt, NegateOperator):
+    """Return not(>) filter function using ORM column field."""
+    pass
+
+
+class ge(ColumnOperator):
     """Return >= filter function using ORM column field."""
-    def _ge(value):
-        """Return >= filter."""
-        return column >= value
-    return _ge
-
-notge = negate(ge)
+    def compare(self, value):
+        return self.column >= value
 
 
-def lt(column):
+class notge(ge, NegateOperator):
+    """Return not(>=) filter function using ORM column field."""
+    pass
+
+
+class lt(ColumnOperator):
     """Return < filter function using ORM column field."""
-    def _lt(value):
-        """Return < filter."""
-        return column < value
-    return _lt
-
-notlt = negate(lt)
+    def compare(self, value):
+        return self.column < value
 
 
-def le(column):
+class notlt(lt, NegateOperator):
+    """Return not(<) filter function using ORM column field."""
+    pass
+
+
+class le(ColumnOperator):
     """Return <= filter function using ORM column field."""
-    def _le(value):
-        """Return <= filter."""
-        return column <= value
-    return _le
+    def compare(self, value):
+        return self.column <= value
 
-notle = negate(le)
+
+class notle(le, NegateOperator):
+    """Return not(<=) filter function using ORM column field."""
+    pass
+
+
