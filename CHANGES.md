@@ -1,4 +1,4 @@
-## v0.11.0 (XXXX-XX-XX)
+## v0.11.0 (2014-05-04)
 
 - PEP8 compliance with default settings.
 - Remove `query_property` argument from `make_declarative_base()` and `extend_declarative_base()`. **breaking change**

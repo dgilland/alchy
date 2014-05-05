@@ -15,7 +15,7 @@ __title__ = 'alchy'
 __summary__ = 'The declarative companion to SQLAlchemy'
 __url__ = 'https://github.com/dgilland/alchy'
 
-__version__ = '0.10.0'
+__version__ = '0.11.0'
 
 __author__ = 'Derrick Gilland'
 __email__ = 'dgilland@gmail.com'
