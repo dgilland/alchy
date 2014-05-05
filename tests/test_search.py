@@ -4,7 +4,7 @@ from sqlalchemy import not_
 from alchy import search
 
 from .base import TestBase
-from .fixtures import Search
+from .fixtures import Search, SearchOne, SearchMany
 
 
 class TestSearch(TestBase):
@@ -139,5 +139,41 @@ class TestSearch(TestBase):
     def test_notle(self):
         test = search.notle(Search.string)(self.value)
         target = not_(Search.string <= self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_any_(self):
+        test = search.any_(
+            Search.many, search.eq(SearchMany.string))(self.value)
+        target = Search.many.any(SearchMany.string == self.value)
+
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notany_(self):
+        test = search.notany_(
+            Search.many, search.eq(SearchMany.string))(self.value)
+        target = not_(Search.many.any(SearchMany.string == self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_has(self):
+        test = search.has(
+            Search.one, search.eq(SearchOne.string))(self.value)
+        target = Search.one.has(SearchOne.string == self.value)
+
+
+        self.assertEqual(str(test), str(target))
+
+    def test_nothas(self):
+        test = search.nothas(
+            Search.one, search.eq(SearchOne.string))(self.value)
+        target = not_(Search.one.has(SearchOne.string == self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_column_callable(self):
+        test = search.like(lambda: Search.string)(self.value)
+        target = Search.string.like(self.value)
 
         self.assertEqual(str(test), str(target))

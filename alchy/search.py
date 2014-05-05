@@ -183,3 +183,21 @@ class notle(le, NegateOperator):
     pass
 
 
+class any_(RelationshipOperator):
+    """Return any filter function using ORM relationship field."""
+    op = 'any'
+
+
+class notany_(any_, NegateOperator):
+    """Return not(any) filter function using ORM relationship field."""
+    pass
+
+
+class has(RelationshipOperator):
+    """Return has filter function using ORM relationship field."""
+    op = 'has'
+
+
+class nothas(has, NegateOperator):
+    """Return not(has) filter function using ORM relationship field."""
+    pass

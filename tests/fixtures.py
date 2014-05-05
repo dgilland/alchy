@@ -160,6 +160,21 @@ class C(Model):
 class Search(Model):
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
+    search_one_id = Column(types.Integer(), ForeignKey('search_one._id'))
+
+    many = orm.relationship('SearchMany')
+    one = orm.relationship('SearchOne')
+
+
+class SearchOne(Model):
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+
+
+class SearchMany(Model):
+    _id = Column(types.Integer(), primary_key=True)
+    string = Column(types.String())
+    search_id = Column(types.Integer(), ForeignKey('search._id'))
 
 
 Models = {
