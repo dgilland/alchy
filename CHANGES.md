@@ -1,3 +1,7 @@
+## v0.11.2 (2014-05-05)
+
+- Support `order_by` as list/tuple in `QueryModel.search()`.
+
 ## v0.11.1 (2014-05-05)
 
 - Fix bug in `QueryModel.search()` where `order_by` wasn't applied in the correct order. Needed to come before limit/offset are applied.

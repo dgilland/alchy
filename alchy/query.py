@@ -283,7 +283,9 @@ class QueryModel(Query):
                 self.advanced_filter(search_dict))
 
         if order_by is not None:
-            model_query = model_query.order_by(order_by)
+            if not isinstance(order_by, (list, tuple)):
+                order_by = [order_by]
+            model_query = model_query.order_by(*order_by)
 
         if limit is not None:
             model_query = model_query.limit(limit)
