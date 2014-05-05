@@ -68,6 +68,13 @@ preview-docs:
 
 
 # code release
+master:
+	git checkout master
+	git merge develop
+	git push origin master
+	git push --tags
+	git checkout develop
+
 release:
 	$(ENV_ACT) python setup.py sdist bdist_wheel
 	$(ENV_ACT) twine upload dist/*
