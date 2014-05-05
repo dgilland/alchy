@@ -1,3 +1,7 @@
+## v0.11.1 (2014-05-05)
+
+- Fix bug in `QueryModel.search()` where `order_by` wasn't applied in the correct order. Needed to come before limit/offset are applied.
+
 ## v0.11.0 (2014-05-04)
 
 - PEP8 compliance with default settings.

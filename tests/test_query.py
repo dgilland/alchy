@@ -133,7 +133,7 @@ class TestQuery(TestQueryBase):
         limit = 10
 
         results = Foo.query.join(Foo.bars).search(
-            search_string, limit=limit).all()
+            search_string, limit=limit, order_by=Foo.string).all()
 
         self.assertEqual(len(results), limit)
 
@@ -152,12 +152,15 @@ class TestQuery(TestQueryBase):
     def test_search_empty(self):
         self.assertEqual(str(Foo.query.search()), str(Foo.query))
 
-    def test_search_limit_offset(self):
+    def test_search_limit_offset_order_by(self):
         search_string = 'i'
-        results1 = Foo.query.search(
-            search_string, limit=1, offset=1).all()
+        results1 = (Foo.query
+                    .search(
+                        search_string, limit=1, offset=1, order_by=Foo.string)
+                    .order_by(Foo.string)
+                    .all())
         results2 = Foo.query.search(
-            search_string).limit(1).offset(1).all()
+            search_string).order_by(Foo.string).limit(1).offset(1).all()
 
         self.assertTrue(len(results1))
         self.assertEqual(results1, results2)

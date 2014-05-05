@@ -282,14 +282,14 @@ class QueryModel(Query):
             model_query = model_query.filter(
                 self.advanced_filter(search_dict))
 
+        if order_by is not None:
+            model_query = model_query.order_by(order_by)
+
         if limit is not None:
             model_query = model_query.limit(limit)
 
         if offset is not None:
             model_query = model_query.offset(offset)
-
-        if order_by is not None:
-            model_query = model_query.order_by(order_by)
 
         if model_query != original:
             subquery = model_query.subquery()
