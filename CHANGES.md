@@ -1,6 +1,7 @@
 ## v0.11.3 (2014-05-05)
 
 - In `ModelMeta` when checking whether to do tablename autogeneration, tranverse all base classes when trying to determine if a primary key is defined.
+- In `ModelMeta` set `bind_key` in `__init__` method instead of `__new__`. This also fixes an issue where `__table_args__` was incorrectly assumed to always be a `dict`.
 
 ## v0.11.2 (2014-05-05)
 

@@ -27,13 +27,6 @@ class ModelMeta(DeclarativeMeta):
             # Set to underscore version of class name.
             dct['__tablename__'] = camelcase_to_underscore(name)
 
-        # add bind key to table info via __table_args__
-        if not dct.get('__table_args__'):
-            dct['__table_args__'] = {}
-
-        dct['__table_args__'].setdefault('info', {})
-        dct['__table_args__']['info']['bind_key'] = dct.get('__bind_key__')
-
         # Set __events__ to expected default so that it's updatable when
         # initializing. E.g. if class definition sets __events__=None but
         # defines decorated events, then we want the final __events__ attribute
@@ -45,7 +38,13 @@ class ModelMeta(DeclarativeMeta):
         return DeclarativeMeta.__new__(mcs, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        super(ModelMeta, cls).__init__(name, bases, dct)
+        bind_key = dct.pop('__bind_key__', None)
+
+        DeclarativeMeta.__init__(cls, name, bases, dct)
+
+        if bind_key is not None:
+            cls.__table__.info['bind_key'] = bind_key
+
         events.register(cls, dct)
 
 
