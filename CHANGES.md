@@ -1,3 +1,7 @@
+## v0.11.3 (2014-05-05)
+
+- In `ModelMeta` when checking whether to do tablename autogeneration, tranverse all base classes when trying to determine if a primary key is defined.
+
 ## v0.11.2 (2014-05-05)
 
 - Support `order_by` as list/tuple in `QueryModel.search()`.

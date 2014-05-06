@@ -18,9 +18,12 @@ class ModelMeta(DeclarativeMeta):
         - Declarative ORM events
     """
     def __new__(mcs, name, bases, dct):
+        # Determine if primary key is defined for dct or any of its bases.
+        base_dcts = [dct] + [base.__dict__ for base in bases]
+
         if (not dct.get('__tablename__')
                 and dct.get('__table__') is None
-                and has_primary_key(dct)):
+                and any([has_primary_key(base) for base in base_dcts])):
             # Set to underscore version of class name.
             dct['__tablename__'] = camelcase_to_underscore(name)
 
