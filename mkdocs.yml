@@ -2,6 +2,7 @@ site_name: alchy
 site_description: Enhancement library for SQLAlchemy
 site_author: Derrick Gilland
 repo_url: https://github.com/dgilland/alchy
+
 pages:
   - [index.md, Home]
   - [model.md, Model]
@@ -10,3 +11,5 @@ pages:
   - [search.md, Search]
   - [manager.md, Manager]
 theme: flatly
+
+google_analytics: ['UA-50789401-1', 'dgilland.github.io']
