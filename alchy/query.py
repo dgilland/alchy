@@ -261,18 +261,35 @@ class QueryModel(Query):
         """Perform combination of simple/advanced searching with optional
         limit/offset support.
         """
+        query = self
         model_primary_keys = self.Model.primary_keys
 
         # Apply search filtering and pagination to Model's primary keys so we
         # can use the query as a subquery. In order to properly handle
-        # pagination, we should use a subquery so that the outer level joins
-        # won't cause records to be excluded when those includes *-to-many
+        # pagination, we can use a subquery so that the outer level joins
+        # won't cause records to be excluded when they include *-to-many
         # relationships. For example, if we were returning a query of user +
         # user keywords (one-to-many), then for something like the first 25
         # users, we may actually have more than that many records since we're
         # joining on many records from the user keywords table.
         model_query = original = self.session.query(
             *model_primary_keys).distinct()
+
+        if self.whereclause is not None:
+            # Transfer the whereclause of the originating query to the new
+            # search query. This is done so the the originating query can set
+            # "global" filters for search which will be included in pagination.
+            model_query = model_query.filter(self.whereclause)
+
+            # Call a generative query method that won't modify its state. This
+            # is basically a no-op used to copy the query object and modify it
+            # below. NOTE: There may be a better way to do this.
+            query = query.filter()
+
+            # Remove existing filters since they were transferred to the
+            # model_query. This may seem kind of hacky but I don't know of a
+            # better way to nullify the query object's where clause.
+            query._criterion = None
 
         if search_string is not None:
             model_query = model_query.filter(
@@ -296,10 +313,8 @@ class QueryModel(Query):
         if model_query != original:
             subquery = model_query.subquery()
 
-            query = self.join(subquery, join_subquery_on_columns(
+            query = query.join(subquery, join_subquery_on_columns(
                 subquery, model_primary_keys))
-        else:
-            query = self
 
         return query
 

@@ -149,6 +149,25 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(ids_desc, list(reversed(ids)))
 
+    def test_search_with_initial_whereclause(self):
+        string_choices = ['one', 'two', 'three']
+        string2_choices = ['four', 'five', 'six']
+
+        for i in range(50):
+            string = string_choices[i % len(string_choices)]
+            string2 = string2_choices[i % len(string_choices)]
+            bars = [Bar(string=i) for _ in range(2)]
+            self.db.add_commit(Foo(string=string, string2=string2, bars=bars))
+
+        search_string = 'one four'
+        limit = 7
+
+        qry = Foo.query.join(Foo.bars).filter(Foo._id < 25)
+        results = qry.search(
+            search_string, limit=limit, order_by=Foo.string).all()
+
+        self.assertEqual(len(results), limit)
+
     def test_search_empty(self):
         self.assertEqual(str(Foo.query.search()), str(Foo.query))
 
