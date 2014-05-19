@@ -54,7 +54,11 @@ class ManagerMixin(object):
 class Manager(ManagerMixin):
     """Manager for session."""
 
-    def __init__(self, config=None, session_options=None, Model=None, session_class=None):
+    def __init__(self,
+                 config=None,
+                 session_options=None,
+                 Model=None,
+                 session_class=None):
 
         self.config = Config(defaults={
             'SQLALCHEMY_DATABASE_URI': 'sqlite://',
