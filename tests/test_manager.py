@@ -6,7 +6,7 @@ from sqlalchemy import Column, types
 from sqlalchemy.exc import UnboundExecutionError
 from sqlalchemy.orm.exc import UnmappedError
 
-from alchy import manager, model
+from alchy import manager, model, Session
 
 from .base import TestBase, TestQueryBase
 from . import fixtures
@@ -100,6 +100,13 @@ class TestManagerSessionExtensions(TestQueryBase):
 
         self.db.delete_commit([foos[3], foos[4]])
         self.assertEqual(self.get_count(), count - 5)
+
+    def test_custom_session(self):
+        class MySession(Session):
+            pass
+
+        db = manager.Manager(session_class=MySession)
+        self.assertIsInstance(db.session.session_factory(), MySession)
 
 
 class TestMultipleEngineBinds(TestBase):

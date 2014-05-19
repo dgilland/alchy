@@ -24,7 +24,7 @@ Initialization of `Manager` accepts a config object, session options, and an opt
 
 
 ```python
-Manager(config=None, session_options=None, Model=None)
+Manager(config=None, session_options=None, Model=None, session_class=None)
 
 config = {
     'SQLALCHEMY_DATABASE_URI': 'sqlite://test.db'
@@ -41,6 +41,8 @@ query_cls = alchy.Query
 autocommit = False
 autoflush = True
 ```
+
+The default `session_class` is `alchy.Session`. If you want to provide your own session class, then it's suggested that you subclass `alchy.Session` in order to support multiple binds.
 
 ### create_all()
 

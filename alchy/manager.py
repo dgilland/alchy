@@ -54,7 +54,7 @@ class ManagerMixin(object):
 class Manager(ManagerMixin):
     """Manager for session."""
 
-    def __init__(self, config=None, session_options=None, Model=None):
+    def __init__(self, config=None, session_options=None, Model=None, session_class=None):
 
         self.config = Config(defaults={
             'SQLALCHEMY_DATABASE_URI': 'sqlite://',
@@ -81,6 +81,7 @@ class Manager(ManagerMixin):
         session_options.setdefault('autocommit', False)
         session_options.setdefault('autoflush', True)
 
+        self.session_class = session_class or Session
         self.session = self.create_scoped_session(session_options)
 
         if Model is None:
@@ -168,7 +169,7 @@ class Manager(ManagerMixin):
         """Create session instance using custom Session class that supports
         multiple bindings.
         """
-        return Session(self, **options)
+        return self.session_class(self, **options)
 
     def get_tables_for_bind(self, bind=None):
         """Returns a list of all tables relevant for a bind."""
