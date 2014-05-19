@@ -1,3 +1,8 @@
+## v0.12.0 (2014-05-18)
+
+- Merge originating query where clause in `Query.search` so that pagination works properly.
+- Add `session_class` argument to `Manager` which can override the default session class used.
+
 ## v0.11.3 (2014-05-05)
 
 - In `ModelMeta` when checking whether to do tablename autogeneration, tranverse all base classes when trying to determine if a primary key is defined.
