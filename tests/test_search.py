@@ -70,6 +70,18 @@ class TestSearch(TestBase):
 
         self.assertEqual(str(test), str(target))
 
+    def test_icontains(self):
+        test = search.icontains(Search.string)(self.value)
+        target = Search.string.ilike('%{0}%'.format(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_noticontains(self):
+        test = search.noticontains(Search.string)(self.value)
+        target = not_(Search.string.ilike('%{0}%'.format(self.value)))
+
+        self.assertEqual(str(test), str(target))
+
     def test_in_(self):
         test = search.in_(Search.string)(self.value)
         target = Search.string.in_(self.value)

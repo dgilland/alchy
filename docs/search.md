@@ -61,6 +61,8 @@ The available `alchy.search` functions:
 | `notendswith()` | `not_(Column.endswith())` |
 | `contains()` | `Column.contains()` |
 | `notcontains()` | `not_(Column.contains())` |
+| `icontains()` | `Column.ilike('%{0}%')` |
+| `noticontains()` | `not_(Column.ilike('%{0}%'))` |
 | `in_()` | `Column.in_()` |
 | `notin_()` | `not_(Column.in_())` |
 | `eq()` | `Column == value` |

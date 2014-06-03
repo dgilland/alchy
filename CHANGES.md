@@ -1,3 +1,7 @@
+## v0.XX.XX (2014-06-XX)
+
+- Add `search.icontains` and `search.noticontains` for case insensitive contains filter.
+
 ## v0.12.0 (2014-05-18)
 
 - Merge originating query where clause in `Query.search` so that pagination works properly.

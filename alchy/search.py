@@ -123,6 +123,17 @@ class notcontains(contains, NegateOperator):
     pass
 
 
+class icontains(ColumnOperator):
+    """Return icontains filter function using ORM column field."""
+    def compare(self, value):
+        return self.column.ilike('%{0}%'.format(value))
+
+
+class noticontains(icontains, NegateOperator):
+    """Return not icontains filter function using ORM column field."""
+    pass
+
+
 class in_(ColumnOperator):
     """Return in_ filter function using ORM column field."""
     op = 'in_'
