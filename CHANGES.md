@@ -1,4 +1,4 @@
-## v0.XX.XX (2014-06-XX)
+## v0.13.0 (2014-06-03)
 
 - Add `search.icontains` and `search.noticontains` for case insensitive contains filter.
 - Remove strict update support from `Model.update()`. Require this to be implemented in user-land. **breaking change**
