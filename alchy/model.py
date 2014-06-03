@@ -78,17 +78,17 @@ class ModelBase(object):
                             for c in self.columns])
         return '<{0}({1})>'.format(self.__class__.__name__, values)
 
-    def update(self, data_dict=None, strict=False, **kargs):
+    def update(self, data_dict=None, **kargs):
         """Update model with arbitrary set of data."""
 
         data = data_dict if isinstance(data_dict, dict) else kargs
 
-        updatable_fields = self.strict_update_fields if strict else data.keys()
+        update_fields = data.keys()
         relationships = self.relationships
 
         for field, value in iteritems(data):
-            if hasattr(self, field) and field in updatable_fields:
-                # consider v a dict if any of its elements are a dict
+            if hasattr(self, field) and field in update_fields:
+                # Consider value a dict if any of its elements are a dict.
                 if is_sequence(value):
                     is_dict = any([isinstance(val, dict) for val in value])
                 else:
@@ -177,14 +177,6 @@ class ModelBase(object):
     def __iter__(self):
         """Implement __iter__ so model can be converted to dict via dict()."""
         return iteritems(self.to_dict())
-
-    @property
-    def strict_update_fields(self):
-        """Model fields which are allowed to be updated during strict mode.
-        Default is to limit to table columns. Override as needed in child
-        class.
-        """
-        return self.columns
 
     ##
     # session based methods/properties

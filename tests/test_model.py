@@ -86,16 +86,6 @@ class TestModel(TestQueryBase):
 
         self.assertIsNone(bar.foo)
 
-    def test_update_strict(self):
-        bar = Bar.get(1)
-        test = {'foo': {'string': 'BAR'}}
-
-        bar.update(test, strict=True)
-        self.db.commit()
-        foo = Foo.get(bar.foo_id)
-
-        self.assertNotEqual(foo.string, test['foo']['string'])
-
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)
         self.assertEqual(

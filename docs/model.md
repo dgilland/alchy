@@ -33,19 +33,17 @@ ModelBase(*args, **kargs)
 
 Model(data_dict)
 Model(**data_dict)
-Model(data_dict, strict=True)
 ```
 
 ### update()
 
-Update a model instance using a single `dict` or via keyword arguments. Optionally, restrict updatable fields using `strict=True`. If model instance contains sequence values (e.g. relationships), then those values will be updated too via nested calls to `model.relationship.update(data_dict['relationship'])`.
+Update a model instance using a single `dict` or via keyword arguments. If model instance contains sequence values (e.g. relationships), then those values will be updated too via nested calls to `model.relationship.update(data_dict['relationship'])`.
 
 ```python
-ModelBase.update(data_dict=None, strict=False, **kargs)
+ModelBase.update(data_dict=None, **kargs)
 
 model.update(data_dict)
 model.update(**data_dict)
-model.udpate(data_dict, strict=True)
 ```
 
 ### to_dict()
@@ -134,21 +132,6 @@ Proxy to `orm.object_session(model)`.
 
 ```python
 model.object_session
-```
-
-### strict_update_fields
-
-Returns updatable fields when `model.update(..., strict=True)` is called.
-
-Default returns [model.columns](#columns).
-
-Override to implement custom updatable fields:
-
-```python
-MyModelBase(ModelBase):
-	@property
-	def strict_update_fields(self):
-		return ['field1', 'field2']
 ```
 
 ## Class Methods
