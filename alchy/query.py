@@ -323,7 +323,6 @@ class QueryModel(Query):
 
         if model_query != original:
             subquery = model_query.subquery()
-            model_primary_keys = self.Model.primary_keys
             query = query.join(
                 subquery, join_subquery_on_columns(subquery,
                                                    self.Model.primary_keys))
