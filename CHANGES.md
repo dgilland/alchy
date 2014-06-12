@@ -1,3 +1,6 @@
+
+- Modify internals of `QueryModel.search()` to better handle searching on a query object that already has joins and filters applied.
+
 ## v0.13.0 (2014-06-03)
 
 - Add `search.icontains` and `search.noticontains` for case insensitive contains filter.

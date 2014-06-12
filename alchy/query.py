@@ -278,14 +278,21 @@ class QueryModel(Query):
         # user keywords (one-to-many), then for something like the first 25
         # users, we may actually have more than that many records since we're
         # joining on many records from the user keywords table.
-        model_query = original = self.session.query(
-            *model_primary_keys).distinct()
+        original = (self.lazyload('*')
+                    .load_only(*[pkey.key
+                                 for pkey in model_primary_keys])
+                    .distinct())
+
+        # Use the original query so that we preserve joins and where
+        # statements.
+        model_query = original
 
         if self.whereclause is not None:
-            # Transfer the whereclause of the originating query to the new
-            # search query. This is done so the the originating query can set
-            # "global" filters for search which will be included in pagination.
-            model_query = model_query.filter(self.whereclause)
+            # If our base query contains a whereclause, then we need to
+            # compelete the "transfer" of the base query's where statements to
+            # model_query by wiping out the base query's criterion. i.e. We
+            # only want to maintain selects and froms in the base query and
+            # keep wheres in the model_query.
 
             # Call a generative query method that won't modify its state. This
             # is basically a no-op used to copy the query object and modify it
