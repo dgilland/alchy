@@ -1,3 +1,5 @@
+## v0.13.2 (2014-06-12)
+
 - Add `ModelBase.primary_attrs` class property that returns a list of class attributes that are primary keys.
 - Use `ModelBase.primary_attrs` in `QueryModel.search()` so that it handles cases where primary keys have column names that are different than the class attribute name.
 
