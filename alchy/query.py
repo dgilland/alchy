@@ -268,7 +268,6 @@ class QueryModel(Query):
         search_options.setdefault('order_by', self.__order_by__)
 
         query = self
-        model_primary_keys = self.Model.primary_keys
 
         # Apply search filtering and pagination to Model's primary keys so we
         # can use the query as a subquery. In order to properly handle
@@ -279,8 +278,7 @@ class QueryModel(Query):
         # users, we may actually have more than that many records since we're
         # joining on many records from the user keywords table.
         original = (self.lazyload('*')
-                    .load_only(*[pkey.key
-                                 for pkey in model_primary_keys])
+                    .load_only(*self.Model.primary_attrs)
                     .distinct())
 
         # Use the original query so that we preserve joins and where
@@ -325,10 +323,10 @@ class QueryModel(Query):
 
         if model_query != original:
             subquery = model_query.subquery()
-
-            query = query.join(subquery,
-                               join_subquery_on_columns(subquery,
-                                                        model_primary_keys))
+            model_primary_keys = self.Model.primary_keys
+            query = query.join(
+                subquery, join_subquery_on_columns(subquery,
+                                                   self.Model.primary_keys))
 
         return query
 
