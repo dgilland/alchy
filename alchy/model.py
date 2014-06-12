@@ -249,6 +249,14 @@ class ModelBase(object):
         return inspect(cls).primary_key
 
     @classproperty
+    def primary_attrs(cls):
+        """Return class attributes from primary keys."""
+        primary_keys = cls.primary_keys
+        return [getattr(cls, attr)
+                for attr in cls.columns
+                if getattr(cls, attr).property.columns[0] in primary_keys]
+
+    @classproperty
     def attrs(cls):
         """Return ORM attributes"""
         return inspect(cls).attrs.keys()

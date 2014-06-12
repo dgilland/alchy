@@ -243,6 +243,14 @@ class TestModel(TestQueryBase):
         self.assertEqual(Baz.relationships, baz.relationships)
         self.assertEqual(set(Baz.relationships), set(['bar']))
 
+    def test_primary_attrs(self):
+        baz = Baz.get(1)
+
+        # it should be a class and instance property
+        self.assertEqual(Baz.primary_attrs, baz.primary_attrs)
+        self.assertTrue([attr.property.is_primary()
+                         for attr in Baz.primary_attrs])
+
     def test_get(self):
         self.assertEqual(Foo.get(1), self.db.query(Foo).get(1))
 

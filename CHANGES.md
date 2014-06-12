@@ -1,3 +1,5 @@
+- Add `ModelBase.primary_attrs` class property that returns a list of class attributes that are primary keys.
+
 ## v0.13.1 (2014-06-11)
 
 - Modify internals of `QueryModel.search()` to better handle searching on a query object that already has joins and filters applied.
