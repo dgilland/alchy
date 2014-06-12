@@ -213,6 +213,9 @@ class QueryModel(Query):
     # __advanced_search__.
     __simple_search__ = []
 
+    # Default order by to use.
+    __order_by__ = None
+
     @property
     def Model(self):
         """Return primary entity model class."""
@@ -256,11 +259,14 @@ class QueryModel(Query):
         # have at least simple filter match.
         return and_(*[or_(*filters) for filters in term_filters])
 
-    def search(self, search_string=None, search_dict=None,
-               limit=None, offset=None, order_by=None):
+    def search(self, search_string=None, search_dict=None, **search_options):
         """Perform combination of simple/advanced searching with optional
         limit/offset support.
         """
+        search_options.setdefault('limit', None)
+        search_options.setdefault('offset', None)
+        search_options.setdefault('order_by', self.__order_by__)
+
         query = self
         model_primary_keys = self.Model.primary_keys
 
@@ -299,22 +305,23 @@ class QueryModel(Query):
             model_query = model_query.filter(
                 self.advanced_filter(search_dict))
 
-        if order_by is not None:
-            if not isinstance(order_by, (list, tuple)):
-                order_by = [order_by]
-            model_query = model_query.order_by(*order_by)
+        if search_options['order_by'] is not None:
+            if not isinstance(search_options['order_by'], (list, tuple)):
+                search_options['order_by'] = [search_options['order_by']]
+            model_query = model_query.order_by(*search_options['order_by'])
 
-        if limit is not None:
-            model_query = model_query.limit(limit)
+        if search_options['limit'] is not None:
+            model_query = model_query.limit(search_options['limit'])
 
-        if offset is not None:
-            model_query = model_query.offset(offset)
+        if search_options['offset'] is not None:
+            model_query = model_query.offset(search_options['offset'])
 
         if model_query != original:
             subquery = model_query.subquery()
 
-            query = query.join(subquery, join_subquery_on_columns(
-                subquery, model_primary_keys))
+            query = query.join(subquery,
+                               join_subquery_on_columns(subquery,
+                                                        model_primary_keys))
 
         return query
 
