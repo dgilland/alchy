@@ -1,3 +1,7 @@
+## v0.13.3 (2014-07-26)
+
+- Fix `utils.iterflatten()` by calling `iterflatten()` instead of `flatten` in recursive loop.
+
 ## v0.13.2 (2014-06-12)
 
 - Add `ModelBase.primary_attrs` class property that returns a list of class attributes that are primary keys.
