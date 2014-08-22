@@ -206,6 +206,17 @@ class TestModel(TestQueryBase):
         self.assertEqual(
             set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
 
+    def test_getitem(self):
+        baz = Baz.get(1)
+
+        self.assertEqual(baz.string, baz['string'])
+
+    def test_setitem(self):
+        baz = Baz.get(1)
+
+        baz['string'] = baz.string * 2
+        self.assertEqual(baz.string, baz['string'])
+
     def test_columns(self):
         baz = Baz.get(1)
 

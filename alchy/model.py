@@ -78,6 +78,14 @@ class ModelBase(object):
                             for c in self.columns])
         return '<{0}({1})>'.format(self.__class__.__name__, values)
 
+    def __getitem__(self, item):
+        """Proxy getitem to getattr."""
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        """Proxy setitem to setattr."""
+        setattr(self, item, value)
+
     def update(self, data_dict=None, **kargs):
         """Update model with arbitrary set of data."""
 
