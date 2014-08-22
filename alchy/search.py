@@ -73,6 +73,20 @@ class RelationshipOperator(ColumnOperator):
         return getattr(self.column, self.op)(self.column_operator(value))
 
 
+class DeclarativeEnumOperator(ColumnOperator):
+    """Base class for DeclarativeEnum operator based search factorires."""
+    def __init__(self, column, enum_class):
+        self.column = column
+        self.enum_class = enum_class
+
+    def compare(self, value):
+        """Return comparision with value."""
+        try:
+            return self.column == self.enum_class.from_string(value)
+        except ValueError:
+            return None
+
+
 class like(ColumnOperator):
     """Return like filter function using ORM column field."""
     op = 'like'
@@ -216,4 +230,14 @@ class has(RelationshipOperator):
 
 class nothas(has, NegateOperator):
     """Return not(has) filter function using ORM relationship field."""
+    pass
+
+
+class eqenum(DeclarativeEnumOperator):
+    """Return == filter function using ORM DeclarativeEnum field."""
+    pass
+
+
+class noteqenum(eqenum, NegateOperator):
+    """Return not(eqenum) filter function using ORM DeclarativeEnum field."""
     pass

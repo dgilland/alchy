@@ -4,11 +4,11 @@ from sqlalchemy import not_
 from alchy import search
 
 from .base import TestBase
-from .fixtures import Search, SearchOne, SearchMany
+from .fixtures import Search, SearchOne, SearchMany, OrderStatus
 
 
 class TestSearch(TestBase):
-    value = 'foo'
+    value = 'p'
 
     def test_like(self):
         test = search.like(Search.string)(self.value)
@@ -179,6 +179,30 @@ class TestSearch(TestBase):
         test = search.nothas(
             Search.one, search.eq(SearchOne.string))(self.value)
         target = not_(Search.one.has(SearchOne.string == self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_eqenum(self):
+        test = search.eqenum(Search.status, OrderStatus)(self.value)
+        target = Search.status == OrderStatus.from_string(self.value)
+
+        self.assertEqual(str(test), str(target))
+
+    def test_eqenum_invalid(self):
+        test = search.eqenum(Search.status, OrderStatus)('invalid')
+        target = None
+
+        self.assertEqual(str(test), str(target))
+
+    def test_noteqenum(self):
+        test = search.noteqenum(Search.status, OrderStatus)(self.value)
+        target = not_(Search.status == OrderStatus.from_string(self.value))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_noteqenum_invalid(self):
+        test = search.noteqenum(Search.status, OrderStatus)('invalid')
+        target = not_(None)
 
         self.assertEqual(str(test), str(target))
 

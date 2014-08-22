@@ -169,6 +169,7 @@ class Search(Model):
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
     search_one_id = Column(types.Integer(), ForeignKey('search_one._id'))
+    status = Column(OrderStatus.db_type(), default=OrderStatus.pending)
 
     many = orm.relationship('SearchMany')
     one = orm.relationship('SearchOne')
