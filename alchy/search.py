@@ -52,8 +52,8 @@ Or if a callable is passed in::
 
 The general naming convention for each comparator is:
 
-- positive comparator: base (e.g. "like")
-- negative comparator: notbase (e.g. "notlike")
+- positive comparator: ``<base>`` (e.g. "like")
+- negative comparator: ``not<base>`` (e.g. "notlike")
 
 The call signature for the ``search`` functions is::
 
