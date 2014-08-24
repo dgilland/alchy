@@ -26,7 +26,6 @@ except ImportError:  # pragma: no cover
             self()
 
 from ._compat import iteritems
-from .utils import join_subquery_on_columns
 
 
 __all__ = [
@@ -450,3 +449,27 @@ def get_load_options(*columns):
         obj = orm
 
     return (obj, columns)
+
+
+def base_columns_from_subquery(subquery):
+    """Return non-aliased, base columns from subquery."""
+    # base_columns is a set so we need to cast to list.
+    return [(column, list(column.base_columns))
+            for column in subquery.c.values()]
+
+
+def join_subquery_on_columns(subquery, columns):
+    """Return join-on condition which maps subquery's columns to columns."""
+    subquery_base_columns = base_columns_from_subquery(subquery)
+
+    join_on = []
+    for subquery_column, base_columns in subquery_base_columns:
+        # Don't support joining to subquery column with more than 1 base
+        # column.
+        if len(base_columns) == 1 and base_columns[0] in columns:
+            join_on.append(subquery_column == base_columns[0])
+
+    if join_on:
+        return and_(*join_on)
+    else:  # pragma: no cover
+        return None
