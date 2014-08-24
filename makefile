@@ -61,10 +61,12 @@ pylint:
 
 # documentation
 docs:
-	$(ENV_ACT) mkdocs build
+	rm -rf docs/_build
+	$(ENV_ACT) cd docs; make doctest
+	$(ENV_ACT) cd docs; make html
 
-preview-docs:
-	$(ENV_ACT) mkdocs serve --dev-addr=0.0.0.0:8001
+serve-docs:
+	cd docs/_build/html; python2 -m SimpleHTTPServer 8001
 
 
 # code release

@@ -1,4 +1,52 @@
 """Declarative ORM event decorators and event registration.
+
+SQLAlchemy features an ORM event API but one thing that is lacking is a way to
+register event handlers in a declarative way inside the Model's class
+definition. To bridge this gap, this module contains a collection of decorators
+that enable this kind of functionality.
+
+Instead of having to write event registration like this::
+
+    from sqlalchemy import event
+
+    from project.core import Model
+
+    class User(Model):
+        _id = Column(types.Integer(), primary_key=True)
+        email = Column(types.String())
+
+    def set_email_listener(target, value, oldvalue, initiator):
+        print 'received "set" event for target: {0}'.format(target)
+        return value
+
+    def before_insert_listener(mapper, connection, target):
+        print 'received "before_insert" event for target: {0}'.format(target)
+
+    event.listen(User.email, 'set', set_email_listener, retval=True)
+    event.listen(User, 'before_insert', before_insert_listener)
+
+Model Events allows one to write event registration more succinctly as::
+
+    from alchy import events
+
+    from project.core import Model
+
+    class User(Model):
+        _id = Column(types.Integer(), primary_key=True)
+        email = Column(types.String())
+
+        @events.on_set('email', retval=True)
+        def on_set_email(target, value, oldvalue, initiator):
+            print 'received set event for target: {0}'.format(target)
+            return value
+
+        @events.before_insert()
+        def before_insert(mapper, connection, target):
+            print ('received "before_insert" event for target: {0}'
+                   .format(target))
+
+For details on each event type's expected function signature, see SQLAlchemy's
+`ORM Events <http://docs.sqlalchemy.org/en/latest/orm/events.html>`_.
 """
 
 from functools import partial
@@ -10,6 +58,30 @@ from ._compat import iteritems
 
 
 Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
+__all__ = [
+    'on_set',
+    'on_append',
+    'on_remove',
+    'before_delete',
+    'before_insert',
+    'before_update',
+    'before_insert_update',
+    'after_delete',
+    'after_insert',
+    'after_update',
+    'after_insert_update',
+    'on_append_result',
+    'on_create_instance',
+    'on_instrument_class',
+    'before_configured',
+    'after_configured',
+    'on_mapper_configured',
+    'on_populate_instance',
+    'on_translate_row',
+    'on_expire',
+    'on_load',
+    'on_refresh'
+]
 
 
 def register(cls, dct):

@@ -1,7 +1,13 @@
-Thanks to the following individuals for contributions:
+Authors
+*******
 
-- Jeff Knupp, http://www.jeffknupp.com/,  https://github.com/jeffknupp
+Lead
+====
 
-And the author:
+- Derrick Gilland, dgilland@gmail.com, `dgilland@github <https://github.com/dgilland>`_
 
-- Derrick Gilland, dgilland@gmail.com, https://github.com/dgilland
+
+Contributors
+============
+
+- Jeff Knupp, http://www.jeffknupp.com/,  `jeffknupp@github <https://github.com/jeffknupp>`_

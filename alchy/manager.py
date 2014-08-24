@@ -1,7 +1,35 @@
 """Manager class and mixin.
 
-Provides `Manager` class for interacting with a database session via
-SQLAlchemy's orm.scoped_session.
+The :class:`Manager` class helps manage a SQLAlchemy database session as well
+as provide convenience functions for commons operations.
+
+
+Configuration
+-------------
+
+The following configuration values can be passed into a new :class:`Manager`
+instance as a ``dict``, ``class``, or ``module``.
+
+===========================  ==================================================
+``SQLALCHEMY_DATABASE_URI``  URI used to connect to the database. Defaults to
+                             ``sqlite://``.
+``SQLALCHEMY_BINDS``         A ``dict`` that maps bind keys to database URIs.
+                             Optionally, in place of a database URI, a
+                             configuration ``dict`` can be used to overrided
+                             connection options.
+``SQLALCHEMY_ECHO``          When ``True`` have SQLAlchemy echo all SQL
+                             statements. Defaults to ``False``.
+``SQLALCHEMY_POOL_SIZE``     The size of the database pool. Defaults to the
+                             engine's default (usually ``5``).
+``SQLALCHEMY_POOL_TIMEOUT``  Specifies the connection timeout for the pool.
+                             Defaults to ``10``.
+``SQLALCHEMY_POOL_RECYCLE``  Number of seconds after which a connection is
+                             automatically recycled.
+``SQLALCHEMY_MAX_OVERFLOW``  Controls the number of connections that can be
+                             created after the pool reached its maximum size.
+                             When those additional connections are returned to
+                             the pool, they are disconnected and discarded.
+===========================  ==================================================
 """
 
 from functools import partial
@@ -15,6 +43,13 @@ from .model import make_declarative_base, extend_declarative_base
 from .query import QueryModel
 from .session import Session
 from ._compat import string_types, itervalues
+
+
+__all__ = [
+    'ManagerMixin',
+    'Manager',
+    'Config',
+]
 
 
 class ManagerMixin(object):
@@ -52,7 +87,25 @@ class ManagerMixin(object):
 
 
 class Manager(ManagerMixin):
-    """Manager for session."""
+    """Manager for session.
+
+    Initialization of ``Manager`` accepts a config object, session options,
+    and an optional declarative base. If ``Model`` isn't provided, then a
+    default one is generated using :func:`alchy.model.make_declarative_base`.
+    The declarative base model is accessible at :attr:`Model`.
+
+    By default the ``session_options`` are::
+
+        {
+            'query_cls': alchy.Query,
+            'autocommit': False,
+            'autoflush': True
+        }
+
+    The default ``session_class`` is :class:`alchy.Session`. If you want to
+    provide your own session class, then it's suggested that you subclass
+    :class:`alchy.Session`.
+    """
 
     def __init__(self,
                  config=None,

@@ -9,6 +9,16 @@ from sqlalchemy import Column, and_
 from ._compat import string_types, iteritems
 
 
+__all__ = [
+    'classproperty',
+    'is_sequence',
+    'has_primary_key',
+    'camelcase_to_underscore',
+    'iterflatten',
+    'flatten'
+]
+
+
 class classproperty(object):
     """Decorator that adds class properties. Allows for usage like @property
     but applies the property at the class level. Helps avoid having to use

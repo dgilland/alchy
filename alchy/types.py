@@ -1,4 +1,4 @@
-"""Custom ORM column types.
+"""Collection of custom column types.
 """
 
 import re
@@ -6,6 +6,12 @@ import re
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
 
 from ._compat import with_metaclass
+
+
+__all__ = [
+    'DeclarativeEnumType',
+    'DeclarativeEnum'
+]
 
 
 ##
@@ -88,25 +94,38 @@ class DeclarativeEnumType(SchemaType, TypeDecorator):
 
 
 class DeclarativeEnum(with_metaclass(EnumMeta, object)):
-    """Declarative enumeration."""
+    """Declarative enumeration.
+
+    Example::
+
+        class OrderStatus(DeclarativeEnum):
+            pending = ('p', 'Pending')
+            submitted = ('s', 'Submitted')
+            complete = ('c', 'Complete')
+
+        class Order(Model):
+            status = Column(OrderStatus.db_type(), default=OrderStatus.pending)
+    """
 
     _reg = {}
 
     @classmethod
     def from_string(cls, string):
-        """Get enum value from string"""
+        """Return enum symbol given string value."""
         try:
             return cls._reg[string]
         except KeyError:
-            raise ValueError(
-                "Invalid value for %r: %r" % (cls.__name__, string))
+            raise ValueError('Invalid value for %r: %r' % (cls.__name__,
+                                                           string))
 
     @classmethod
     def values(cls):
-        """Return enumeration values."""
+        """Return list of possible enum values. Each value is a valid argument
+        to :method:`from_string`.
+        """
         return cls._reg.keys()
 
     @classmethod
     def db_type(cls):
-        """Provide database column type for use in table column definitions."""
+        """Return database column type for use in table column definitions."""
         return DeclarativeEnumType(cls)

@@ -1,11 +1,30 @@
-# pylint: disable=C0103
 """SQLAlchemy query filter factories usable in
 alchy.QueryModel.__search_filter__.
 
 These are factory functions that return common filter operations as functions
-which are then assigned to the model class' search config attributes.
+which are then assigned to the model class' search config attributes. These
+functions are syntatic sugar to make it easier to define compatible search
+functions. However, due to the fact that a model's query class has to be
+defined before the model and given that the model column attributes need to be
+defined before using the search factories, there are two ways to use the search
+factories on the query class:
 
-For example:
+1. Define ``__search_filters__`` as a property that returns the filter dict
+2. Pass in a callable that returns the column.
+
+For example, *without* :module:`alchy.search` one would define a
+``__search_filters__`` similar to::
+
+    class UserQuery(QueryModel):
+        __search_filters = {
+            'email': lambda value: User.email.like(value)
+        }
+
+    class User(Model):
+        query_class = UserQuery
+        email = Column(types.String(100))
+
+Using :module:`alchy.search` the above then becomes::
 
     class UserQuery(QueryModel):
         @property
@@ -18,11 +37,13 @@ For example:
         query_class = UserQuery
         email = Column(types.String(100))
 
-without using the search function:
+Or if a callable is passed in::
+
+    from alchy import search
 
     class UserQuery(QueryModel):
-        __search_filters = {
-            'email': lambda value: User.email.like(value)
+        __search_filters__ = {
+            'email': like(lambda: User.email)
         }
 
     class User(Model):
@@ -33,9 +54,50 @@ The general naming convention for each comparator is:
 
 - positive comparator: base (e.g. "like")
 - negative comparator: notbase (e.g. "notlike")
+
+The call signature for the ``search`` functions is::
+
+    # search.<function>(column)
+    # e.g.
+    search.contains(email)
 """
+# pylint: disable=invalid-name
 
 from sqlalchemy import not_
+
+
+__all__ = [
+    'like',
+    'notlike',
+    'ilike',
+    'notilike',
+    'startswith',
+    'notstartswith',
+    'endswith',
+    'notendswith',
+    'contains',
+    'notcontains',
+    'icontains',
+    'noticontains',
+    'in_',
+    'notin_',
+    'eq',
+    'noteq',
+    'gt',
+    'notgt',
+    'ge',
+    'notge',
+    'lt',
+    'notlt',
+    'le',
+    'notle',
+    'any_',
+    'notany_',
+    'has',
+    'nothas',
+    'eqenum',
+    'noteqenum',
+]
 
 
 class ColumnOperator(object):
@@ -88,156 +150,156 @@ class DeclarativeEnumOperator(ColumnOperator):
 
 
 class like(ColumnOperator):
-    """Return like filter function using ORM column field."""
+    """Return ``like`` filter function using ORM column field."""
     op = 'like'
 
 
 class notlike(like, NegateOperator):
-    """Return not like filter function using ORM column field."""
+    """Return ``not(like)`` filter function using ORM column field."""
     pass
 
 
 class ilike(ColumnOperator):
-    """Return ilike filter function using ORM column field."""
+    """Return ``ilike`` filter function using ORM column field."""
     op = 'ilike'
 
 
 class notilike(ilike, NegateOperator):
-    """Return not ilike filter function using ORM column field."""
+    """Return ``not(ilike)`` filter function using ORM column field."""
     pass
 
 
 class startswith(ColumnOperator):
-    """Return startswith filter function using ORM column field."""
+    """Return ``startswith`` filter function using ORM column field."""
     op = 'startswith'
 
 
 class notstartswith(startswith, NegateOperator):
-    """Return not startswith filter function using ORM column field."""
+    """Return ``not(startswith)`` filter function using ORM column field."""
     pass
 
 
 class endswith(ColumnOperator):
-    """Return endswith filter function using ORM column field."""
+    """Return ``endswith`` filter function using ORM column field."""
     op = 'endswith'
 
 
 class notendswith(endswith, NegateOperator):
-    """Return not endswith filter function using ORM column field."""
+    """Return ``not(endswith)`` filter function using ORM column field."""
     pass
 
 
 class contains(ColumnOperator):
-    """Return contains filter function using ORM column field."""
+    """Return ``contains`` filter function using ORM column field."""
     op = 'contains'
 
 
 class notcontains(contains, NegateOperator):
-    """Return not contains filter function using ORM column field."""
+    """Return ``not(contains)`` filter function using ORM column field."""
     pass
 
 
 class icontains(ColumnOperator):
-    """Return icontains filter function using ORM column field."""
+    """Return ``icontains`` filter function using ORM column field."""
     def compare(self, value):
         return self.column.ilike('%{0}%'.format(value))
 
 
 class noticontains(icontains, NegateOperator):
-    """Return not icontains filter function using ORM column field."""
+    """Return ``not(icontains)`` filter function using ORM column field."""
     pass
 
 
 class in_(ColumnOperator):
-    """Return in_ filter function using ORM column field."""
+    """Return ``in_`` filter function using ORM column field."""
     op = 'in_'
 
 
 class notin_(in_, NegateOperator):
-    """Return not in_ filter function using ORM column field."""
+    """Return ``not(in_)`` filter function using ORM column field."""
     pass
 
 
 class eq(ColumnOperator):
-    """Return == filter function using ORM column field."""
+    """Return ``==`` filter function using ORM column field."""
     def compare(self, value):
         return self.column == value
 
 
 class noteq(eq, NegateOperator):
-    """Return not(==) filter function using ORM column field."""
+    """Return ``not(==)`` filter function using ORM column field."""
     pass
 
 
 class gt(ColumnOperator):
-    """Return > filter function using ORM column field."""
+    """Return ``>`` filter function using ORM column field."""
     def compare(self, value):
         return self.column > value
 
 
 class notgt(gt, NegateOperator):
-    """Return not(>) filter function using ORM column field."""
+    """Return ``not(>)`` filter function using ORM column field."""
     pass
 
 
 class ge(ColumnOperator):
-    """Return >= filter function using ORM column field."""
+    """Return ``>=`` filter function using ORM column field."""
     def compare(self, value):
         return self.column >= value
 
 
 class notge(ge, NegateOperator):
-    """Return not(>=) filter function using ORM column field."""
+    """Return ``not(>=)`` filter function using ORM column field."""
     pass
 
 
 class lt(ColumnOperator):
-    """Return < filter function using ORM column field."""
+    """Return ``<`` filter function using ORM column field."""
     def compare(self, value):
         return self.column < value
 
 
 class notlt(lt, NegateOperator):
-    """Return not(<) filter function using ORM column field."""
+    """Return ``not(<)`` filter function using ORM column field."""
     pass
 
 
 class le(ColumnOperator):
-    """Return <= filter function using ORM column field."""
+    """Return ``<=`` filter function using ORM column field."""
     def compare(self, value):
         return self.column <= value
 
 
 class notle(le, NegateOperator):
-    """Return not(<=) filter function using ORM column field."""
+    """Return ``not(<=)`` filter function using ORM column field."""
     pass
 
 
 class any_(RelationshipOperator):
-    """Return any filter function using ORM relationship field."""
+    """Return ``any`` filter function using ORM relationship field."""
     op = 'any'
 
 
 class notany_(any_, NegateOperator):
-    """Return not(any) filter function using ORM relationship field."""
+    """Return ``not(any)`` filter function using ORM relationship field."""
     pass
 
 
 class has(RelationshipOperator):
-    """Return has filter function using ORM relationship field."""
+    """Return ``has`` filter function using ORM relationship field."""
     op = 'has'
 
 
 class nothas(has, NegateOperator):
-    """Return not(has) filter function using ORM relationship field."""
+    """Return ``not(has)`` filter function using ORM relationship field."""
     pass
 
 
 class eqenum(DeclarativeEnumOperator):
-    """Return == filter function using ORM DeclarativeEnum field."""
+    """Return ``==`` filter function using ORM DeclarativeEnum field."""
     pass
 
 
 class noteqenum(eqenum, NegateOperator):
-    """Return not(eqenum) filter function using ORM DeclarativeEnum field."""
+    """Return ``not(==)`` filter function using ORM DeclarativeEnum field."""
     pass

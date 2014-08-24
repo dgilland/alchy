@@ -4,6 +4,11 @@
 from sqlalchemy.orm.session import Session as SessionBase
 
 
+__all__ = [
+    'Session'
+]
+
+
 class Session(SessionBase):
     """The session is the default session that Manager uses.
     It extends the default session system with bind selection.

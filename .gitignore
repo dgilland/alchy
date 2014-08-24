@@ -38,8 +38,8 @@ nosetests.xml
 # virtualenv
 /env
 
-# docs build folder
-/site
+# docs
+/docs/_build
 
 # test sqlite databases
 *.test.db

@@ -1,10 +1,28 @@
-# alchy
+alchy
+*****
 
-[![Package Version](https://pypip.in/v/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
-[![Build Status](https://travis-ci.org/dgilland/alchy.png?branch=master)](https://travis-ci.org/dgilland/alchy)
-[![Coverage Status](https://coveralls.io/repos/dgilland/alchy/badge.png?branch=master)](https://coveralls.io/r/dgilland/alchy)
-[![License](https://pypip.in/license/alchy/badge.png)](https://pypi.python.org/pypi/alchy/)
+|version| |travis| |coveralls| |license|
 
-Enhancement library for SQLAlchemy
+The declarative companion to SQLAlchemy.
 
-[Documentation](http://dgilland.github.io/alchy)
+
+Links
+=====
+
+- Project: https://github.com/dgilland/alchy
+- Documentation: http://alchy.readthedocs.org
+- PyPi: https://pypi.python.org/pypi/alchy/
+- TravisCI: https://travis-ci.org/dgilland/alchy
+
+
+.. |version| image:: http://img.shields.io/pypi/v/alchy.svg?style=flat
+    :target: https://pypi.python.org/pypi/alchy/
+
+.. |travis| image:: http://img.shields.io/travis/dgilland/alchy/master.svg?style=flat
+    :target: https://travis-ci.org/dgilland/alchy
+
+.. |coveralls| image:: http://img.shields.io/coveralls/dgilland/alchy/master.svg?style=flat
+    :target: https://coveralls.io/r/dgilland/alchy
+
+.. |license| image:: http://img.shields.io/pypi/l/alchy.svg?style=flat
+    :target: https://pypi.python.org/pypi/alchy/

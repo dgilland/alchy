@@ -29,6 +29,14 @@ from ._compat import iteritems
 from .utils import join_subquery_on_columns
 
 
+__all__ = [
+    'Query',
+    'QueryModel',
+    'QueryProperty',
+    'Pagination',
+]
+
+
 class Query(orm.Query):
     """Extension of default Query class used in SQLAlchemy session queries.
     """
@@ -190,30 +198,44 @@ class Query(orm.Query):
 
 
 class QueryModel(Query):
-    """Class used for default query property class. It's assumed that is how
-    this class will be used so there may be cases where some of its functions
-    won't work properly outside that context.
+    """Class used for default query property class for ``mymanager.query``,
+    ``mymanager.session.query``, and ``MyModel.query``. Can be used in other
+    libraries/implementations when creating a session::
+
+        from sqlalchemy import orm
+
+        from alchy import QueryModel
+        # or if not using as query property
+        # from alchy import Query
+
+
+        session = orm.scoped_session(orm.sessionmaker())
+        session.configure(query_cls=QueryModel)
+
+    **NOTE:** If you don't plan to use the query class as a query property,
+    then you can use the :class:`Query` class instead since it won't include
+    features that only work within a query property context.
     """
 
-    # All available search filter functions indexed by a canonical name which
-    # will be referenced in advanced/simple search. All filter functions should
-    # take a single value and return an SQLAlchemy filter expression.
-    # I.e. {key: lambda value: Model.column_name.contains(value)}
+    #: All available search filter functions indexed by a canonical name which
+    #: will be referenced in advanced/simple search. All filter functions
+    #: should take a single value and return an SQLAlchemy filter expression,
+    #: i.e., ``{key: lambda value: Model.column_name.contains(value)}``
     __search_filters__ = {}
 
-    # Advanced search models search by named parameters. Generally found on
-    # advanced search forms where each field maps to a specific database field
-    # that will be queried against. If defined as a list, each item should be
-    # a key from __search_filters__. The matching __search_filters__ function
-    # will be used in the query. If defined as a dict, it should have the same
-    # format as __search_filters__.
+    #: Advanced search models search by named parameters. Generally found on
+    #: advanced search forms where each field maps to a specific database field
+    #: that will be queried against. If defined as a list, each item should be
+    #: a key from ``__search_filters__``. The matching ``__search_filters__``
+    #: function will be used in the query. If defined as a dict, it should have
+    #: the same format as ``__search_filters__``.
     __advanced_search__ = []
 
-    # Simple search models search by phrase (like Google search). Defined like
-    # __advanced_search__.
+    #: Simple search models search by phrase (like Google search). Defined like
+    #: ``__advanced_search__``.
     __simple_search__ = []
 
-    # Default order by to use.
+    #: Default order by to use.
     __order_by__ = None
 
     @property
