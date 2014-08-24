@@ -57,7 +57,6 @@ import sqlalchemy
 from ._compat import iteritems
 
 
-Event = namedtuple('Event', ['name', 'attribute', 'listener', 'kargs'])
 __all__ = [
     'on_set',
     'on_append',
@@ -82,6 +81,165 @@ __all__ = [
     'on_load',
     'on_refresh'
 ]
+
+
+class Event(object):
+    """Universal event class used when registering events."""
+    def __init__(self, name, attribute, listener, kargs):
+        self.name = name
+        self.attribute = attribute
+        self.listener = listener
+        self.kargs = kargs
+
+
+class GenericEvent(object):
+    """Base class for generic event decorators."""
+    event_names = None
+
+    def __init__(self, **event_kargs):
+        self.attribute = None
+        self.event_kargs = event_kargs
+
+    def __call__(self, func):
+        return make_event(self.event_names,
+                          self.attribute,
+                          **self.event_kargs)(func)
+
+
+class AttributeEvent(GenericEvent):
+    """Base class for an attribute event decorators."""
+    def __init__(self, attribute, **event_kargs):
+        self.attribute = attribute
+        self.event_kargs = event_kargs
+
+
+##
+# Attribute Events
+# http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
+##
+
+
+class on_set(AttributeEvent):
+    """Event decorator for the ``set`` event."""
+    event_names = 'set'
+
+
+class on_append(AttributeEvent):
+    """Event decorator for the ``append`` event."""
+    event_names = 'append'
+
+
+class on_remove(AttributeEvent):
+    """Event decorator for the ``remove`` event."""
+    event_names = 'remove'
+
+
+##
+# Mapper Events
+# http://docs.sqlalchemy.org/en/latest/orm/events.html#mapper-events
+##
+
+
+class before_delete(Event):
+    """Event decorator for the ``before_delete`` event."""
+    event_names = 'before_delete'
+
+
+class before_insert(GenericEvent):
+    """Event decorator for the ``before_insert`` event."""
+    event_names = 'before_insert'
+
+
+class before_update(GenericEvent):
+    """Event decorator for the ``before_update`` event."""
+    event_names = 'before_update'
+
+
+class before_insert_update(GenericEvent):
+    """Event decorator for the ``before_insert`` and ``before_update`` events.
+    """
+    event_names = ['before_insert', 'before_update']
+
+
+class after_delete(GenericEvent):
+    """Event decorator for the ``after_delete`` event."""
+    event_names = 'after_delete'
+
+
+class after_insert(GenericEvent):
+    """Event decorator for the ``after_insert`` event."""
+    event_names = 'after_insert'
+
+
+class after_update(GenericEvent):
+    """Event decorator for the ``after_update`` event."""
+    event_names = 'after_update'
+
+
+class after_insert_update(GenericEvent):
+    """Event decorator for the ``after_insert`` and ``after_update`` events."""
+    event_names = ['after_insert', 'after_update']
+
+
+class on_append_result(GenericEvent):
+    """Event decorator for the ``append_result`` event."""
+    event_names = 'append_result'
+
+
+class on_create_instance(GenericEvent):
+    """Event decorator for the ``create_instance`` event."""
+    event_names = 'create_instance'
+
+
+class on_instrument_class(GenericEvent):
+    """Event decorator for the ``instrument_class`` event."""
+    event_names = 'instrument_class'
+
+
+class before_configured(GenericEvent):
+    """Event decorator for the ``before_configured`` event."""
+    event_names = 'before_configured'
+
+
+class after_configured(GenericEvent):
+    """Event decorator for the ``after_configured`` event."""
+    event_names = 'after_configured'
+
+
+class on_mapper_configured(GenericEvent):
+    """Event decorator for the ``mapper_configured`` event."""
+    event_names = 'mapper_configured'
+
+
+class on_populate_instance(GenericEvent):
+    """Event decorator for the ``populate_instance`` event."""
+    event_names = 'populate_instance'
+
+
+class on_translate_row(GenericEvent):
+    """Event decorator for the ``translate_row`` event."""
+    event_names = 'translate_row'
+
+
+##
+# Instance Events
+# http://docs.sqlalchemy.org/en/latest/orm/events.html#instance-events
+##
+
+
+class on_expire(GenericEvent):
+    """Event decorator for the ``expire`` event."""
+    event_names = 'expire'
+
+
+class on_load(GenericEvent):
+    """Event decorator for the ``load`` event."""
+    event_names = 'load'
+
+
+class on_refresh(GenericEvent):
+    """Event decorator for the ``refresh`` event."""
+    event_names = 'refresh'
 
 
 def register(cls, dct):
@@ -109,8 +267,10 @@ def register(cls, dct):
                     # assume listener is a string reference to class method
                     listener = dct[listener]
 
-                events.append(Event(
-                    event_name, kargs.pop('attribute', None), listener, kargs))
+                events.append(Event(event_name,
+                                    kargs.pop('attribute', None),
+                                    listener,
+                                    kargs))
 
     # add events which were added via @event decorator
     for value in dct.values():
@@ -140,23 +300,14 @@ def register(cls, dct):
         dct['__events__'].update(events_dict)
 
 
-#####
-# Event decorators
-####
-
-
-def event(event_names, attribute=None, no_args_func=None, **event_kargs):
+def make_event(event_names, attribute=None, **event_kargs):
     """Generic event decorator maker which attaches metadata to function object
-    so that `register()` can find the event definition.
+    so that :func:`register` can find the event definition.
     """
-    if callable(no_args_func):
-        # being called as a decorator with no arguments
-        return event(event_names)(no_args_func)
-
     def decorator(func):
         """Function decorator that attaches an `__event__` attribute hook which
         is expected when registering a method as an event handler. See
-        `register()` in this module for details on how this is implemented.
+        :func:`register` for details on how this is implemented.
         """
         if not hasattr(func, '__event__'):
             # Set initial value to list so function can handle multiple events.
@@ -178,78 +329,3 @@ def event(event_names, attribute=None, no_args_func=None, **event_kargs):
         # with sqlalchemy.event.listen().
         return func
     return decorator
-
-
-def make_attribute_event(event_names):
-    """Event decorator maker for attribute events."""
-    return partial(event, event_names)
-
-
-def make_event(event_names):
-    """Event decorator maker for mapper or instance events which don't require
-    an attribute.
-    """
-    # bind `None` to attribute argument
-    return partial(event, event_names, None)
-
-##
-# Attribute Events
-# http://docs.sqlalchemy.org/en/latest/orm/events.html#attribute-events
-##
-
-on_set = make_attribute_event('set')
-on_append = make_attribute_event('append')
-on_remove = make_attribute_event('remove')
-
-##
-# Mapper Events
-# http://docs.sqlalchemy.org/en/latest/orm/events.html#mapper-events
-##
-
-before_delete = make_event('before_delete')
-before_insert = make_event('before_insert')
-before_update = make_event('before_update')
-before_insert_update = make_event(['before_insert', 'before_update'])
-
-after_delete = make_event('after_delete')
-after_insert = make_event('after_insert')
-after_update = make_event('after_update')
-after_insert_update = make_event(['after_insert', 'after_update'])
-
-on_append_result = make_event('append_result')
-on_create_instance = make_event('create_instance')
-on_instrument_class = make_event('instrument_class')
-before_configured = make_event('before_configured')
-after_configured = make_event('after_configured')
-on_mapper_configured = make_event('mapper_configured')
-on_populate_instance = make_event('populate_instance')
-on_translate_row = make_event('translate_row')
-
-##
-# Instance Events
-# http://docs.sqlalchemy.org/en/latest/orm/events.html#instance-events
-##
-
-on_expire = make_event('expire')
-on_load = make_event('load')
-on_refresh = make_event('refresh')
-
-# The following events work as intended, but they don't seem like
-# candidates for supporting their definition on the model class.
-
-# @why: Having an on-some-init event defined on the model class
-# seems inefficient since whatever logic they contain should be
-# handled in model.__init__() anyway.
-# on_first_init = make_event('first_init')
-# on_init = make_event('init')
-# on_init_failure = make_event('init_failure')
-
-# @why: Again model class would already define pickle support
-# so logic should be contained there and not in a separate event handler.
-# on_pickle = make_event('pickle')
-# on_unpickle = make_event('unpickle')
-
-# @why: Well, not really sure how to actually trigger this event
-# so don't want to support it if it doesn't have a test.
-# If someone really wants this event, then it can be enabled.
-# on_resurrect = make_event('resurrect')

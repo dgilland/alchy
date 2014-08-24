@@ -71,7 +71,7 @@ class TestEvents(TestEventsBase):
         min_hueys = Column(types.Boolean())
         hueys = orm.relationship('Huey')
 
-        @events.before_insert
+        @events.before_insert()
         def before_insert(mapper, connection, target):
             target.name = 'Dewey'
 
@@ -97,7 +97,7 @@ class TestEvents(TestEventsBase):
             if not len(target.hueys) >= 1:
                 target.min_hueys = False
 
-        @events.before_insert_update
+        @events.before_insert_update()
         def before_edit(mapper, connection, target):
             target.number = (target.number or 0) + 1
 
@@ -171,15 +171,15 @@ class TestInstanceEvents(TestEventsBase):
         _id = Column(types.Integer(), primary_key=True)
         name = Column(types.String())
 
-        @events.on_expire
+        @events.on_expire()
         def on_expire(target, attrs):
             target.event_tracker['expire'] = True
 
-        @events.on_load
+        @events.on_load()
         def on_load(target, context):
             target.event_tracker['load'] = True
 
-        @events.on_refresh
+        @events.on_refresh()
         def on_refresh(target, context, attrs):
             target.event_tracker['refresh'] = True
 
