@@ -18,7 +18,7 @@ def read(fname):
 
 
 meta = {}
-exec(read('alchy/__meta__.py'))
+exec(read('alchy/__meta__.py'), meta)
 
 
 setup(
