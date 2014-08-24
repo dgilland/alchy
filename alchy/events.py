@@ -48,9 +48,7 @@ Model Events allows one to write event registration more succinctly as::
 For details on each event type's expected function signature, see SQLAlchemy's
 `ORM Events <http://docs.sqlalchemy.org/en/latest/orm/events.html>`_.
 """
-
-from functools import partial
-from collections import namedtuple
+# pylint: disable=invalid-name
 
 import sqlalchemy
 

@@ -175,9 +175,9 @@ class ModelBase(object):
         relationships).
 
         One issue to be aware of is that after a model has been committed (or
-        expired), ``__dict__`` will be empty. This can be worked around by calling
-        :method:`refresh` which will reload the data from the database using
-        the default loader strategies.
+        expired), ``__dict__`` will be empty. This can be worked around by
+        calling :method:`refresh` which will reload the data from the database
+        using the default loader strategies.
 
         These are the two main cases this default implementation will try to
         cover. For anything more complex it would be best to override this

@@ -4,7 +4,7 @@
 import re
 from collections import Iterable
 
-from sqlalchemy import Column, and_
+from sqlalchemy import Column
 
 from ._compat import string_types, iteritems
 
