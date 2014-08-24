@@ -9,6 +9,7 @@ Project: https://github.com/dgilland/alchy
 Documentation: http://alchy.readthedocs.org/
 """
 
+import os
 from setuptools import setup
 
 
