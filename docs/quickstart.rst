@@ -206,6 +206,7 @@ Use features from the enhanced query class.
         'user_email': lambda value: User.email.like('%{0}%'.format(value)),
         'user_name': lambda value: User.name.like('%{0}%'.format(value))
     }
+
     UserItem.__advanced_search__ = {
         'item_name': lambda value: UserItem.name.like('%{0}%'.format(value))
     }

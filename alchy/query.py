@@ -214,27 +214,33 @@ class QueryModel(Query):
     **NOTE:** If you don't plan to use the query class as a query property,
     then you can use the :class:`Query` class instead since it won't include
     features that only work within a query property context.
+
+    Attributes:
+
+        __search_filters__: All available search filter functions indexed by a
+            canonical name which will be referenced in advanced/simple search.
+            All filter functions should take a single value and return an
+            SQLAlchemy filter expression, i.e.,
+            ``{key: lambda value: Model.column_name.contains(value)}``
+
+        __advanced_search__: Advanced search models search by named parameters.
+            Generally found on advanced search forms where each field maps to a
+            specific database field that will be queried against. If defined as
+            a list, each item should be a key from attr:`__search_filters__`.
+            The matching :attr:`__search_filters__` function will be used in
+            the query. If defined as a dict, it should have the same format as
+            :attr:`__search_filters__`.
+
+        __simple_search__: Simple search models search by phrase (like Google
+            search). Defined like :attr:`__advanced_search__`.
+
+        __order_by__: Default order-by to use when
+            :attr:`alchy.ModelBase.query` used.
     """
 
-    #: All available search filter functions indexed by a canonical name which
-    #: will be referenced in advanced/simple search. All filter functions
-    #: should take a single value and return an SQLAlchemy filter expression,
-    #: i.e., ``{key: lambda value: Model.column_name.contains(value)}``
     __search_filters__ = {}
-
-    #: Advanced search models search by named parameters. Generally found on
-    #: advanced search forms where each field maps to a specific database field
-    #: that will be queried against. If defined as a list, each item should be
-    #: a key from ``__search_filters__``. The matching ``__search_filters__``
-    #: function will be used in the query. If defined as a dict, it should have
-    #: the same format as ``__search_filters__``.
     __advanced_search__ = []
-
-    #: Simple search models search by phrase (like Google search). Defined like
-    #: ``__advanced_search__``.
     __simple_search__ = []
-
-    #: Default order by to use.
     __order_by__ = None
 
     @property
@@ -353,7 +359,8 @@ class QueryModel(Query):
 
 class QueryProperty(object):
     """Query property accessor which gives a model access to query capabilities
-    via Model.query which is equivalent to session.query(Model)
+    via :attr:`alchy.ModelBase.query` which is equivalent to
+    ``session.query(Model)``.
     """
     def __init__(self, session):
         self.session = session
@@ -376,47 +383,44 @@ class QueryProperty(object):
 
 
 class Pagination(object):
-    """
-    Internal helper class returned by `BaseQuery.paginate`.  You
-    can also construct it from any other SQLAlchemy query object if you are
-    working with other libraries.  Additionally it is possible to pass `None`
-    as query object in which case the `prev` and `next` will
-    no longer work.
+    """Internal helper class returned by :meth:`Query.paginate`. You can also
+    construct it from any other SQLAlchemy query object if you are working with
+    other libraries. Additionally it is possible to pass ``None`` as query
+    object in which case the `prev` and `next` will no longer work.
     """
 
     def __init__(self, query, page, per_page, total, items):
-        # the unlimited query object that was used to create this pagination
-        # object
+        #: The query object that was used to create this pagination object.
         self.query = query
 
-        # the current page number (1 indexed)
+        #: The current page number (1 indexed).
         self.page = page
 
-        # the number of items to be displayed on a page.
+        #: The number of items to be displayed on a page.
         self.per_page = per_page
 
-        # the total number of items matching the query
+        #: The total number of items matching the query.
         self.total = total
 
-        # the items for the current page
+        #: The items for the current page.
         self.items = items
 
-        # the total number of pages
         if self.per_page == 0:
             self.pages = 0
         else:
+            #: The total number of pages.
             self.pages = int(ceil(self.total / float(self.per_page)))
 
-        # number of the previous page
+        #: Number of the previous page.
         self.prev_num = self.page - 1
 
-        # True if a previous page exists
+        #: True if a previous page exists.
         self.has_prev = self.page > 1
 
-        # number of the next page
+        #: Number of the next page.
         self.next_num = self.page + 1
 
-        # True if a next page exists
+        #: True if a next page exists.
         self.has_next = self.page < self.pages
 
     def prev(self, error_out=False):

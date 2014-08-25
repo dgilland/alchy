@@ -53,11 +53,11 @@ __all__ = [
 
 
 class ManagerMixin(object):
-    """Useful extensions to self.session."""
+    """Useful extensions to :attr:`Manager.session`."""
 
     def add(self, *instances):
-        """Override `session.add()` so it can function like `session.add_all()`
-        and support chaining.
+        """Override ``session.add()`` so it can function like
+        ``session.add_all()`` and support chaining.
         """
         for instance in instances:
             if isinstance(instance, list):
@@ -71,8 +71,8 @@ class ManagerMixin(object):
         self.add(*instances).commit()
 
     def delete(self, *instances):
-        """Override `session.delete()` so it can function like
-        `session.add_all()` and support chaining.
+        """Override ``session.delete()`` so it can function like
+        ``session.add_all()`` and support chaining.
         """
         for instance in instances:
             if isinstance(instance, list):
@@ -87,12 +87,13 @@ class ManagerMixin(object):
 
 
 class Manager(ManagerMixin):
-    """Manager for session.
+    """Manager for database session.
 
-    Initialization of ``Manager`` accepts a config object, session options,
-    and an optional declarative base. If ``Model`` isn't provided, then a
-    default one is generated using :func:`alchy.model.make_declarative_base`.
-    The declarative base model is accessible at :attr:`Model`.
+    Initialization of :class:`Manager` accepts a config object, session
+    options, and an optional declarative base. If ``Model`` isn't provided,
+    then a default one is generated using
+    :func:`alchy.model.make_declarative_base`. The declarative base model is
+    accessible at :attr:`Model`.
 
     By default the ``session_options`` are::
 
@@ -113,6 +114,7 @@ class Manager(ManagerMixin):
                  Model=None,
                  session_class=None):
 
+        #: Database engine configuration options.
         self.config = Config(defaults={
             'SQLALCHEMY_DATABASE_URI': 'sqlite://',
             'SQLALCHEMY_BINDS': None,
@@ -138,10 +140,14 @@ class Manager(ManagerMixin):
         session_options.setdefault('autocommit', False)
         session_options.setdefault('autoflush', True)
 
+        #: Class to used for session object.
         self.session_class = session_class or Session
+
+        #: Scoped session object.
         self.session = self.create_scoped_session(session_options)
 
         if Model is None:
+            #: Declarative base model class.
             self.Model = make_declarative_base()
         else:
             self.Model = Model
@@ -151,7 +157,7 @@ class Manager(ManagerMixin):
 
     @property
     def metadata(self):
-        """Return `Model`'s metadata object."""
+        """Return :attr:`Model` metadata object."""
         return getattr(self.Model, 'metadata', None)
 
     @property
@@ -169,8 +175,8 @@ class Manager(ManagerMixin):
 
     @property
     def binds_map(self):
-        """Returns a dictionary with a table->engine mapping.
-        This is suitable for use of sessionmaker(binds=binds_map).
+        """Returns a dictionary with a table->engine mapping. This is suitable
+        for use in ``sessionmaker(binds=binds_map)``.
         """
         binds = list(self.binds)
         retval = {}
@@ -186,9 +192,9 @@ class Manager(ManagerMixin):
         return self.get_engine()
 
     def create_engine(self, uri_or_config):
-        """Create engine using either a URI or a config dict.
-        If URI supplied, then the default `self.config` will be used.
-        If config supplied, then URI in config will be used.
+        """Create engine using either a URI or a config dict. If URI supplied,
+        then the default :attr:`config` will be used. If config supplied, then
+        URI in config will be used.
         """
         if isinstance(uri_or_config, dict):
             uri = uri_or_config['SQLALCHEMY_DATABASE_URI']
@@ -202,21 +208,20 @@ class Manager(ManagerMixin):
         return sqlalchemy.create_engine(make_url(uri), **options)
 
     def get_engine(self, bind=None):
-        """Return engine associated with bind. Create engine if it
-        doesn't already exist.
+        """Return engine associated with bind. Create engine if it doesn't
+        already exist.
         """
         if bind not in self._engines:
-            assert bind in self.binds, \
-                'Bind {0} is not specified. ' \
-                'Set in SQLALCHEMY_BINDS configuration variable'.format(bind)
+            assert bind in self.binds, (
+                'Bind {0} is not specified. '
+                'Set in SQLALCHEMY_BINDS configuration variable'.format(bind))
 
             self._engines[bind] = self.create_engine(self.binds[bind])
 
         return self._engines[bind]
 
     def create_scoped_session(self, options=None):
-        """Create scoped session which internally calls
-        `self.create_session`.
+        """Create scoped session which internally calls :meth:`create_session`.
         """
         if options is None:  # pragma: no cover
             options = {}
@@ -267,19 +272,19 @@ class Manager(ManagerMixin):
         self._execute_for_all_tables(bind, 'reflect', skip_tables=True)
 
     def __getattr__(self, attr):
-        """Delegate all other attributes to self.session."""
+        """Delegate all other attributes to :attr:`session`."""
         return getattr(self.session, attr)
 
 
 class Config(dict):
     """Configuration loader which acts like a dict but supports loading
-    values from an object limited to `ALL_CAPS_ATTRIBUTES`.
+    values from an object limited to ``ALL_CAPS_ATTRIBUTES``.
     """
     def __init__(self, defaults=None):
         super(Config, self).__init__(defaults or {})
 
     def from_object(self, obj):
-        """Pull `dir(obj)` keys from and set onto self."""
+        """Pull ``dir(obj)`` keys from `obj` and set onto ``self``."""
         for key in dir(obj):
             if key.isupper():
                 self[key] = getattr(obj, key)

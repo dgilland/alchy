@@ -1,22 +1,4 @@
-"""Declarative base class/factory and query property support.
-
-Can be used to easily create your own declarative base without having to use a
-:class:`alchy.manager.Manager` instance::
-
-    # in project/core.py
-    from alchy import ModelBase, make_declarative_base
-
-    class Base(ModelBase):
-        # augument the ModelBase with super powers
-
-    Model = make_declarative_base(Base=Base)
-
-
-    # in project/models/user.py
-    from project.core import Model
-
-    class User(Model):
-        # define declarative User model
+"""Declarative base for ORM models.
 """
 
 from sqlalchemy import inspect, orm
@@ -43,9 +25,11 @@ __all__ = [
 class ModelMeta(DeclarativeMeta):
     """ModelBase's metaclass which provides:
 
-    - Tablename autogeneration
-    - Multiple database binding
-    - Declarative ORM events
+    - Tablename autogeneration when ``__tablename__`` not defined.
+    - Support for multiple database bindings via \
+    :attr:`ModelBase.__bind_key__`.
+    - Support for declarative ORM events via :mod:`alchy.events` decorators \
+    or :attr:`ModelBase.__events__`.
     """
     def __new__(mcs, name, bases, dct):
         # Determine if primary key is defined for dct or any of its bases.
@@ -79,34 +63,56 @@ class ModelMeta(DeclarativeMeta):
 
 
 class ModelBase(object):
-    """Augmentable Base class for adding shared model properties/functions.
+    """Base class for creating a declarative base for models.
 
+    To create a declarative base::
+
+        # in project/core.py
+        from alchy import ModelBase, make_declarative_base
+
+        class Base(ModelBase):
+            # augument the ModelBase with super powers
+            pass
+
+        Model = make_declarative_base(Base=Base)
+
+
+        # in project/models/user.py
+        from project.core import Model
+
+        class User(Model):
+            # define declarative User model
+            pass
+
+
+    Attributes:
+
+        __table_args__: Default table args.
+
+        __mapper_args__: Define a default order by when not specified by query
+            operation, e.g.: ``{ 'order_by': [column1, column2] }``
+
+        __bind_key__: Bind a model to a particular database URI using keys from
+            ``Manager.config['SQLALCHEMY_BINDS']``. By default a model will be
+            bound to ``Manager.config['SQLALCHEMY_DATABASE_URI']``.
+
+        __events__: Register orm event listeners. See :mod:`alchy.events` for
+            more details.
+
+        query_class: Query class to use for ``self.query``.
+
+        query: An instance of :attr:`query_class`. Can be used to query the
+            database for instances of this model. NOTE: Requires setting
+            ``MyClass.query = QueryProperty(session)`` when session available.
+            See :func:`make_declarative_base` for automatic implementation.
     """
 
-    #: Default table args.
     __table_args__ = {}
-
-    #: Define a default order by when not specified by query operation
-    #: eg: ``{ 'order_by': [column1, column2] }``
     __mapper_args__ = {}
-
-    #: Bind a model to a particular database URI using keys from
-    #: ``Manager.config['SQLALCHEMY_BINDS']``. By default a model will be bound
-    #: to ``Manager.config['SQLALCHEMY_DATABASE_URI']``.
     __bind_key__ = None
-
-    #: Register orm event listeners. See :module:`alchy.events` for more
-    #: details.
     __events__ = {}
 
-    #: Query class to use for ``self.query``.
     query_class = query.QueryModel
-
-    #: An instance of `query_class`. Can be used to query the database for
-    #: instances of this model.
-    #: NOTE: Requires setting ``MyClass.query = QueryProperty(session)`` when
-    #: session available. See :func:`make_declarative_base` for automatic
-    #: implementation.
     query = None
 
     def __init__(self, *args, **kargs):
@@ -158,9 +164,9 @@ class ModelBase(object):
 
     @property
     def __to_dict__(self):
-        """Configuration for :method:`to_dict`. Do any necessary preprocessing
+        """Configuration for :meth:`to_dict`. Do any necessary preprocessing
         and return a set of string attributes which represent the fields which
-        should be returned when calling :method:`to_dict`.
+        should be returned when calling :meth:`to_dict`.
 
         By default this model is refreshed if it's ``__dict__`` state is empty
         and only the ORM descriptor fields are returned.
@@ -176,29 +182,29 @@ class ModelBase(object):
 
         One issue to be aware of is that after a model has been committed (or
         expired), ``__dict__`` will be empty. This can be worked around by
-        calling :method:`refresh` which will reload the data from the database
+        calling :meth:`refresh` which will reload the data from the database
         using the default loader strategies.
 
         These are the two main cases this default implementation will try to
         cover. For anything more complex it would be best to override this
-        property or the :method:`to_dict` method itself.
+        property or the :meth:`to_dict` method itself.
         """
         if not self.descriptor_dict.keys() and orm.object_session(self):
-            # if the descriptor dict keys are empty, assume we need to refresh
+            # If the descriptor dict keys are empty, assume we need to refresh.
             self.refresh()
 
         return set(self.descriptor_dict.keys())
 
     @property
     def descriptor_dict(self):
-        """Return ``self.__dict__`` key-filtered by :attr:`descriptors`."""
+        """Return :attr:`__dict__` key-filtered by :attr:`descriptors`."""
         return dict([(key, value)
                      for key, value in iteritems(self.__dict__)
                      if key in self.descriptors])
 
     def to_dict(self):
         """Return dict representation of model by filtering fields using
-        ``self.__to_dict__``.
+        :attr:`__to_dict__`.
         """
         data = {}
         data_fields = self.__to_dict__
@@ -279,7 +285,7 @@ class ModelBase(object):
         return cls.query.filter_by(**data).first()
 
     ##
-    # inspect based methods/properties
+    # SQLAlchemy.inspect() based methods/properties
     ##
 
     @classproperty
@@ -331,7 +337,7 @@ class ModelBase(object):
 
     @classproperty
     def columns(cls):
-        """Return table columns"""
+        """Return table columns."""
         return inspect(cls).columns.keys()
 
 
@@ -341,8 +347,9 @@ def make_declarative_base(session=None, Model=None, Base=None):
     """
     if Model is None:
         Base = Base or ModelBase
-        Model = declarative_base(
-            cls=Base, constructor=Base.__init__, metaclass=ModelMeta)
+        Model = declarative_base(cls=Base,
+                                 constructor=Base.__init__,
+                                 metaclass=ModelMeta)
 
     extend_declarative_base(Model, session)
 
@@ -352,7 +359,7 @@ def make_declarative_base(session=None, Model=None, Base=None):
 def extend_declarative_base(Model, session=None):
     """Extend a declarative base class with additional properties.
 
-    - Extend :class:`Model` with query property accessor
+    - Extend `Model` with query property accessor
     """
     # Attach query attribute to Model if `session` object passed in.
     if session:

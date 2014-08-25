@@ -1,9 +1,11 @@
+.. _install:
+
 Installation
-============
+************
 
 
 Compatibility
--------------
+=============
 
 - Python 2.6
 - Python 2.7
@@ -13,7 +15,7 @@ Compatibility
 
 
 Dependencies
-------------
+============
 
 - SQLAlchemy >= 0.9.0
 

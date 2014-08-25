@@ -1,6 +1,5 @@
 .. _api:
 
-*************
 API Reference
 *************
 
@@ -11,6 +10,7 @@ Model
 .. automodule:: alchy.model
     :members:
     :special-members:
+    :exclude-members: __module__,__dict__,__weakref__
 
 
 Query
@@ -19,6 +19,7 @@ Query
 .. automodule:: alchy.query
     :members:
     :special-members:
+    :exclude-members: __module__,__dict__,__weakref__
 
 
 Events
@@ -27,6 +28,7 @@ Events
 .. automodule:: alchy.events
     :members:
     :special-members:
+    :exclude-members: __module__,__dict__,__weakref__
 
 
 Types
@@ -42,6 +44,7 @@ Manager
 .. automodule:: alchy.manager
     :members:
     :special-members:
+    :exclude-members: __module__,__dict__,__weakref__
 
 
 Session

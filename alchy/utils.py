@@ -58,6 +58,8 @@ def camelcase_to_underscore(string):
 
 def iterflatten(items):
     """Return iterator which flattens list/tuple of lists/tuples
+
+    # doctest: +SKIP
     >>> to_flatten = [1, [2,3], [4, [5, [6]], 7], 8]
     >>> assert list(iterflatten(to_flatten)) == [1,2,3,4,5,6,7,8]
     """
@@ -71,6 +73,8 @@ def iterflatten(items):
 
 def flatten(items):
     """Return flattened list of a list/tuple of lists/tuples
+
+    # doctest: +SKIP
     >>> assert flatten([1, [2,3], [4, [5, [6]], 7], 8]) == [1,2,3,4,5,6,7,8]
     """
     return list(iterflatten(items))

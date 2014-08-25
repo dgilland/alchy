@@ -1,5 +1,5 @@
 """SQLAlchemy query filter factories usable in
-alchy.QueryModel.__search_filter__.
+:attr:`alchy.query.QueryModel.__search_filters__`.
 
 These are factory functions that return common filter operations as functions
 which are then assigned to the model class' search config attributes. These
@@ -9,11 +9,12 @@ defined before the model and given that the model column attributes need to be
 defined before using the search factories, there are two ways to use the search
 factories on the query class:
 
-1. Define ``__search_filters__`` as a property that returns the filter dict
+1. Define :attr:`alchy.query.QueryModel.__search_filters__` as a property that
+returns the filter dict.
 2. Pass in a callable that returns the column.
 
-For example, *without* :module:`alchy.search` one would define a
-``__search_filters__`` similar to::
+For example, *without* :mod:`alchy.search` one would define a
+:attr:`alchy.query.QueryModel.__search_filters__` similar to::
 
     class UserQuery(QueryModel):
         __search_filters = {
@@ -24,7 +25,7 @@ For example, *without* :module:`alchy.search` one would define a
         query_class = UserQuery
         email = Column(types.String(100))
 
-Using :module:`alchy.search` the above then becomes::
+Using :mod:`alchy.search` the above then becomes::
 
     class UserQuery(QueryModel):
         @property
@@ -52,10 +53,10 @@ Or if a callable is passed in::
 
 The general naming convention for each comparator is:
 
-- positive comparator: ``<base>`` (e.g. "like")
-- negative comparator: ``not<base>`` (e.g. "notlike")
+- positive comparator: ``<base>`` (e.g. :func:`like`)
+- negative comparator: ``not<base>`` (e.g. :func:`notlike`)
 
-The call signature for the ``search`` functions is::
+The basic call signature for the :mod:`search` functions is::
 
     # search.<function>(column)
     # e.g.
