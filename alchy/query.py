@@ -154,6 +154,7 @@ class Query(orm.Query):
         result = initial
         for item in items:
             result = func(result, item)
+
         return result
 
     def reduce_right(self, func, initial=None):
@@ -305,7 +306,7 @@ class QueryModel(Query):
         # users, we may actually have more than that many records since we're
         # joining on many records from the user keywords table.
         original = (self.lazyload('*')
-                    .load_only(*self.Model.primary_attrs)
+                    .load_only(*self.Model.primary_attrs())
                     .distinct())
 
         # Use the original query so that we preserve joins and where
@@ -352,7 +353,7 @@ class QueryModel(Query):
             subquery = model_query.subquery()
             query = query.join(
                 subquery, join_subquery_on_columns(subquery,
-                                                   self.Model.primary_keys))
+                                                   self.Model.primary_keys()))
 
         return query
 

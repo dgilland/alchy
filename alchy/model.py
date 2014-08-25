@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 from . import query, events
 from .utils import (
-    classproperty,
     is_sequence,
     has_primary_key,
     camelcase_to_underscore
@@ -120,7 +119,7 @@ class ModelBase(object):
 
     def __repr__(self):  # pragma: no cover
         values = ', '.join(['{0}={1}'.format(c, repr(getattr(self, c)))
-                            for c in self.columns])
+                            for c in self.columns()])
         return '<{0}({1})>'.format(self.__class__.__name__, values)
 
     def __getitem__(self, item):
@@ -137,7 +136,7 @@ class ModelBase(object):
         data = data_dict if isinstance(data_dict, dict) else kargs
 
         update_fields = data.keys()
-        relationships = self.relationships
+        relationships = self.relationships()
 
         for field, value in iteritems(data):
             if hasattr(self, field) and field in update_fields:
@@ -200,7 +199,7 @@ class ModelBase(object):
         """Return :attr:`__dict__` key-filtered by :attr:`descriptors`."""
         return dict([(key, value)
                      for key, value in iteritems(self.__dict__)
-                     if key in self.descriptors])
+                     if key in self.descriptors()])
 
     def to_dict(self):
         """Return dict representation of model by filtering fields using
@@ -242,34 +241,34 @@ class ModelBase(object):
         """Return session belonging to ``self``"""
         return orm.object_session(self)
 
-    @classproperty
+    @classmethod
     def session(cls):
         """Return session from query property"""
         return cls.query.session
 
     def flush(self, *args, **kargs):
-        """Call ``session.flush`` on ``self``"""
-        self.session.flush([self], *args, **kargs)
+        """Call ``session.flush()`` on ``self``"""
+        self.session().flush([self], *args, **kargs)
 
     def save(self, *args, **kargs):
-        """Call ``session.add`` on ``self``"""
-        self.session.add(self, *args, **kargs)
+        """Call ``session.add()`` on ``self``"""
+        self.session().add(self, *args, **kargs)
 
     def delete(self, *args, **kargs):
-        """Call ``session.delete`` on ``self``"""
-        return self.session.delete(self, *args, **kargs)
+        """Call ``session.delete()`` on ``self``"""
+        return self.session().delete(self, *args, **kargs)
 
     def expire(self, *args, **kargs):
-        """Call ``session.expire`` on ``self``"""
-        self.session.expire(self, *args, **kargs)
+        """Call ``session.expire()`` on ``self``"""
+        self.session().expire(self, *args, **kargs)
 
     def refresh(self, *args, **kargs):
-        """Call ``session.refresh`` on ``self``"""
-        self.session.refresh(self, *args, **kargs)
+        """Call ``session.refresh()`` on ``self``"""
+        self.session().refresh(self, *args, **kargs)
 
     def expunge(self, *args, **kargs):
-        """Call ``session.expunge`` on ``self``"""
-        self.session.expunge(self, *args, **kargs)
+        """Call ``session.expunge()`` on ``self``"""
+        self.session().expunge(self, *args, **kargs)
 
     @classmethod
     def get(cls, *args, **kargs):
@@ -288,7 +287,7 @@ class ModelBase(object):
     # SQLAlchemy.inspect() based methods/properties
     ##
 
-    @classproperty
+    @classmethod
     def primary_key(cls):
         """Return primary key as either single column (one primary key) or
         tuple otherwise.
@@ -300,42 +299,42 @@ class ModelBase(object):
 
         return primary
 
-    @classproperty
+    @classmethod
     def primary_keys(cls):
         """Return primary keys as tuple."""
         return inspect(cls).primary_key
 
-    @classproperty
+    @classmethod
     def primary_attrs(cls):
         """Return class attributes from primary keys."""
-        primary_keys = cls.primary_keys
+        primary_keys = cls.primary_keys()
         return [getattr(cls, attr)
-                for attr in cls.columns
+                for attr in cls.columns()
                 if getattr(cls, attr).property.columns[0] in primary_keys]
 
-    @classproperty
+    @classmethod
     def attrs(cls):
         """Return ORM attributes"""
         return inspect(cls).attrs.keys()
 
-    @classproperty
+    @classmethod
     def descriptors(cls):
         """Return all ORM descriptors"""
         return [descr for descr in inspect(cls).all_orm_descriptors.keys()
                 if not descr.startswith('__')]
 
-    @classproperty
+    @classmethod
     def relationships(cls):
         """Return ORM relationships"""
         return inspect(cls).relationships.keys()
 
-    @classproperty
+    @classmethod
     def column_attrs(cls):
         """Return table columns as list of class attributes at the class level.
         """
         return inspect(cls).column_attrs
 
-    @classproperty
+    @classmethod
     def columns(cls):
         """Return table columns."""
         return inspect(cls).columns.keys()

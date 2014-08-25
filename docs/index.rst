@@ -14,6 +14,7 @@ Guide
     install
     quickstart
     versioning
+    upgrading
 
 
 API Reference

@@ -202,9 +202,9 @@ class TestModel(TestQueryBase):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.attrs, baz.attrs)
-        self.assertEqual(
-            set(Baz.attrs), set(['_id', 'string', 'number', 'bar_id', 'bar']))
+        self.assertEqual(Baz.attrs(), baz.attrs())
+        self.assertEqual(set(Baz.attrs()),
+                         set(['_id', 'string', 'number', 'bar_id', 'bar']))
 
     def test_getitem(self):
         baz = Baz.get(1)
@@ -221,46 +221,44 @@ class TestModel(TestQueryBase):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.columns, baz.columns)
-        self.assertEqual(
-            set(Baz.columns), set(['_id', 'string', 'number', 'bar_id']))
+        self.assertEqual(Baz.columns(), baz.columns())
+        self.assertEqual(set(Baz.columns()),
+                         set(['_id', 'string', 'number', 'bar_id']))
 
     def test_column_attrs(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.column_attrs, baz.column_attrs)
-        self.assertEqual(
-            set(Baz.column_attrs),
-            set([Baz._id.property,
-                 Baz.string.property,
-                 Baz.number.property,
-                 Baz.bar_id.property])
-        )
+        self.assertEqual(Baz.column_attrs(), baz.column_attrs())
+        self.assertEqual(set(Baz.column_attrs()),
+                         set([Baz._id.property,
+                              Baz.string.property,
+                              Baz.number.property,
+                              Baz.bar_id.property]))
 
     def test_descriptors(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.descriptors, baz.descriptors)
+        self.assertEqual(Baz.descriptors(), baz.descriptors())
         self.assertEqual(
-            set(Baz.descriptors),
+            set(Baz.descriptors()),
             set(['_id', 'string', 'number', 'bar_id', 'bar', 'hybrid_number']))
 
     def test_relationships(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.relationships, baz.relationships)
-        self.assertEqual(set(Baz.relationships), set(['bar']))
+        self.assertEqual(Baz.relationships(), baz.relationships())
+        self.assertEqual(set(Baz.relationships()), set(['bar']))
 
     def test_primary_attrs(self):
         baz = Baz.get(1)
 
         # it should be a class and instance property
-        self.assertEqual(Baz.primary_attrs, baz.primary_attrs)
+        self.assertEqual(Baz.primary_attrs(), baz.primary_attrs())
         self.assertTrue([attr.property.is_primary()
-                         for attr in Baz.primary_attrs])
+                         for attr in Baz.primary_attrs()])
 
     def test_get(self):
         self.assertEqual(Foo.get(1), self.db.query(Foo).get(1))
@@ -275,11 +273,11 @@ class TestModel(TestQueryBase):
 
     def test_object_session(self):
         record = Foo.get(1)
-        self.assertIs(
-            record.object_session, self.db.session.object_session(record))
+        self.assertIs(record.object_session,
+                      self.db.session.object_session(record))
 
     def test_query_session(self):
-        self.assertIs(Foo.session, Foo.query.session)
+        self.assertIs(Foo.session(), Foo.query.session)
 
     def test_flush(self):
         record = Baz()
@@ -380,9 +378,8 @@ class TestModel(TestQueryBase):
             'inherited_auto_gen_table_name')
 
     def test_single_primary_key(self):
-        self.assertEqual(Foo.primary_key, inspect(Foo).primary_key[0])
+        self.assertEqual(Foo.primary_key(), inspect(Foo).primary_key[0])
 
     def test_multiple_primary_keys(self):
-        self.assertEqual(
-            MultiplePrimaryKey.primary_key,
-            inspect(MultiplePrimaryKey).primary_key)
+        self.assertEqual(MultiplePrimaryKey.primary_key(),
+                         inspect(MultiplePrimaryKey).primary_key)

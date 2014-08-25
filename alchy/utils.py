@@ -10,25 +10,12 @@ from ._compat import string_types, iteritems
 
 
 __all__ = [
-    'classproperty',
     'is_sequence',
     'has_primary_key',
     'camelcase_to_underscore',
     'iterflatten',
     'flatten'
 ]
-
-
-class classproperty(object):
-    """Decorator that adds class properties. Allows for usage like @property
-    but applies the property at the class level. Helps avoid having to use
-    metaclasses or other complex techniques to achieve similar results.
-    """
-    def __init__(self, getter):
-        self.getter = getter
-
-    def __get__(self, instance, owner):
-        return self.getter(owner)
 
 
 def is_sequence(obj):
