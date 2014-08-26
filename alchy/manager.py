@@ -53,11 +53,14 @@ __all__ = [
 
 
 class ManagerMixin(object):
-    """Useful extensions to :attr:`Manager.session`."""
+    """Extensions for :attr:`Manager.session`."""
 
     def add(self, *instances):
         """Override ``session.add()`` so it can function like
-        ``session.add_all()`` and support chaining.
+        ``session.add_all()``.
+
+        Note:
+            Supports chaining.
         """
         for instance in instances:
             if isinstance(instance, list):
@@ -72,7 +75,10 @@ class ManagerMixin(object):
 
     def delete(self, *instances):
         """Override ``session.delete()`` so it can function like
-        ``session.add_all()`` and support chaining.
+        ``session.add_all()``.
+
+        Note:
+            Supports chaining.
         """
         for instance in instances:
             if isinstance(instance, list):
@@ -87,7 +93,7 @@ class ManagerMixin(object):
 
 
 class Manager(ManagerMixin):
-    """Manager for database session.
+    """Manager class for database session.
 
     Initialization of :class:`Manager` accepts a config object, session
     options, and an optional declarative base. If ``Model`` isn't provided,
@@ -103,9 +109,10 @@ class Manager(ManagerMixin):
             'autoflush': True
         }
 
-    The default ``session_class`` is :class:`alchy.Session`. If you want to
+    The default :attr:`session_class` is :class:`alchy.Session`. If you want to
     provide your own session class, then it's suggested that you subclass
-    :class:`alchy.Session`.
+    :class:`alchy.Session` and pass it in via :attr:`session_class`. This way
+    your subclass will inherit the functionality of :class:`alchy.Session`.
     """
 
     def __init__(self,

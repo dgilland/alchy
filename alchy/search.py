@@ -9,8 +9,8 @@ defined before the model and given that the model column attributes need to be
 defined before using the search factories, there are two ways to use the search
 factories on the query class:
 
-1. Define :attr:`alchy.query.QueryModel.__search_filters__` as a property that
-returns the filter dict.
+1. Define :attr:`alchy.query.QueryModel.__search_filters__` as a property \
+that returns the filter dict.
 2. Pass in a callable that returns the column.
 
 For example, *without* :mod:`alchy.search` one would define a

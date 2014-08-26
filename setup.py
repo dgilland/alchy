@@ -2,7 +2,8 @@
 alchy
 =====
 
-The declarative companion to SQLAlchemy.
+A SQLAlchemy extension for its declarative ORM that provides enhancements for
+model classes, queries, and sessions.
 
 Project: https://github.com/dgilland/alchy
 
@@ -35,9 +36,10 @@ setup(
         'SQLAlchemy>=0.9.0'
     ],
     test_suite='tests',
-    keywords='sqlalchemy databases',
+    keywords='sqlalchemy databases orm declarative',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',

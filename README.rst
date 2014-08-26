@@ -3,8 +3,7 @@ alchy
 
 |version| |travis| |coveralls| |license|
 
-The declarative companion to SQLAlchemy.
-
+A SQLAlchemy extension for its declarative ORM that provides enhancements for model classes, queries, and sessions.
 
 Links
 =====

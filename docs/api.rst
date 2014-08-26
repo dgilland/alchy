@@ -31,6 +31,13 @@ Events
     :exclude-members: __module__,__dict__,__weakref__
 
 
+Search
+======
+
+.. automodule:: alchy.search
+    :members:
+
+
 Types
 =====
 
@@ -51,13 +58,6 @@ Session
 =======
 
 .. automodule:: alchy.session
-    :members:
-
-
-Search
-======
-
-.. automodule:: alchy.search
     :members:
 
 

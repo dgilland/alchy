@@ -40,26 +40,27 @@ class Query(orm.Query):
     """Extension of default Query class used in SQLAlchemy session queries.
     """
 
-    # Default per_page argument for pagination when per_page not specified.
+    #: Default per_page argument for pagination when per_page not specified.
     DEFAULT_PER_PAGE = 50
 
     @property
     def entities(self):
-        """Return list of entity classes present in query"""
+        """Return list of entity classes present in query."""
         return [e.mapper.class_ for e in self._entities]
 
     @property
     def join_entities(self):
-        """Return list of the joined entity classes present in query"""
+        """Return list of the joined entity classes present in query."""
         return [e.mapper.class_ for e in self._join_entities]
 
     @property
     def all_entities(self):
-        """Return list of entities + join_entities present in query"""
+        """Return list of entities + join_entities present in query."""
         return self.entities + self.join_entities
 
     def _join_eager(self, keys, outerjoin, **kargs):
-        """Helper method for applying join()/outerjoin() with contains_eager()
+        """Helper method for applying ``join()``/``outerjoin()` with
+        ``contains_eager()``.
         """
         alias = kargs.pop('alias', None)
 
@@ -78,11 +79,11 @@ class Query(orm.Query):
         return join(*join_args).options(opt)
 
     def join_eager(self, *keys, **kargs):
-        """Apply `self.join()` + `self.options(contains_eager())`."""
+        """Apply ``join`` + ``self.options(contains_eager())``."""
         return self._join_eager(keys, False, **kargs)
 
     def outerjoin_eager(self, *keys, **kargs):
-        """Apply `self.outerjoin()` + `self.options(contains_eager())`."""
+        """Apply ``outerjoin`` + ``self.options(contains_eager())``."""
         return self._join_eager(keys, True, **kargs)
 
     def _join_load(self, keys, load_type, **kargs):
@@ -95,32 +96,32 @@ class Query(orm.Query):
         return self.options(opt)
 
     def joinedload(self, *keys, **kargs):
-        """Apply joinedload() to `keys`"""
+        """Apply ``joinedload()`` to `keys`."""
         return self._join_load(keys, 'joinedload', **kargs)
 
     def immediateload(self, *keys, **kargs):
-        """Apply immediateload() to `keys`"""
+        """Apply ``immediateload()`` to `keys`."""
         return self._join_load(keys, 'immediateload', **kargs)
 
     def lazyload(self, *keys, **kargs):
-        """Apply lazyload() to `keys`"""
+        """Apply ``lazyload()`` to `keys`."""
         return self._join_load(keys, 'lazyload', **kargs)
 
     def noload(self, *keys, **kargs):
-        """Apply noload() to `keys`"""
+        """Apply ``noload()`` to `keys`."""
         return self._join_load(keys, 'noload', **kargs)
 
     def subqueryload(self, *keys, **kargs):
-        """Apply subqueryload() to `keys`"""
+        """Apply ``subqueryload()`` to `keys`."""
         return self._join_load(keys, 'subqueryload', **kargs)
 
     def load_only(self, *columns):
-        """Apply `load_only()` to query"""
+        """Apply ``load_only()`` to query."""
         obj, columns = get_load_options(*columns)
         return self.options(obj.load_only(*columns))
 
     def defer(self, *columns):
-        """Apply `defer()` to query"""
+        """Apply ``defer()`` to query."""
         obj, columns = get_load_options(*columns)
         opts = obj
         for column in columns:
@@ -128,7 +129,7 @@ class Query(orm.Query):
         return self.options(opts)
 
     def undefer(self, *columns):
-        """Apply `undefer()` to query"""
+        """Apply ``undefer()`` to query."""
         obj, columns = get_load_options(*columns)
         opts = obj
         for column in columns:
@@ -136,16 +137,16 @@ class Query(orm.Query):
         return self.options(opts)
 
     def undefer_group(self, *names):
-        """Apply `undefer_group()` to query"""
+        """Apply ``undefer_group()`` to query."""
         obj, names = get_load_options(*names)
         return self.options(obj.undefer_group(names[0]))
 
     def map(self, func):
-        """Call native `map` on `self.all()`"""
+        """Map `func` to each item returned by :meth:`all`."""
         return [func(item) for item in self.all()]
 
     def reduce(self, func, initial=None, reverse=False):
-        """Reduce `self.all()` using `func`"""
+        """Reduce :meth:`all` using `func`."""
         items = self.all()
 
         if reverse:
@@ -158,24 +159,26 @@ class Query(orm.Query):
         return result
 
     def reduce_right(self, func, initial=None):
-        """Reduce reversed `self.all()` using `func`"""
+        """Reduce reversed :meth:`all` using `func`."""
         return self.reduce(func, initial=initial, reverse=True)
 
     def pluck(self, column):
-        """Pluck `column` attribute values from `self.all()` results and return
-        as list.
+        """Pluck `column` attribute values from :meth:`all` results and
+        return as list.
         """
         return [getattr(r, column, None) for r in self.all()]
 
     def page(self, page=1, per_page=None):
-        """Return query with limit and offset applied for page"""
+        """Return query with limit and offset applied for page."""
         if per_page is None:
             per_page = self.DEFAULT_PER_PAGE
 
         return self.limit(per_page).offset((page - 1) * per_page)
 
     def paginate(self, page=1, per_page=None, error_out=True):
-        """Return Pagination instance using already defined query parameters"""
+        """Return :class:`Pagination` instance using already defined query
+        parameters.
+        """
         if error_out and page < 1:
             raise IndexError
 
@@ -227,7 +230,7 @@ class QueryModel(Query):
         __advanced_search__: Advanced search models search by named parameters.
             Generally found on advanced search forms where each field maps to a
             specific database field that will be queried against. If defined as
-            a list, each item should be a key from attr:`__search_filters__`.
+            a list, each item should be a key from :attr:`__search_filters__`.
             The matching :attr:`__search_filters__` function will be used in
             the query. If defined as a dict, it should have the same format as
             :attr:`__search_filters__`.
@@ -236,7 +239,7 @@ class QueryModel(Query):
             search). Defined like :attr:`__advanced_search__`.
 
         __order_by__: Default order-by to use when
-            :attr:`alchy.ModelBase.query` used.
+            :attr:`alchy.model.ModelBase.query` used.
     """
 
     __search_filters__ = {}
@@ -250,14 +253,15 @@ class QueryModel(Query):
         return self.entities[0]
 
     def get_search_filters(self, keys):
-        """Return __search_filters__ filtered by keys."""
+        """Return :attr:`__search_filters__` filtered by keys."""
         if isinstance(keys, dict):
             return keys
         else:
             return dict([(key, self.__search_filters__[key]) for key in keys])
 
     def advanced_filter(self, search_dict=None):
-        """Return the compiled advanced search filter mapped to search_dict."""
+        """Return the compiled advanced search filter mapped to `search_dict`.
+        """
         if search_dict is None:  # pragma: no cover
             search_dict = {}
 
@@ -270,7 +274,8 @@ class QueryModel(Query):
         return and_(*term_filters)
 
     def simple_filter(self, search_terms=None):
-        """Return the compiled simple search filter mapped to search_terms."""
+        """Return the compiled simple search filter mapped to `search_terms`.
+        """
         if search_terms is None:  # pragma: no cover
             search_terms = []
 
@@ -360,7 +365,7 @@ class QueryModel(Query):
 
 class QueryProperty(object):
     """Query property accessor which gives a model access to query capabilities
-    via :attr:`alchy.ModelBase.query` which is equivalent to
+    via :attr:`alchy.model.ModelBase.query` which is equivalent to
     ``session.query(Model)``.
     """
     def __init__(self, session):
@@ -425,13 +430,13 @@ class Pagination(object):
         self.has_next = self.page < self.pages
 
     def prev(self, error_out=False):
-        """Returns a `Pagination` object for the previous page."""
+        """Returns a :class:`Pagination` object for the previous page."""
         assert self.query is not None, \
             'a query object is required for this method to work'
         return self.query.paginate(self.page - 1, self.per_page, error_out)
 
     def next(self, error_out=False):
-        """Returns a `Pagination` object for the next page."""
+        """Returns a :class:`Pagination` object for the next page."""
         assert self.query is not None, \
             'a query object is required for this method to work'
         return self.query.paginate(self.page + 1, self.per_page, error_out)

@@ -45,8 +45,9 @@ Model Events allows one to write event registration more succinctly as::
             print ('received "before_insert" event for target: {0}'
                    .format(target))
 
-For details on each event type's expected function signature, see SQLAlchemy's
-`ORM Events <http://docs.sqlalchemy.org/en/latest/orm/events.html>`_.
+For details on each event type's expected function signature, see
+`SQLAlchemy's ORM Events
+<http://docs.sqlalchemy.org/en/latest/orm/events.html>`_.
 """
 # pylint: disable=invalid-name
 

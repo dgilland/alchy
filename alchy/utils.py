@@ -1,4 +1,7 @@
 """Generic utility functions used in package.
+
+..
+    >>> from alchy.utils import *
 """
 
 import re
@@ -19,8 +22,8 @@ __all__ = [
 
 
 def is_sequence(obj):
-    """Test if `obj` is an iterable but not dict or string. Mainly used to
-    determine if `obj` can be treated like a list for iteration purposes.
+    """Test if `obj` is an iterable but not ``dict`` or ``str``. Mainly used to
+    determine if `obj` can be treated like a ``list`` for iteration purposes.
     """
     return (isinstance(obj, Iterable)
             and not isinstance(obj, string_types)
@@ -35,7 +38,7 @@ def has_primary_key(metadict):
 
 
 def camelcase_to_underscore(string):
-    """Convert string from CamelCase to under_score"""
+    """Convert string from ``CamelCase`` to ``under_score``."""
     regex_first_cap = re.compile('(.)([A-Z][a-z]+)')
     regex_all_cap = re.compile('([a-z0-9])([A-Z])')
 
@@ -44,9 +47,8 @@ def camelcase_to_underscore(string):
 
 
 def iterflatten(items):
-    """Return iterator which flattens list/tuple of lists/tuples
+    """Return iterator which flattens list/tuple of lists/tuples::
 
-    # doctest: +SKIP
     >>> to_flatten = [1, [2,3], [4, [5, [6]], 7], 8]
     >>> assert list(iterflatten(to_flatten)) == [1,2,3,4,5,6,7,8]
     """
@@ -59,9 +61,8 @@ def iterflatten(items):
 
 
 def flatten(items):
-    """Return flattened list of a list/tuple of lists/tuples
+    """Return flattened list of a list/tuple of lists/tuples::
 
-    # doctest: +SKIP
     >>> assert flatten([1, [2,3], [4, [5, [6]], 7], 8]) == [1,2,3,4,5,6,7,8]
     """
     return list(iterflatten(items))

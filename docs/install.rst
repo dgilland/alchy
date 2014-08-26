@@ -3,6 +3,12 @@
 Installation
 ************
 
+To install from `PyPi <https://pypi.python.org/pypi/alchy>`_:
+
+::
+
+    pip install alchy
+
 
 Compatibility
 =============
@@ -18,10 +24,3 @@ Dependencies
 ============
 
 - SQLAlchemy >= 0.9.0
-
-
-To install from `PyPi <https://pypi.python.org/pypi/alchy>`_:
-
-::
-
-    pip install alchy

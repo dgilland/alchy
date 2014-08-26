@@ -115,6 +115,7 @@ class ModelBase(object):
     query = None
 
     def __init__(self, *args, **kargs):
+        """Initialize model instance by calling :meth:`update`."""
         self.update(*args, **kargs)
 
     def __repr__(self):  # pragma: no cover
