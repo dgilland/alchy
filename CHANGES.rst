@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-v1.0.0 (xxxx-xx-xx)
+v1.0.0 (2014-08-25)
 -------------------
 
 - Replace usage of ``@classproperty`` decorators in ``ModelBase`` with ``@classmethod``. Any previously defined class properties now require method access. Affected attributes are: ``session``, ``primary_key``, ``primary_keys``, ``primary_attrs``, ``attrs``, ``descriptors``, ``relationships``, ``column_attrs``, and ``columns``. (**breaking change**)
