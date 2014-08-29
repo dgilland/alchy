@@ -8,6 +8,7 @@ v1.0.0 (2014-08-25)
 - Replace usage of ``@classproperty`` decorators in ``ModelBase`` with ``@classmethod``. Any previously defined class properties now require method access. Affected attributes are: ``session``, ``primary_key``, ``primary_keys``, ``primary_attrs``, ``attrs``, ``descriptors``, ``relationships``, ``column_attrs``, and ``columns``. (**breaking change**)
 - Proxy ``getitem`` and ``setitem`` access to ``getattr`` and ``setattr`` in ``ModelBase``. Allows models to be accessed like dictionaries.
 - Make ``alchy.events`` decorators class based.
+- Require ``alchy.events`` decorators to be instantiated using a function call (e.g. ``@events.before_update()`` instead of ``@events.before_update``). (**breaking change**)
 - Add ``alchy.search`` comparators, ``eqenum`` and ``noteqenum``, for comparing ``DeclarativeEnum`` types.
 
 
