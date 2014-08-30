@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+v1.1.0 (2014-08-30)
+-------------------
+
+- Add ``query.LoadOption`` to support nesting load options when calling the ``query.Query`` load methods: ``join_eager``, ``outerjoin_eager``, ``joinedload``, ``immediateload``, ``lazyload``, ``noload``, and ``subqueryload``.
+
+
 v1.0.0 (2014-08-25)
 -------------------
 

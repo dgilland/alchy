@@ -33,6 +33,7 @@ __all__ = [
     'QueryModel',
     'QueryProperty',
     'Pagination',
+    'LoadOption'
 ]
 
 
@@ -63,56 +64,152 @@ class Query(orm.Query):
         ``contains_eager()``.
         """
         alias = kargs.pop('alias', None)
+        options = kargs.pop('options', None)
 
         key = keys[0]
         path_keys = keys[1:]
 
         join_args = ([alias, key] if alias else [key]) + list(path_keys)
 
-        opt = orm.contains_eager(key, alias=alias)
+        load = orm.contains_eager(key, alias=alias)
 
         for k in path_keys:
-            opt = opt.contains_eager(k)
+            load = load.contains_eager(k)
+
+        if options:
+            apply_load_options(load, options)
 
         join = self.outerjoin if outerjoin else self.join
 
-        return join(*join_args).options(opt)
+        return join(*join_args).options(load)
 
     def join_eager(self, *keys, **kargs):
-        """Apply ``join`` + ``self.options(contains_eager())``."""
+        """Apply ``join`` + ``self.options(contains_eager())``.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            alias: Join alias
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+        """
         return self._join_eager(keys, False, **kargs)
 
     def outerjoin_eager(self, *keys, **kargs):
-        """Apply ``outerjoin`` + ``self.options(contains_eager())``."""
+        """Apply ``outerjoin`` + ``self.options(contains_eager())``.
+
+        Args:
+            keys (mixed): Either string keys or column references to join
+                path(s)
+
+        Keyword Args:
+            alias: Join alias
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+        """
         return self._join_eager(keys, True, **kargs)
 
-    def _join_load(self, keys, load_type, **kargs):
+    def _join_load(self, keys, load_strategy, **kargs):
         """Helper method for returning load strategies."""
-        opt = getattr(orm, load_type)(keys[0], **kargs)
+        options = kargs.pop('options', None)
+
+        load = getattr(orm, load_strategy)(keys[0], **kargs)
 
         for k in keys[1:]:
-            opt = getattr(opt, load_type)(k)
+            load = getattr(load, load_strategy)(k)
 
-        return self.options(opt)
+        if options:
+            load = apply_load_options(load, options)
+
+        return self.options(load)
 
     def joinedload(self, *keys, **kargs):
-        """Apply ``joinedload()`` to `keys`."""
+        """Apply ``joinedload()`` to `keys`.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+
+        Note:
+            Additional keyword args will be passed to initial load creation.
+        """
         return self._join_load(keys, 'joinedload', **kargs)
 
     def immediateload(self, *keys, **kargs):
-        """Apply ``immediateload()`` to `keys`."""
+        """Apply ``immediateload()`` to `keys`.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+
+        Note:
+            Additional keyword args will be passed to initial load creation.
+        """
         return self._join_load(keys, 'immediateload', **kargs)
 
     def lazyload(self, *keys, **kargs):
-        """Apply ``lazyload()`` to `keys`."""
+        """Apply ``lazyload()`` to `keys`.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+
+        Note:
+            Additional keyword args will be passed to initial load creation.
+        """
         return self._join_load(keys, 'lazyload', **kargs)
 
     def noload(self, *keys, **kargs):
-        """Apply ``noload()`` to `keys`."""
+        """Apply ``noload()`` to `keys`.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+
+        Note:
+            Additional keyword args will be passed to initial load creation.
+        """
         return self._join_load(keys, 'noload', **kargs)
 
     def subqueryload(self, *keys, **kargs):
-        """Apply ``subqueryload()`` to `keys`."""
+        """Apply ``subqueryload()`` to `keys`.
+
+        Args:
+            keys (mixed): Either string or column references to join
+                path(s)
+
+        Keyword Args:
+            options (list): A list of :class:`LoadOption` to apply to the
+                overall load strategy, i.e., each :class:`LoadOption` will be
+                chained at the end of the load.
+
+        Note:
+            Additional keyword args will be passed to initial load creation.
+        """
         return self._join_load(keys, 'subqueryload', **kargs)
 
     def load_only(self, *columns):
@@ -122,19 +219,17 @@ class Query(orm.Query):
 
     def defer(self, *columns):
         """Apply ``defer()`` to query."""
-        obj, columns = get_load_options(*columns)
-        opts = obj
+        load, columns = get_load_options(*columns)
         for column in columns:
-            opts = opts.defer(column)
-        return self.options(opts)
+            load = load.defer(column)
+        return self.options(load)
 
     def undefer(self, *columns):
         """Apply ``undefer()`` to query."""
-        obj, columns = get_load_options(*columns)
-        opts = obj
+        load, columns = get_load_options(*columns)
         for column in columns:
-            opts = opts.undefer(column)
-        return self.options(opts)
+            load = load.undefer(column)
+        return self.options(load)
 
     def undefer_group(self, *names):
         """Apply ``undefer_group()`` to query."""
@@ -442,6 +537,29 @@ class Pagination(object):
         return self.query.paginate(self.page + 1, self.per_page, error_out)
 
 
+class LoadOption(object):
+    """Chained load option to apply to a load strategy when calling
+    :class:`Query` load methods.
+
+    Example usage: ::
+
+        qry = (db.session.query(Product)
+               .join_eager('category',
+                           options=[LoadOption('noload', 'images')]))
+
+    This would result in the ``noload`` option being chained to the eager
+    option for ``Product.category`` and is equilvalent to: ::
+
+        qry = (db.session.query(Product)
+               .join('category')
+               .options(contains_eager('category').noload('images')))
+    """
+    def __init__(self, strategy, *args, **kargs):
+        self.strategy = strategy
+        self.args = args
+        self.kargs = kargs
+
+
 def get_load_options(*columns):
     """Helper method that attempts to extract a sqlalchemy object from
     `columns[0]` and return remaining columns to apply to a query load method.
@@ -460,6 +578,18 @@ def get_load_options(*columns):
 
     return (obj, columns)
 
+
+def apply_load_options(load, options):
+    """Apply load `options` to base `load` object.
+
+    The `options` dict should be indexed by the load method name. It's values
+    should
+    """
+    for load_option in options:
+        load = getattr(load, load_option.strategy)(*load_option.args,
+                                                   **load_option.kargs)
+
+    return load
 
 def base_columns_from_subquery(subquery):
     """Return non-aliased, base columns from subquery."""

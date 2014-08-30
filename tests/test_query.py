@@ -219,6 +219,18 @@ class TestQuery(TestQueryBase):
             'it should join eager on multiple model entities'
         )
 
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .join_eager(
+                     'bars',
+                     options=[query.LoadOption('contains_eager', 'bazs')])
+                 )),
+            str((self.db.query(Foo)
+                 .join('bars')
+                 .options(orm.contains_eager('bars').contains_eager('bazs')))),
+            'it should join eager using options'
+        )
+
     def test_join_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
 
@@ -275,6 +287,18 @@ class TestQuery(TestQueryBase):
             'it should outerjoin eager on multiple model entities'
         )
 
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .outerjoin_eager(
+                     'bars',
+                     options=[query.LoadOption('contains_eager', 'bazs')])
+                 )),
+            str((self.db.query(Foo)
+                 .outerjoin('bars')
+                 .options(orm.contains_eager('bars').contains_eager('bazs')))),
+            'it should join eager using options'
+        )
+
     def test_outerouterjoin_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
 
@@ -317,6 +341,15 @@ class TestQuery(TestQueryBase):
                  .options(orm.joinedload(Foo.bars).joinedload(Bar.bazs))))
         )
 
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .joinedload('bars',
+                             options=[query.LoadOption('joinedload', 'bazs')]))
+            ),
+            str((self.db.query(Foo)
+                 .options(orm.joinedload('bars').joinedload('bazs'))))
+        )
+
     def test_immediateload(self):
         self.assertEqual(
             str(self.db.query(Foo).immediateload('bars')),
@@ -338,6 +371,15 @@ class TestQuery(TestQueryBase):
             str(self.db.query(Foo).immediateload(Foo.bars, Bar.bazs)),
             str((self.db.query(Foo)
                 .options(orm.immediateload(Foo.bars).immediateload(Bar.bazs))))
+        )
+
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .immediateload('bars',
+                                options=[query.LoadOption('immediateload',
+                                                          'bazs')]))),
+            str((self.db.query(Foo)
+                 .options(orm.immediateload('bars').immediateload('bazs'))))
         )
 
     def test_lazyload(self):
@@ -363,6 +405,14 @@ class TestQuery(TestQueryBase):
                  .options(orm.lazyload(Foo.bars).lazyload(Bar.bazs))))
         )
 
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .lazyload('bars',
+                           options=[query.LoadOption('lazyload', 'bazs')]))),
+            str((self.db.query(Foo)
+                 .options(orm.lazyload('bars').lazyload('bazs'))))
+        )
+
     def test_noload(self):
         self.assertEqual(
             str(self.db.query(Foo).noload('bars')),
@@ -383,6 +433,13 @@ class TestQuery(TestQueryBase):
             str(self.db.query(Foo).noload(Foo.bars, Bar.bazs)),
             str((self.db.query(Foo)
                  .options(orm.noload(Foo.bars).noload(Bar.bazs))))
+        )
+
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .noload('bars',
+                         options=[query.LoadOption('noload', 'bazs')]))),
+            str(self.db.query(Foo).options(orm.noload('bars').noload('bazs')))
         )
 
     def test_subqueryload(self):
@@ -406,6 +463,16 @@ class TestQuery(TestQueryBase):
             str(self.db.query(Foo).subqueryload(Foo.bars, Bar.bazs)),
             str((self.db.query(Foo)
                  .options(orm.subqueryload(Foo.bars).subqueryload(Bar.bazs))))
+        )
+
+        self.assertEqual(
+            str((self.db.query(Foo)
+                 .subqueryload(
+                     'bars',
+                     options=[query.LoadOption('subqueryload', 'bazs')])
+                 )),
+            str((self.db.query(Foo)
+                 .options(orm.subqueryload('bars').subqueryload('bazs'))))
         )
 
     def test_load_only_with_string_args(self):
