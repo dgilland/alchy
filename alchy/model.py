@@ -150,6 +150,7 @@ class ModelBase(object):
                 attr = getattr(self, field)
 
                 if (hasattr(attr, 'update')
+                        and value
                         and is_dict
                         and not isinstance(attr, dict)):
                     # nest calls to attr.update
