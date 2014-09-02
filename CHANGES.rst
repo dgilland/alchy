@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+v1.1.1 (2014-09-01)
+-------------------
+
+- Fix handling of nested ``Model.update()`` calls to relationship attributes so that setting relationship to empty ``dict`` will propagate ``None`` to relationship attribute value correctly.
+
+
 v1.1.0 (2014-08-30)
 -------------------
 
