@@ -208,9 +208,8 @@ class ModelBase(object):
         :attr:`__to_dict__`.
         """
         data = {}
-        data_fields = self.__to_dict__
 
-        for field in data_fields:
+        for field in self.__to_dict__:
             value = getattr(self, field)
 
             # Nest calls to `to_dict`. Try to find method on base value,
