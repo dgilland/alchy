@@ -591,6 +591,7 @@ def apply_load_options(load, options):
 
     return load
 
+
 def base_columns_from_subquery(subquery):
     """Return non-aliased, base columns from subquery."""
     # base_columns is a set so we need to cast to list.

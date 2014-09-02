@@ -2,6 +2,7 @@
 from sqlalchemy import orm
 
 from alchy import query
+from alchy.query import LoadOption
 
 from .base import TestQueryBase
 from .fixtures import Foo, Bar, Baz, Qux
@@ -221,10 +222,8 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str((self.db.query(Foo)
-                 .join_eager(
-                     'bars',
-                     options=[query.LoadOption('contains_eager', 'bazs')])
-                 )),
+                 .join_eager('bars',
+                             options=[LoadOption('contains_eager', 'bazs')]))),
             str((self.db.query(Foo)
                  .join('bars')
                  .options(orm.contains_eager('bars').contains_eager('bazs')))),
@@ -291,7 +290,7 @@ class TestQuery(TestQueryBase):
             str((self.db.query(Foo)
                  .outerjoin_eager(
                      'bars',
-                     options=[query.LoadOption('contains_eager', 'bazs')])
+                     options=[LoadOption('contains_eager', 'bazs')])
                  )),
             str((self.db.query(Foo)
                  .outerjoin('bars')
@@ -344,8 +343,7 @@ class TestQuery(TestQueryBase):
         self.assertEqual(
             str((self.db.query(Foo)
                  .joinedload('bars',
-                             options=[query.LoadOption('joinedload', 'bazs')]))
-            ),
+                             options=[LoadOption('joinedload', 'bazs')]))),
             str((self.db.query(Foo)
                  .options(orm.joinedload('bars').joinedload('bazs'))))
         )
@@ -376,8 +374,8 @@ class TestQuery(TestQueryBase):
         self.assertEqual(
             str((self.db.query(Foo)
                  .immediateload('bars',
-                                options=[query.LoadOption('immediateload',
-                                                          'bazs')]))),
+                                options=[LoadOption('immediateload',
+                                                    'bazs')]))),
             str((self.db.query(Foo)
                  .options(orm.immediateload('bars').immediateload('bazs'))))
         )
@@ -407,8 +405,7 @@ class TestQuery(TestQueryBase):
 
         self.assertEqual(
             str((self.db.query(Foo)
-                 .lazyload('bars',
-                           options=[query.LoadOption('lazyload', 'bazs')]))),
+                 .lazyload('bars', options=[LoadOption('lazyload', 'bazs')]))),
             str((self.db.query(Foo)
                  .options(orm.lazyload('bars').lazyload('bazs'))))
         )
@@ -438,7 +435,7 @@ class TestQuery(TestQueryBase):
         self.assertEqual(
             str((self.db.query(Foo)
                  .noload('bars',
-                         options=[query.LoadOption('noload', 'bazs')]))),
+                         options=[LoadOption('noload', 'bazs')]))),
             str(self.db.query(Foo).options(orm.noload('bars').noload('bazs')))
         )
 
@@ -469,8 +466,7 @@ class TestQuery(TestQueryBase):
             str((self.db.query(Foo)
                  .subqueryload(
                      'bars',
-                     options=[query.LoadOption('subqueryload', 'bazs')])
-                 )),
+                     options=[LoadOption('subqueryload', 'bazs')]))),
             str((self.db.query(Foo)
                  .options(orm.subqueryload('bars').subqueryload('bazs'))))
         )
