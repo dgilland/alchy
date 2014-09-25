@@ -1,4 +1,4 @@
-.. pydash documentation master file
+.. alchy documentation master file
 
 .. include:: ../README.rst
 
