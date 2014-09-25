@@ -59,27 +59,27 @@ class Query(orm.Query):
         """Return list of entities + join_entities present in query."""
         return self.entities + self.join_entities
 
-    def _join_eager(self, keys, outerjoin, **kargs):
+    def _join_eager(self, keys, use_outerjoin, **kargs):
         """Helper method for applying ``join()``/``outerjoin()` with
         ``contains_eager()``.
         """
-        alias = kargs.pop('alias', None)
+        alias = kargs.pop('alias', {})
         options = kargs.pop('options', None)
 
-        key = keys[0]
-        path_keys = keys[1:]
+        if not isinstance(alias, dict):
+            alias = {keys[0]: alias}
 
-        join_args = ([alias, key] if alias else [key]) + list(path_keys)
+        join_args = [(alias.get(key), key) for key in keys]
 
-        load = orm.contains_eager(key, alias=alias)
+        load = orm.contains_eager(keys[0], alias=alias.get(keys[0]))
 
-        for k in path_keys:
-            load = load.contains_eager(k)
+        for key in keys[1:]:
+            load = load.contains_eager(key, alias=alias.get(key))
 
         if options:
             apply_load_options(load, options)
 
-        join = self.outerjoin if outerjoin else self.join
+        join = self.outerjoin if use_outerjoin else self.join
 
         return join(*join_args).options(load)
 
@@ -88,10 +88,10 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
-            alias: Join alias
+            alias: Join alias or ``dict`` mapping key names to aliases.
             options (list): A list of :class:`LoadOption` to apply to the
                 overall load strategy, i.e., each :class:`LoadOption` will be
                 chained at the end of the load.
@@ -103,10 +103,10 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string keys or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
-            alias: Join alias
+            alias: Join alias or ``dict`` mapping key names to aliases.
             options (list): A list of :class:`LoadOption` to apply to the
                 overall load strategy, i.e., each :class:`LoadOption` will be
                 chained at the end of the load.
@@ -119,8 +119,8 @@ class Query(orm.Query):
 
         load = getattr(orm, load_strategy)(keys[0], **kargs)
 
-        for k in keys[1:]:
-            load = getattr(load, load_strategy)(k)
+        for key in keys[1:]:
+            load = getattr(load, load_strategy)(key)
 
         if options:
             load = apply_load_options(load, options)
@@ -132,7 +132,7 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
             options (list): A list of :class:`LoadOption` to apply to the
@@ -149,7 +149,7 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
             options (list): A list of :class:`LoadOption` to apply to the
@@ -166,7 +166,7 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
             options (list): A list of :class:`LoadOption` to apply to the
@@ -183,7 +183,7 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
             options (list): A list of :class:`LoadOption` to apply to the
@@ -200,7 +200,7 @@ class Query(orm.Query):
 
         Args:
             keys (mixed): Either string or column references to join
-                path(s)
+                path(s).
 
         Keyword Args:
             options (list): A list of :class:`LoadOption` to apply to the
@@ -581,9 +581,6 @@ def get_load_options(*columns):
 
 def apply_load_options(load, options):
     """Apply load `options` to base `load` object.
-
-    The `options` dict should be indexed by the load method name. It's values
-    should
     """
     for load_option in options:
         load = getattr(load, load_option.strategy)(*load_option.args,

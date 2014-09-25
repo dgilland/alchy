@@ -2,6 +2,10 @@ Changelog
 =========
 
 
+
+- Allow ``alias`` keyword argument to ``Query.join_eager()`` and ``Query.outerjoin_eager()`` to be a ``dict`` mapping aliases to join keys. Enables nested aliases.
+
+
 v1.1.1 (2014-09-01)
 -------------------
 

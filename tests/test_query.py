@@ -232,6 +232,7 @@ class TestQuery(TestQueryBase):
 
     def test_join_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
+        baz_alias = orm.aliased(Baz)
 
         self.assertEqual(
             str(self.db.query(Foo).join_eager('bars', alias=bar_alias)),
@@ -247,6 +248,18 @@ class TestQuery(TestQueryBase):
                  .join(bar_alias, Foo.bars)
                  .options(orm.contains_eager(Foo.bars, alias=bar_alias)))),
             'it should join eager on alias and model entity'
+        )
+
+        self.assertEqual(
+            str(self.db.query(Foo).join_eager('bars',
+                                              'bazs',
+                                              alias={'bars': bar_alias,
+                                                     'bazs': baz_alias})),
+            str((self.db.query(Foo)
+                 .join((bar_alias, 'bars'), (baz_alias, 'bazs'))
+                 .options((orm.contains_eager('bars', alias=bar_alias)
+                           .contains_eager('bazs', alias=baz_alias))))),
+            'it should join eager on multiple aliases'
         )
 
     def test_outerouterjoin_eager(self):
@@ -300,6 +313,7 @@ class TestQuery(TestQueryBase):
 
     def test_outerouterjoin_eager_with_alias(self):
         bar_alias = orm.aliased(Bar)
+        baz_alias = orm.aliased(Baz)
 
         self.assertEqual(
             str(self.db.query(Foo).outerjoin_eager('bars', alias=bar_alias)),
@@ -315,6 +329,18 @@ class TestQuery(TestQueryBase):
                  .outerjoin(bar_alias, Foo.bars)
                  .options(orm.contains_eager(Foo.bars, alias=bar_alias)))),
             'it should outerjoin eager on alias and model entity'
+        )
+
+        self.assertEqual(
+            str(self.db.query(Foo).outerjoin_eager('bars',
+                                                   'bazs',
+                                                   alias={'bars': bar_alias,
+                                                          'bazs': baz_alias})),
+            str((self.db.query(Foo)
+                 .outerjoin((bar_alias, 'bars'), (baz_alias, 'bazs'))
+                 .options((orm.contains_eager('bars', alias=bar_alias)
+                           .contains_eager('bazs', alias=baz_alias))))),
+            'it should join eager on multiple aliases'
         )
 
     def test_joinedload(self):
