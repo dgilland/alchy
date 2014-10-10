@@ -86,6 +86,17 @@ class TestModel(TestQueryBase):
 
         self.assertIsNone(bar.foo)
 
+    def test_update_relationship_with_list(self):
+        bar = Bar.get(1)
+
+        test = {'bazs': [{'string': 'BAZ0'}, {'string': 'BAZ1'}]}
+
+        bar.update(test)
+
+        self.assertEqual(len(bar.bazs), len(test['bazs']))
+        self.assertEqual(bar.bazs[0]['string'], test['bazs'][0]['string'])
+        self.assertEqual(bar.bazs[1]['string'], test['bazs'][1]['string'])
+
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)
         self.assertEqual(

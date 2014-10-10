@@ -8,7 +8,8 @@ from . import query, events
 from .utils import (
     is_sequence,
     has_primary_key,
-    camelcase_to_underscore
+    camelcase_to_underscore,
+    get_mapper_class
 )
 from ._compat import iteritems
 
@@ -137,31 +138,47 @@ class ModelBase(object):
         data = data_dict if isinstance(data_dict, dict) else kargs
 
         update_fields = data.keys()
-        relationships = self.relationships()
 
         for field, value in iteritems(data):
             if hasattr(self, field) and field in update_fields:
-                # Consider value a dict if any of its elements are a dict.
-                if is_sequence(value):
-                    is_dict = any([isinstance(val, dict) for val in value])
-                else:
-                    is_dict = isinstance(value, dict)
+                self._set_field(field, value)
 
-                attr = getattr(self, field)
+    def _set_field(self, field, value):
+        """Set model field with value."""
+        # Consider value a dict if any of its elements are a dict.
+        if is_sequence(value):
+            is_dict = any([isinstance(val, dict) for val in value])
+        else:
+            is_dict = isinstance(value, dict)
 
-                if (hasattr(attr, 'update')
-                        and value
-                        and is_dict
-                        and not isinstance(attr, dict)):
-                    # nest calls to attr.update
-                    attr.update(value)
-                else:
-                    if field in relationships and is_dict and not value:
-                        # If v is {} and we're trying to update a relationship
-                        # attribute, then we need to set to None to nullify
-                        # relationship value.
-                        value = None
-                    setattr(self, field, value)
+        attr = getattr(self, field)
+
+        if (hasattr(attr, 'update')
+                and value
+                and is_dict
+                and not isinstance(attr, dict)):
+            # Nest calls to attr.update.
+            attr.update(value)
+        else:
+            if field in self.relationships():
+                self._set_relationship_field(field, value)
+            else:
+                setattr(self, field, value)
+
+    def _set_relationship_field(self, field, value):
+        """Set model relationships field with value."""
+        if (is_sequence(getattr(self, field)) and is_sequence(value)):
+            relationship_class = get_mapper_class(self.__class__, field)
+            value = [relationship_class(val) if isinstance(val, dict)
+                     else val
+                     for val in value]
+        elif not value and isinstance(value, dict):
+            # If value is {} and we're trying to update a relationship
+            # attribute, then we need to set to None to nullify relationship
+            # value.
+            value = None
+
+        setattr(self, field, value)
 
     @property
     def __to_dict__(self):

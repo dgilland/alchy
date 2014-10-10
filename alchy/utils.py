@@ -66,3 +66,13 @@ def flatten(items):
     >>> assert flatten([1, [2,3], [4, [5, [6]], 7], 8]) == [1,2,3,4,5,6,7,8]
     """
     return list(iterflatten(items))
+
+
+def mapper_class(relation):
+    """Return mapper class given an ORM relation attribute."""
+    return relation.property.mapper.class_
+
+
+def get_mapper_class(model, field):
+    """Return mapper class given ORM model and field string."""
+    return mapper_class(getattr(model, field))
