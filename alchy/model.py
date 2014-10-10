@@ -167,7 +167,7 @@ class ModelBase(object):
 
     def _set_relationship_field(self, field, value):
         """Set model relationships field with value."""
-        if (is_sequence(getattr(self, field)) and is_sequence(value)):
+        if is_sequence(getattr(self, field)) and is_sequence(value):
             relationship_class = get_mapper_class(self.__class__, field)
             value = [relationship_class(val) if isinstance(val, dict)
                      else val
