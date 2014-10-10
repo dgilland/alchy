@@ -209,6 +209,13 @@ class TestModel(TestQueryBase):
 
         self.assertEqual(a.to_dict(), expected)
 
+    def test_to_dict_empty_nonlist_relationship(self):
+        bar = Bar(foo=None)
+
+        data = bar.to_dict()
+
+        self.assertEqual(data['foo'], {})
+
     def test_attrs(self):
         baz = Baz.get(1)
 

@@ -225,6 +225,7 @@ class ModelBase(object):
         :attr:`__to_dict__`.
         """
         data = {}
+        relationships = self.relationships()
 
         for field in self.__to_dict__:
             value = getattr(self, field)
@@ -239,6 +240,8 @@ class ModelBase(object):
             elif isinstance(value, dict):
                 value = dict([(k, v.to_dict() if hasattr(v, 'to_dict') else v)
                               for k, v in iteritems(value)])
+            elif field in relationships and value is None:
+                value = {}
 
             data[field] = value
 

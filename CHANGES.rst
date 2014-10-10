@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+- Convert null relationships to ``{}`` when calling ``Model.to_dict()`` instead of leaving as ``None``.
+
+
 v1.2.0 (2014-10-10)
 -------------------
 
