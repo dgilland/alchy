@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+v1.2.0 (2014-10-10)
+-------------------
+
 - During ``Model.update()`` when setting a list relationship automatically instantiate ``dict`` values using the relationship model class.
 
 
