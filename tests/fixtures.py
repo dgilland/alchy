@@ -107,6 +107,12 @@ class Qux(Model):
     foo_id = Column(types.Integer(), ForeignKey('foo._id'))
 
     foo = orm.relationship('Foo')
+    doz = orm.relationship('Doz', uselist=False)
+
+
+class Doz(Model):
+    qux_id = Column(types.Integer(), ForeignKey('qux._id'), primary_key=True)
+    name = Column(types.String())
 
 
 class OrderStatus(DeclarativeEnum):

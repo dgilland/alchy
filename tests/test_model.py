@@ -83,6 +83,7 @@ class TestModel(TestQueryBase):
         test = {'foo': {}}
 
         bar.update(test)
+        self.db.commit()
 
         self.assertIsNone(bar.foo)
 
@@ -92,10 +93,21 @@ class TestModel(TestQueryBase):
         test = {'bazs': [{'string': 'BAZ0'}, {'string': 'BAZ1'}]}
 
         bar.update(test)
+        self.db.commit()
 
         self.assertEqual(len(bar.bazs), len(test['bazs']))
         self.assertEqual(bar.bazs[0]['string'], test['bazs'][0]['string'])
         self.assertEqual(bar.bazs[1]['string'], test['bazs'][1]['string'])
+
+    def test_update_relationship_with_dict(self):
+        qux = Qux.get(1)
+
+        test = {'doz': {'name': 'dozzer'}}
+
+        qux.update(test)
+        self.db.commit()
+
+        self.assertEqual(qux.doz.name, test['doz']['name'])
 
     def test_query_property(self):
         self.assertIsInstance(Foo.query, query.Query)

@@ -167,7 +167,11 @@ class ModelBase(object):
 
     def _set_relationship_field(self, field, value):
         """Set model relationships field with value."""
-        if is_sequence(getattr(self, field)) and is_sequence(value):
+        relationship_class = get_mapper_class(self.__class__, field)
+        is_sequence_relationship = is_sequence(getattr(self, field))
+
+        if is_sequence_relationship and is_sequence(value):
+            # Convert each value instance to relationship class.
             relationship_class = get_mapper_class(self.__class__, field)
             value = [relationship_class(val) if isinstance(val, dict)
                      else val
@@ -177,6 +181,9 @@ class ModelBase(object):
             # attribute, then we need to set to None to nullify relationship
             # value.
             value = None
+        elif not is_sequence_relationship and isinstance(value, dict):
+            # Convert single value to relationship class.
+            value = relationship_class(value)
 
         setattr(self, field, value)
 
