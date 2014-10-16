@@ -348,6 +348,7 @@ class ModelBase(object):
     @classmethod
     def descriptors(cls):
         """Return all ORM descriptors"""
+        # pylint: disable=maybe-no-member
         return [descr for descr in inspect(cls).all_orm_descriptors.keys()
                 if not descr.startswith('__')]
 
