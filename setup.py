@@ -11,7 +11,9 @@ Documentation: http://alchy.readthedocs.org/
 """
 
 import os
-from setuptools import setup
+import sys
+from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
 
 def read(fname):
@@ -20,6 +22,29 @@ def read(fname):
 
 meta = {}
 exec(read('alchy/__meta__.py'), meta)
+
+
+class Tox(TestCommand):
+    user_options = [
+        ('tox-args=', 'a', "Arguments to pass to tox")
+    ]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.tox_args = '-c tox.ini'
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # Import here because outside the eggs aren't loaded.
+        import tox
+        import shlex
+
+        errno = tox.cmdline(args=shlex.split(self.tox_args))
+        sys.exit(errno)
 
 
 setup(
@@ -31,10 +56,10 @@ setup(
     author_email=meta['__email__'],
     description=meta['__summary__'],
     long_description=read('README.rst'),
-    packages=['alchy'],
-    install_requires=[
-        'SQLAlchemy>=0.9.0'
-    ],
+    packages=find_packages(exclude=['tests']),
+    install_requires=meta['__install_requires__'],
+    tests_require=['tox'],
+    cmdclass={'test': Tox},
     test_suite='tests',
     keywords='sqlalchemy databases orm declarative',
     classifiers=[
