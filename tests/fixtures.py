@@ -1,5 +1,5 @@
 
-from sqlalchemy import orm, types, Column, ForeignKey
+from sqlalchemy import orm, types, Column, ForeignKey, Index
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from alchy import model, query
@@ -97,6 +97,8 @@ class Baz(Model):
     def hybrid_number(self, n):
         self.number = n / n
 
+    __local_table_args__ = {'mysql_engine': 'InnoDB'}
+
 
 class Qux(Model):
     __tablename__ = 'qux'
@@ -109,10 +111,15 @@ class Qux(Model):
     foo = orm.relationship('Foo')
     doz = orm.relationship('Doz', uselist=False)
 
+    __local_table_args__ = (Index('idx_number', 'number'),)
+
 
 class Doz(Model):
     qux_id = Column(types.Integer(), ForeignKey('qux._id'), primary_key=True)
     name = Column(types.String())
+
+    __local_table_args__ = (Index('idx_name', 'name'),
+                            {'mysql_engine': 'InnoDB'})
 
 
 class OrderStatus(DeclarativeEnum):
@@ -121,10 +128,18 @@ class OrderStatus(DeclarativeEnum):
     complete = ('c', 'Complete')
 
 
+class OrderSide(DeclarativeEnum):
+    buy = ('b', 'Buy')
+    sell = ('s', 'Sell')
+    __enum_args__ = {'name': 'ck_order_side_constraint',
+                     'inherit_schema': True}
+
+
 class Order(Model):
     __tablename__ = 'orders'
     _id = Column(types.Integer(), primary_key=True)
     status = Column(OrderStatus.db_type(), default=OrderStatus.pending)
+    side = Column(OrderSide.db_type(), default=OrderSide.buy)
 
 
 class AutoGenTableName(Model):
@@ -175,7 +190,8 @@ class Search(Model):
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
     search_one_id = Column(types.Integer(), ForeignKey('search_one._id'))
-    status = Column(OrderStatus.db_type(), default=OrderStatus.pending)
+    status = Column(OrderStatus.db_type(name='ck_order_status_check_name'),
+                    default=OrderStatus.pending)
 
     many = orm.relationship('SearchMany')
     one = orm.relationship('SearchOne')
