@@ -73,21 +73,3 @@ def mapper_class(relation):
 def get_mapper_class(model, field):
     """Return mapper class given ORM model and field string."""
     return mapper_class(getattr(model, field))
-
-
-def process_args(cls, attr, out_args, out_kwargs):
-    """Store specified tuple/dict attribute in out_args and/or out_kwargs."""
-    try:
-        args = getattr(cls, attr)
-    except AttributeError:
-        return
-    if not args:
-        return
-    if isinstance(args, dict):  # it's a dictionary
-        out_kwargs.update(args)
-    else:  # it's a tuple or list
-        if isinstance(args[-1], dict):  # it has a dictionary at the end
-            out_args.extend([arg for arg in args[:-1] if arg not in out_args])
-            out_kwargs.update(args[-1])
-        else:
-            out_args.extend([arg for arg in args if arg not in out_args])

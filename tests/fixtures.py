@@ -97,8 +97,6 @@ class Baz(Model):
     def hybrid_number(self, n):
         self.number = n / n
 
-    __local_table_args__ = {'mysql_engine': 'InnoDB'}
-
 
 class Qux(Model):
     __tablename__ = 'qux'
@@ -111,15 +109,10 @@ class Qux(Model):
     foo = orm.relationship('Foo')
     doz = orm.relationship('Doz', uselist=False)
 
-    __local_table_args__ = (Index('idx_number', 'number'),)
-
 
 class Doz(Model):
     qux_id = Column(types.Integer(), ForeignKey('qux._id'), primary_key=True)
     name = Column(types.String())
-
-    __local_table_args__ = (Index('idx_name', 'name'),
-                            {'mysql_engine': 'InnoDB'})
 
 
 class OrderStatus(DeclarativeEnum):
