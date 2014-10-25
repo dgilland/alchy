@@ -2,8 +2,11 @@
 """
 
 from sqlalchemy import inspect, orm
-from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta, \
+from sqlalchemy.ext.declarative import (
+    declarative_base,
+    DeclarativeMeta,
     declared_attr
+)
 
 from . import query, events
 from .utils import (

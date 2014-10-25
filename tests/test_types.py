@@ -65,23 +65,19 @@ class TestDeclarativeEnum(TestQueryBase):
 
         for status in OrderStatus:
             self.assertTrue(hasattr(OrderStatus, status.name))
-            self.assertIs(
-                OrderStatus.from_string(status.value),
-                getattr(OrderStatus, status.name))
+            self.assertIs(OrderStatus.from_string(status.value),
+                          getattr(OrderStatus, status.name))
 
         self.assertTrue(len(list(OrderSide)) > 0)
 
         for side in OrderSide:
             self.assertTrue(hasattr(OrderSide, side.name))
-            self.assertIs(
-                OrderSide.from_string(side.value),
-                getattr(OrderSide, side.name))
+            self.assertIs(OrderSide.from_string(side.value),
+                          getattr(OrderSide, side.name))
 
     def test_to_dict(self):
-        self.assertEqual(
-            OrderStatus.pending.to_dict(),
-            {'value': 'p', 'description': 'Pending'})
+        self.assertEqual(OrderStatus.pending.to_dict(),
+                         {'value': 'p', 'description': 'Pending'})
 
-        self.assertEqual(
-            OrderSide.sell.to_dict(),
-            {'value': 's', 'description': 'Sell'})
+        self.assertEqual(OrderSide.sell.to_dict(),
+                         {'value': 's', 'description': 'Sell'})

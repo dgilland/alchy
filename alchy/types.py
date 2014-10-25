@@ -69,10 +69,12 @@ class DeclarativeEnumType(SchemaType, TypeDecorator):
     def __init__(self, enum, name=None):
         self.enum = enum
         enum_args = enum.__enum_args__.copy()
+
         if name is not None:
             enum_args['name'] = name
         elif 'name' not in enum_args:
             enum_args['name'] = 'ck_' + camelcase_to_underscore(enum.__name__)
+
         self.impl = Enum(*enum.values(), **enum_args)
 
     def _set_table(self, table, column):

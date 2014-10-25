@@ -58,8 +58,8 @@ class TestQuery(TestQueryBase):
         self.assertTrue(paginate.has_next)
         self.assertEqual(paginate.per_page, per_page)
         self.assertEqual(paginate.total, self.db.query(Foo).count())
-        self.assertEqual(
-            paginate.pages, int(query.ceil(paginate.total / float(per_page))))
+        self.assertEqual(paginate.pages,
+                         int(query.ceil(paginate.total / float(per_page))))
 
         next_page = paginate.next()
 
@@ -175,8 +175,10 @@ class TestQuery(TestQueryBase):
     def test_search_limit_offset_order_by(self):
         search_string = 'i'
         results1 = (Foo.query
-                    .search(
-                        search_string, limit=1, offset=1, order_by=Foo.string)
+                    .search(search_string,
+                            limit=1,
+                            offset=1,
+                            order_by=Foo.string)
                     .order_by(Foo.string)
                     .all())
         results2 = Foo.query.search(

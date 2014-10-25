@@ -39,8 +39,8 @@ def has_primary_key(metadict):
 
 def camelcase_to_underscore(string):
     """Convert string from ``CamelCase`` to ``under_score``."""
-    return re.sub('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))', r'_\1',
-                  string).lower()
+    return (re.sub('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))', r'_\1', string)
+            .lower())
 
 
 def iterflatten(items):
