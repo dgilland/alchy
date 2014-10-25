@@ -1,10 +1,9 @@
 """Collection of custom column types.
 """
 
-import re
-
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
 
+from .utils import camelcase_to_underscore
 from ._compat import with_metaclass
 
 
@@ -67,12 +66,14 @@ class EnumMeta(type):
 class DeclarativeEnumType(SchemaType, TypeDecorator):
     """Column type usable in table column definitions."""
 
-    def __init__(self, enum):
+    def __init__(self, enum, name=None):
         self.enum = enum
-        constraint = 'ck{0}'.format(re.sub('([A-Z])',
-                                           lambda m: '_' + m.group(1).lower(),
-                                           enum.__name__))
-        self.impl = Enum(*enum.values(), name=constraint)
+        enum_args = enum.__enum_args__.copy()
+        if name is not None:
+            enum_args['name'] = name
+        elif 'name' not in enum_args:
+            enum_args['name'] = 'ck_' + camelcase_to_underscore(enum.__name__)
+        self.impl = Enum(*enum.values(), **enum_args)
 
     def _set_table(self, table, column):
         self.impl._set_table(table, column)
@@ -107,6 +108,8 @@ class DeclarativeEnum(with_metaclass(EnumMeta, object)):
 
     _reg = {}
 
+    __enum_args__ = {}
+
     @classmethod
     def from_string(cls, string):
         """Return enum symbol given string value.
@@ -128,6 +131,6 @@ class DeclarativeEnum(with_metaclass(EnumMeta, object)):
         return cls._reg.keys()
 
     @classmethod
-    def db_type(cls):
+    def db_type(cls, name=None):
         """Return database column type for use in table column definitions."""
-        return DeclarativeEnumType(cls)
+        return DeclarativeEnumType(cls, name=name)

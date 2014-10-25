@@ -2,14 +2,16 @@
 """
 
 from sqlalchemy import inspect, orm
-from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta, \
+    declared_attr
 
 from . import query, events
 from .utils import (
     is_sequence,
     has_primary_key,
     camelcase_to_underscore,
-    get_mapper_class
+    get_mapper_class,
+    process_args
 )
 from ._compat import iteritems
 
@@ -107,8 +109,25 @@ class ModelBase(object):
             See :func:`make_declarative_base` for automatic implementation.
     """
 
-    __table_args__ = {}
-    __mapper_args__ = {}
+    @declared_attr
+    def __table_args__(cls):  # pylint: disable=no-self-argument
+        args = []
+        kwargs = {}
+        for mixin in reversed(cls.__bases__):  # pylint: disable=no-member
+            process_args(mixin, '__table_args__', args, kwargs)
+        process_args(cls, '__local_table_args__', args, kwargs)
+        args.append(kwargs)  # [item, item, ...,  kwargs]
+        return tuple(args)
+
+    @declared_attr
+    def __mapper_args__(cls):  # pylint: disable=no-self-argument
+        args = []
+        kwargs = {}
+        for mixin in reversed(cls.__bases__):  # pylint: disable=no-member
+            process_args(mixin, '__mapper_args__', args, kwargs)
+        process_args(cls, '__local_mapper_args__', args, kwargs)
+        return kwargs  # mapper only takes dict
+
     __bind_key__ = None
     __events__ = {}
 
@@ -137,10 +156,8 @@ class ModelBase(object):
 
         data = data_dict if isinstance(data_dict, dict) else kargs
 
-        update_fields = data.keys()
-
         for field, value in iteritems(data):
-            if hasattr(self, field) and field in update_fields:
+            if hasattr(self, field):
                 self._set_field(field, value)
 
     def _set_field(self, field, value):
