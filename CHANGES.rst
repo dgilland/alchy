@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+v1.4.0-dev (xxxx-xx-xx)
+-----------------------
+
+- Make ``ModelBase``'s ``__table_args__`` and ``__mapper_args__`` inheritable via mixins. Thanks sethp_!
+
+
 v1.3.1 (2014-10-14)
 -------------------
 
@@ -226,3 +232,6 @@ v0.1.0 (2014-02-01)
 -------------------
 
 - First release
+
+
+.. _sethp: https://github.com/https://github.com/seth-p

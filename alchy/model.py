@@ -13,7 +13,8 @@ from .utils import (
     is_sequence,
     has_primary_key,
     camelcase_to_underscore,
-    get_mapper_class
+    get_mapper_class,
+    merge_declarative_args
 )
 from ._compat import iteritems
 
@@ -113,9 +114,33 @@ class ModelBase(object):
 
     __bind_key__ = None
     __events__ = {}
-
     query_class = query.QueryModel
     query = None
+
+    @declared_attr
+    def __table_args__(cls):  # pylint: disable=no-self-argument
+        args, kargs = merge_declarative_args(cls.__bases__, '__table_args__')
+        local_args, local_kargs = merge_declarative_args(
+            [cls], '__local_table_args__')
+
+        args += local_args
+        kargs.update(local_kargs)
+
+        # Append kargs onto end of args to adhere to SQLAlchemy requirements.
+        args.append(kargs)
+
+        return tuple(args)
+
+    @declared_attr
+    def __mapper_args__(cls):  # pylint: disable=no-self-argument
+        # NOTE: Mapper args are only allowed to be a dict so we ignore `args`.
+        _, kargs = merge_declarative_args(cls.__bases__, '__mapper_args__')
+        _, local_kargs = merge_declarative_args([cls],
+                                                '__local_mapper_args__')
+
+        kargs.update(local_kargs)
+
+        return kargs
 
     def __init__(self, *args, **kargs):
         """Initialize model instance by calling :meth:`update`."""

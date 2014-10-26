@@ -1,6 +1,6 @@
 
 import sqlalchemy
-from sqlalchemy import orm, Column, types, inspect
+from sqlalchemy import orm, Column, types, inspect, Index
 from sqlalchemy.orm.exc import UnmappedClassError
 
 from alchy import model, query, manager, events
@@ -15,7 +15,8 @@ from .fixtures import (
     AutoGenTableName,
     InheritedAutoGenTableName,
     MultiplePrimaryKey,
-    Model)
+    Model
+)
 
 
 class TestModel(TestQueryBase):
@@ -412,3 +413,55 @@ class TestModel(TestQueryBase):
     def test_multiple_primary_keys(self):
         self.assertEqual(MultiplePrimaryKey.primary_key(),
                          inspect(MultiplePrimaryKey).primary_key)
+
+    def test_inherited_table_args(self):
+        class Abstract(object):
+            id = Column(types.Integer(), primary_key=True)
+            string = Column(types.String())
+            number = Column(types.Integer())
+
+            __table_args__ = (Index('idx_abstract_string', 'string'),
+                              Index('idx_abstract_number', 'number'),
+                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+
+        class Mixin(object):
+            name = Column(types.String())
+
+            __table_args__ = (Index('idx_name', 'name'),)
+
+        class Obj(Model, Mixin, Abstract):
+            text = Column(types.Text())
+            __local_table_args__ = (Index('idx_obj_text', 'text'),
+                                    {'mysql_foo': 'foo'})
+
+        self.assertEqual(Obj.__table_args__[-1],
+                         {'mysql_foo': 'foo', 'mysql_bar': 'bar'})
+
+        expected_indexes = ['idx_abstract_string',
+                            'idx_abstract_number',
+                            'idx_name',
+                            'idx_obj_text']
+
+        for i, name in enumerate(expected_indexes):
+            self.assertEqual(Obj.__table_args__[i].name, name)
+            self.assertIsInstance(Obj.__table_args__[i], Index)
+
+    def test_inherited_mapper_args(self):
+        class Abstract(object):
+            id = Column(types.Integer(), primary_key=True)
+            string = Column(types.String())
+            number = Column(types.Integer())
+
+            __mapper_args__ = {'column_prefix': '_', 'order_by': 'number'}
+
+        class Mixin(object):
+            name = Column(types.String())
+
+            __mapper_args__ = {'column_prefix': '__'}
+
+        class Obj2(Model, Mixin, Abstract):
+            text = Column(types.Text())
+            __local_mapper_args__ = {'order_by': 'string'}
+
+        self.assertEqual(Obj2.__mapper_args__,
+                         {'column_prefix': '__', 'order_by': 'string'})

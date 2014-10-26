@@ -65,6 +65,23 @@ def flatten(items):
     return list(iterflatten(items))
 
 
+def iterunique(items):
+    """Return iterator to find unique list while preserving the order."""
+    seen = []
+    for item in items:
+        if item not in seen:
+            seen.append(item)
+            yield item
+
+
+def unique(items):
+    """Return unique list while preserving the order.
+
+    >>> assert unique([1, 2, 3, 1, 2, 3, 4]) == [1, 2, 3, 4]
+    """
+    return list(iterunique(items))
+
+
 def mapper_class(relation):
     """Return mapper class given an ORM relation attribute."""
     return relation.property.mapper.class_
@@ -73,3 +90,32 @@ def mapper_class(relation):
 def get_mapper_class(model, field):
     """Return mapper class given ORM model and field string."""
     return mapper_class(getattr(model, field))
+
+
+def merge_declarative_args(base_classes, config_key):
+    """Given a list of base classes, merge declarative args identified by
+    `config_key` into a single configuration object.
+    """
+    configs = [getattr(base, config_key, None)
+               for base in reversed(base_classes)]
+    args = []
+    kargs = {}
+
+    for obj in configs:
+        if not obj:
+            continue
+
+        if isinstance(obj, dict):
+            kargs.update(obj)
+        elif isinstance(obj[-1], dict):
+            # Configuration object has a dict at the end so we assume the
+            # passed in format was [item0, item1, ..., dict0].
+            args += obj[:-1]
+            kargs.update(obj[-1])
+        else:
+            args += obj
+
+    # Make args unique in case base classes duplicated items.
+    args = unique(args)
+
+    return (args, kargs)
