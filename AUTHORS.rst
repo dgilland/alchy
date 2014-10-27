@@ -11,3 +11,4 @@ Contributors
 ============
 
 - Jeff Knupp, http://www.jeffknupp.com/,  `jeffknupp@github <https://github.com/jeffknupp>`_
+- Seth P., `seth-p@github <https://github.com/seth-p>`_
