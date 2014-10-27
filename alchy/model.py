@@ -14,7 +14,8 @@ from .utils import (
     has_primary_key,
     camelcase_to_underscore,
     get_mapper_class,
-    merge_declarative_args
+    merge_declarative_args,
+    unique
 )
 from ._compat import iteritems
 
@@ -124,7 +125,7 @@ class ModelBase(object):
         local_args, local_kargs = merge_declarative_args(
             [cls], '__local_table_args__')
 
-        args += local_args
+        args = unique(args + local_args)
         kargs.update(local_kargs)
 
         # Append kargs onto end of args to adhere to SQLAlchemy requirements.
