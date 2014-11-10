@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-v1.4.0-dev (xxxx-xx-xx)
------------------------
+v1.4.0 (2014-11-09)
+-------------------
 
 - Make ``ModelBase``'s ``__table_args__`` and ``__mapper_args__`` inheritable via mixins. Thanks sethp_!
 

@@ -6,7 +6,7 @@ __summary__ = ('A SQLAlchemy extension for its declarative ORM that provides '
                'enhancements for model classes, queries, and sessions.')
 __url__ = 'https://github.com/dgilland/alchy'
 
-__version__ = '1.4.0-dev'
+__version__ = '1.4.0'
 __install_requires__ = ['SQLAlchemy>=0.9.0']
 
 __author__ = 'Derrick Gilland'
