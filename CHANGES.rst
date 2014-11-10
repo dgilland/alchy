@@ -6,6 +6,8 @@ v1.4.0 (2014-11-09)
 -------------------
 
 - Make ``ModelBase``'s ``__table_args__`` and ``__mapper_args__`` inheritable via mixins. Thanks sethp_!
+- Add ``__enum_args__`` to ``DeclarativeEnum``. Thanks sethp_!
+- Allow enum name to be overridden when calling ``DeclarativeEnum.db_type()``. Thanks sethp_!
 
 
 v1.3.1 (2014-10-14)
