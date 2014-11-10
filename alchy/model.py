@@ -200,7 +200,6 @@ class ModelBase(object):
 
         if is_sequence_relationship and is_sequence(value):
             # Convert each value instance to relationship class.
-            relationship_class = get_mapper_class(self.__class__, field)
             value = [relationship_class(val) if isinstance(val, dict)
                      else val
                      for val in value]
