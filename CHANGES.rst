@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+- Allow ``Model.__bind_key__`` to be set at the declarative base level so that model classes can properly inherit it.
+
+
 v1.4.0 (2014-11-09)
 -------------------
 

@@ -58,9 +58,14 @@ class ModelMeta(DeclarativeMeta):
         return DeclarativeMeta.__new__(mcs, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        bind_key = dct.pop('__bind_key__', None)
-
         DeclarativeMeta.__init__(cls, name, bases, dct)
+
+        bind_key = None
+
+        for base in ([dct] + [base.__dict__ for base in bases]):
+            if '__bind_key__' in base:
+                bind_key = base['__bind_key__']
+                break
 
         if bind_key is not None:
             cls.__table__.info['bind_key'] = bind_key
