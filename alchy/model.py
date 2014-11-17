@@ -67,7 +67,7 @@ class ModelMeta(DeclarativeMeta):
                 bind_key = base['__bind_key__']
                 break
 
-        if bind_key is not None:
+        if bind_key is not None and hasattr(cls, '__table__'):
             cls.__table__.info['bind_key'] = bind_key
 
         events.register(cls, dct)
