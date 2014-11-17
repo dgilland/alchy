@@ -55,22 +55,22 @@ class ModelMeta(DeclarativeMeta):
         if not dct.get('__events__'):
             dct['__events__'] = {}
 
+        if '__bind_key__' not in dct:
+            for base in base_dcts:
+                if '__bind_key__' in base:
+                    dct['__bind_key__'] = base['__bind_key__']
+                    break
+
         return DeclarativeMeta.__new__(mcs, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
         DeclarativeMeta.__init__(cls, name, bases, dct)
 
-        bind_key = None
+        if hasattr(cls, '__table__'):
+            if '__bind_key__' in dct:
+                cls.__table__.info['bind_key'] = dct['__bind_key__']
 
-        for base in ([dct] + [base.__dict__ for base in bases]):
-            if '__bind_key__' in base:
-                bind_key = base['__bind_key__']
-                break
-
-        if bind_key is not None and hasattr(cls, '__table__'):
-            cls.__table__.info['bind_key'] = bind_key
-
-        events.register(cls, dct)
+            events.register(cls, dct)
 
 
 class ModelBase(object):
