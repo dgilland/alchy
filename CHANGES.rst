@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+v1.4.2 (2014-11-18)
+-------------------
+
 - Add ``search.inenum`` and ``search.notinenum`` for performing an ``in_`` and ``not(in_)`` comparision using ``DeclarativeEnum``.
 
 
