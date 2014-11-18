@@ -206,6 +206,30 @@ class TestSearch(TestBase):
 
         self.assertEqual(str(test), str(target))
 
+    def test_inenum(self):
+        test = search.inenum(Search.status, OrderStatus)(self.value)
+        target = Search.status.in_([OrderStatus.from_string(self.value)])
+
+        self.assertEqual(str(test), str(target))
+
+    def test_inenum_invalid(self):
+        test = search.inenum(Search.status, OrderStatus)('invalid')
+        target = None
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notinenum(self):
+        test = search.notinenum(Search.status, OrderStatus)(self.value)
+        target = not_(Search.status.in_([OrderStatus.from_string(self.value)]))
+
+        self.assertEqual(str(test), str(target))
+
+    def test_notinenum_invalid(self):
+        test = search.notinenum(Search.status, OrderStatus)('invalid')
+        target = not_(None)
+
+        self.assertEqual(str(test), str(target))
+
     def test_column_callable(self):
         test = search.like(lambda: Search.string)(self.value)
         target = Search.string.like(self.value)

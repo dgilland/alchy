@@ -304,3 +304,22 @@ class eqenum(DeclarativeEnumOperator):
 class noteqenum(eqenum, NegateOperator):
     """Return ``not(==)`` filter function using ORM DeclarativeEnum field."""
     pass
+
+
+class inenum(DeclarativeEnumOperator):
+    """Return ``in_`` filter function using ORM DeclarativeEnum field."""
+    def compare(self, value):
+        """Return comparision with value."""
+        if not isinstance(value, (tuple, list)):
+            value = [value]
+
+        try:
+            return self.column.in_([self.enum_class.from_string(val)
+                                    for val in value])
+        except ValueError:
+            return None
+
+
+class notinenum(inenum, NegateOperator):
+    """Return ``not(in_)`` filter function using ORM DeclarativeEnum field."""
+    pass
