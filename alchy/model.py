@@ -330,6 +330,10 @@ class ModelBase(object):
         """Call ``session.expunge()`` on ``self``"""
         self.session().expunge(self, *args, **kargs)
 
+    def is_modified(self, *args, **kargs):
+        """Call ``session.is_modified()`` on ``self``"""
+        return self.session().is_modified(self, *args, **kargs)
+
     @classmethod
     def get(cls, *args, **kargs):
         """Proxy to ``cls.query.get()``"""
