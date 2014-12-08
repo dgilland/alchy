@@ -465,3 +465,13 @@ class TestModel(TestQueryBase):
 
         self.assertEqual(Obj2.__mapper_args__,
                          {'column_prefix': '__', 'order_by': 'string'})
+
+    def test_is_modified(self):
+        record = Foo.get(1)
+        self.assertEqual(record.is_modified(), False)
+
+        record.number += 1
+        self.assertEqual(record.is_modified(), True)
+
+        record.refresh()
+        self.assertEqual(record.is_modified(), False)
