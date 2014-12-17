@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+v1.5.0 (2014-12-16)
+-------------------
+
+- Add ``Model.is_modified()``. Thanks sethp_!
+- Add ``Model.filter()``.
+- Add ``Model.filter_by()``.
+
+
 v1.4.2 (2014-11-18)
 -------------------
 
