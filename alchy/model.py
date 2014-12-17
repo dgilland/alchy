@@ -347,6 +347,16 @@ class ModelBase(object):
         data = data_dict if isinstance(data_dict, dict) else kargs
         return cls.query.filter_by(**data).first()
 
+    @classmethod
+    def filter(cls, *args, **kargs):
+        """Proxy to ``cls.query.filter()``"""
+        return cls.query.filter(*args, **kargs)
+
+    @classmethod
+    def filter_by(cls, *args, **kargs):
+        """Proxy to ``cls.query.filter_by()``"""
+        return cls.query.filter_by(*args, **kargs)
+
     ##
     # SQLAlchemy.inspect() based methods/properties
     ##

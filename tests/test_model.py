@@ -302,6 +302,13 @@ class TestModel(TestQueryBase):
             Foo.get_by(dict(string='Joe Smith')),
             self.db.query(Foo).filter_by(string='Joe Smith').first())
 
+    def test_filter(self):
+        self.assertEqual(str(Foo.filter()), str(self.db.query(Foo).filter()))
+
+    def test_filter_by(self):
+        self.assertEqual(str(Foo.filter_by()),
+                         str(self.db.query(Foo).filter_by()))
+
     def test_object_session(self):
         record = Foo.get(1)
         self.assertIs(record.object_session,
