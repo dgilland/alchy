@@ -453,6 +453,41 @@ class TestModel(TestQueryBase):
             self.assertEqual(Obj.__table_args__[i].name, name)
             self.assertIsInstance(Obj.__table_args__[i], Index)
 
+    def test_inherited_table_args_callable(self):
+        class AbstractCM(object):
+            id = Column(types.Integer(), primary_key=True)
+            string = Column(types.String())
+            number = Column(types.Integer())
+
+            __table_args__ = (Index('idx_cm_abstract_string', 'string'),
+                              Index('idx_cm_abstract_number', 'number'),
+                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+
+        class MixinCM(object):
+            name = Column(types.String())
+
+            __table_args__ = (Index('idx_cm_name', 'name'),)
+
+        class ObjCM(Model, MixinCM, AbstractCM):
+            text = Column(types.Text())
+
+            @classmethod
+            def __local_table_args__(cls):
+                return (Index('idx_cm_obj_text', 'text'),
+                        {'mysql_foo': 'foo'})
+
+        self.assertEqual(ObjCM.__table_args__[-1],
+                         {'mysql_foo': 'foo', 'mysql_bar': 'bar'})
+
+        expected_indexes = ['idx_cm_abstract_string',
+                            'idx_cm_abstract_number',
+                            'idx_cm_name',
+                            'idx_cm_obj_text']
+
+        for i, name in enumerate(expected_indexes):
+            self.assertEqual(ObjCM.__table_args__[i].name, name)
+            self.assertIsInstance(ObjCM.__table_args__[i], Index)
+
     def test_inherited_mapper_args(self):
         class Abstract(object):
             id = Column(types.Integer(), primary_key=True)
