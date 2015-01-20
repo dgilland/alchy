@@ -105,6 +105,9 @@ def merge_declarative_args(base_classes, config_key):
         if not obj:
             continue
 
+        if callable(obj):
+            obj = obj()
+
         if isinstance(obj, dict):
             kargs.update(obj)
         elif isinstance(obj[-1], dict):
