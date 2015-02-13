@@ -13,7 +13,9 @@ import sys
 
 
 PY3 = sys.version_info[0] == 3
-_identity = lambda x: x
+
+
+def _identity(x): return x
 
 
 if PY3:
@@ -21,9 +23,11 @@ if PY3:
     string_types = (str,)
     integer_types = (int,)
 
-    iterkeys = lambda d: iter(d.keys())
-    itervalues = lambda d: iter(d.values())
-    iteritems = lambda d: iter(d.items())
+    def iterkeys(d): return iter(d.keys())
+
+    def itervalues(d): return iter(d.values())
+
+    def iteritems(d): return iter(d.items())
 
     from io import StringIO
 
@@ -38,9 +42,11 @@ else:
     string_types = (str, unicode)
     integer_types = (int, long)
 
-    iterkeys = lambda d: d.iterkeys()
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+    def iterkeys(d): return d.iterkeys()
+
+    def itervalues(d): return d.itervalues()
+
+    def iteritems(d): return d.iteritems()
 
     from cStringIO import StringIO
 
