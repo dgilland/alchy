@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+v1.5.1 (2015-01-13)
+-------------------
+
+- Add support for callable ``__table_args__`` and ``__local_table_args__``. Thanks sethp_!
+
+
 v1.5.0 (2014-12-16)
 -------------------
 
