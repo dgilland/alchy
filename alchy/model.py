@@ -41,9 +41,9 @@ class ModelMeta(DeclarativeMeta):
         # Determine if primary key is defined for dct or any of its bases.
         base_dcts = [dct] + [base.__dict__ for base in bases]
 
-        if (not dct.get('__tablename__')
-                and dct.get('__table__') is None
-                and any([has_primary_key(base) for base in base_dcts])):
+        if (not dct.get('__tablename__') and
+                dct.get('__table__') is None and
+                any([has_primary_key(base) for base in base_dcts])):
             # Set to underscore version of class name.
             dct['__tablename__'] = camelcase_to_underscore(name)
 
@@ -186,10 +186,10 @@ class ModelBase(object):
 
         attr = getattr(self, field)
 
-        if (hasattr(attr, 'update')
-                and value
-                and is_dict
-                and not isinstance(attr, dict)):
+        if (hasattr(attr, 'update') and
+                value and
+                is_dict and
+                not isinstance(attr, dict)):
             # Nest calls to attr.update.
             attr.update(value)
         else:

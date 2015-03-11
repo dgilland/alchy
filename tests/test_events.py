@@ -78,8 +78,8 @@ class TestEvents(TestEventsBase):
         @events.on_set('name', retval=True)
         def on_set_name(target, value, oldvalue, initator):
             if oldvalue is None or (
-                    hasattr(oldvalue, '__class__')
-                    and oldvalue.__class__.__name__ == 'symbol'):
+                    hasattr(oldvalue, '__class__') and
+                    oldvalue.__class__.__name__ == 'symbol'):
                 # oldvalue is a symbol for either NO_VALUE or NOT_SET so allow
                 # update
                 return value

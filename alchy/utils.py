@@ -25,9 +25,9 @@ def is_sequence(obj):
     """Test if `obj` is an iterable but not ``dict`` or ``str``. Mainly used to
     determine if `obj` can be treated like a ``list`` for iteration purposes.
     """
-    return (isinstance(obj, Iterable)
-            and not isinstance(obj, string_types)
-            and not isinstance(obj, dict))
+    return (isinstance(obj, Iterable) and
+            not isinstance(obj, string_types) and
+            not isinstance(obj, dict))
 
 
 def has_primary_key(metadict):
@@ -39,8 +39,8 @@ def has_primary_key(metadict):
 
 def camelcase_to_underscore(string):
     """Convert string from ``CamelCase`` to ``under_score``."""
-    return (re.sub('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))', r'_\1', string)
-            .lower())
+    return re.sub('((?<=[a-z0-9])[A-Z]|(?<!_)(?!^)[A-Z](?=[a-z]))', r'_\1',
+                  string).lower()
 
 
 def iterflatten(items):
