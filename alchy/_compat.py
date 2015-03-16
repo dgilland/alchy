@@ -102,3 +102,9 @@ if hasattr(sys, 'pypy_version_info'):
         BROKEN_PYPY_CTXMGR_EXIT = True
     except AssertionError:
         pass
+
+# Define classmethod_func(f) to retrieve the unbound function of classmethod f
+if sys.version_info[:2] >= (2, 7):
+    def classmethod_func(f): return f.__func__
+else:
+    def classmethod_func(f): return f.__get__(1).im_func

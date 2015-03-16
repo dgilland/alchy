@@ -9,7 +9,7 @@ from collections import Iterable
 
 from sqlalchemy import Column
 
-from ._compat import string_types, iteritems
+from ._compat import string_types, iteritems, classmethod_func
 
 
 __all__ = [
@@ -92,11 +92,12 @@ def get_mapper_class(model, field):
     return mapper_class(getattr(model, field))
 
 
-def merge_declarative_args(base_classes, config_key):
+def merge_declarative_args(cls, base_classes, config_key, inherited):
     """Given a list of base classes, merge declarative args identified by
     `config_key` into a single configuration object.
     """
-    configs = [getattr(base, config_key, None)
+    configs = [getattr(base, config_key, None) if inherited
+               else base.__dict__.get(config_key)
                for base in reversed(base_classes)]
     args = []
     kargs = {}
@@ -105,7 +106,9 @@ def merge_declarative_args(base_classes, config_key):
         if not obj:
             continue
 
-        if callable(obj):
+        if isinstance(obj, classmethod):
+            obj = classmethod_func(obj)(cls)
+        elif callable(obj):
             obj = obj()
 
         if isinstance(obj, dict):

@@ -15,7 +15,7 @@ from .utils import (
     camelcase_to_underscore,
     get_mapper_class,
     merge_declarative_args,
-    unique
+    unique,
 )
 from ._compat import iteritems
 
@@ -126,9 +126,13 @@ class ModelBase(object):
     @declared_attr
     def __table_args__(cls):  # pylint: disable=no-self-argument
         # pylint: disable=no-member
-        args, kargs = merge_declarative_args(cls.__bases__, '__table_args__')
+        args, kargs = merge_declarative_args(cls,
+                                             [base for base in cls.__bases__ if
+                                              not isinstance(base, ModelBase)],
+                                             '__table_args__',
+                                             inherited=True)
         local_args, local_kargs = merge_declarative_args(
-            [cls], '__local_table_args__')
+                cls, cls.mro(), '__local_table_args__', inherited=False)
 
         args = unique(args + local_args)
         kargs.update(local_kargs)
@@ -142,9 +146,12 @@ class ModelBase(object):
     def __mapper_args__(cls):  # pylint: disable=no-self-argument
         # pylint: disable=no-member
         # NOTE: Mapper args are only allowed to be a dict so we ignore `args`.
-        _, kargs = merge_declarative_args(cls.__bases__, '__mapper_args__')
-        _, local_kargs = merge_declarative_args([cls],
-                                                '__local_mapper_args__')
+        _, kargs = merge_declarative_args(cls,
+                                          [base for base in cls.__bases__ if
+                                           not isinstance(base, ModelBase)],
+                                          '__mapper_args__', inherited=True)
+        _, local_kargs = merge_declarative_args(
+                cls, cls.mro(), '__local_mapper_args__', inherited=False)
 
         kargs.update(local_kargs)
 

@@ -427,14 +427,14 @@ class TestModel(TestQueryBase):
             string = Column(types.String())
             number = Column(types.Integer())
 
-            __table_args__ = (Index('idx_abstract_string', 'string'),
-                              Index('idx_abstract_number', 'number'),
-                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+            __local_table_args__ = (Index('idx_abstract_string', 'string'),
+                                    Index('idx_abstract_number', 'number'),
+                                    {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
 
         class Mixin(object):
             name = Column(types.String())
 
-            __table_args__ = (Index('idx_name', 'name'),)
+            __local_table_args__ = (Index('idx_name', 'name'),)
 
         class Obj(Model, Mixin, Abstract):
             text = Column(types.Text())
@@ -459,14 +459,15 @@ class TestModel(TestQueryBase):
             string = Column(types.String())
             number = Column(types.Integer())
 
-            __table_args__ = (Index('idx_cm_abstract_string', 'string'),
-                              Index('idx_cm_abstract_number', 'number'),
-                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+            __local_table_args__ = (Index('idx_cm_abstract_string', 'string'),
+                                    Index('idx_cm_abstract_number', 'number'),
+                                    {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
 
         class MixinCM(object):
             name = Column(types.String())
 
-            __table_args__ = (Index('idx_cm_name', 'name'),)
+            def __local_table_args__():
+                return (Index('idx_cm_name', 'name'),)
 
         class ObjCM(Model, MixinCM, AbstractCM):
             text = Column(types.Text())
@@ -494,12 +495,13 @@ class TestModel(TestQueryBase):
             string = Column(types.String())
             number = Column(types.Integer())
 
-            __mapper_args__ = {'column_prefix': '_', 'order_by': 'number'}
+            __local_mapper_args__ = {'column_prefix': '_',
+                                     'order_by': 'number'}
 
         class Mixin(object):
             name = Column(types.String())
 
-            __mapper_args__ = {'column_prefix': '__'}
+            __local_mapper_args__ = {'column_prefix': '__'}
 
         class Obj2(Model, Mixin, Abstract):
             text = Column(types.Text())
