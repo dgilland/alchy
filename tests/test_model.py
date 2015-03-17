@@ -288,7 +288,7 @@ class TestModel(TestQueryBase):
 
         # it should be a class and instance property
         self.assertEqual(Baz.primary_attrs(), baz.primary_attrs())
-        self.assertTrue([attr.property.is_primary()
+        self.assertTrue([attr.property.columns[0].primary_key
                          for attr in Baz.primary_attrs()])
 
     def test_get(self):
