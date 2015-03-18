@@ -466,7 +466,8 @@ class TestModel(TestQueryBase):
         class MixinCM(object):
             name = Column(types.String())
 
-            __table_args__ = (Index('idx_cm_name', 'name'),)
+            def __table_args__():
+                return (Index('idx_cm_name', 'name'),)
 
         class ObjCM(Model, MixinCM, AbstractCM):
             text = Column(types.Text())

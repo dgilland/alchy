@@ -9,7 +9,7 @@ from collections import Iterable
 
 from sqlalchemy import Column
 
-from ._compat import string_types, iteritems
+from ._compat import string_types, iteritems, classmethod_func
 
 
 __all__ = [
@@ -92,12 +92,11 @@ def get_mapper_class(model, field):
     return mapper_class(getattr(model, field))
 
 
-def merge_declarative_args(base_classes, config_key):
-    """Given a list of base classes, merge declarative args identified by
+def merge_declarative_args(cls, base_dcts, config_key):
+    """Given a list of base dicts, merge declarative args identified by
     `config_key` into a single configuration object.
     """
-    configs = [getattr(base, config_key, None)
-               for base in reversed(base_classes)]
+    configs = [base.get(config_key) for base in reversed(base_dcts)]
     args = []
     kargs = {}
 
@@ -105,7 +104,9 @@ def merge_declarative_args(base_classes, config_key):
         if not obj:
             continue
 
-        if callable(obj):
+        if isinstance(obj, classmethod):
+            obj = classmethod_func(obj)(cls)
+        elif callable(obj):
             obj = obj()
 
         if isinstance(obj, dict):
@@ -122,3 +123,35 @@ def merge_declarative_args(base_classes, config_key):
     args = unique(args)
 
     return (args, kargs)
+
+
+def merge_mapper_args(cls, base_dcts):
+    """Merge `__mapper_args__` from all base dictionaries and
+    `__local_mapper_args__` from first base into single inherited object.
+    """
+    _, kargs = merge_declarative_args(cls, base_dcts, '__mapper_args__')
+    _, local_kargs = merge_declarative_args(cls,
+                                            base_dcts[:1],
+                                            '__local_mapper_args__')
+
+    kargs.update(local_kargs)
+
+    return kargs
+
+
+def merge_table_args(cls, base_dcts):
+    """Merge `__table_args__` from all base dictionaries and
+    `__local_table_args__` from first base into single inherited object.
+    """
+    args, kargs = merge_declarative_args(cls, base_dcts, '__table_args__')
+    local_args, local_kargs = merge_declarative_args(cls,
+                                                     base_dcts[:1],
+                                                     '__local_table_args__')
+
+    args = unique(args + local_args)
+    kargs.update(local_kargs)
+
+    # Append kargs onto end of args to adhere to SQLAlchemy requirements.
+    args.append(kargs)
+
+    return tuple(args)

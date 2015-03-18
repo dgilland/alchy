@@ -2,11 +2,7 @@
 """
 
 from sqlalchemy import inspect, orm
-from sqlalchemy.ext.declarative import (
-    declarative_base,
-    DeclarativeMeta,
-    declared_attr
-)
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 from . import query, events
 from .utils import (
@@ -14,8 +10,8 @@ from .utils import (
     has_primary_key,
     camelcase_to_underscore,
     get_mapper_class,
-    merge_declarative_args,
-    unique
+    merge_mapper_args,
+    merge_table_args
 )
 from ._compat import iteritems
 
@@ -72,6 +68,18 @@ class ModelMeta(DeclarativeMeta):
 
             events.register(cls, dct)
 
+        base_dcts = [dct] + [base.__dict__ for base in bases]
+
+        # Merge __mapper_args__ from all base classes.
+        __mapper_args__ = merge_mapper_args(cls, base_dcts)
+        if __mapper_args__:
+            cls.__mapper_args__ = __mapper_args__
+
+        # Merge __table_args__ from all base classes.
+        __table_args__ = merge_table_args(cls, base_dcts)
+        if __table_args__:
+            cls.__table_args__ = __table_args__
+
 
 class ModelBase(object):
     """Base class for creating a declarative base for models.
@@ -122,33 +130,6 @@ class ModelBase(object):
     __events__ = {}
     query_class = query.QueryModel
     query = None
-
-    @declared_attr
-    def __table_args__(cls):  # pylint: disable=no-self-argument
-        # pylint: disable=no-member
-        args, kargs = merge_declarative_args(cls.__bases__, '__table_args__')
-        local_args, local_kargs = merge_declarative_args(
-            [cls], '__local_table_args__')
-
-        args = unique(args + local_args)
-        kargs.update(local_kargs)
-
-        # Append kargs onto end of args to adhere to SQLAlchemy requirements.
-        args.append(kargs)
-
-        return tuple(args)
-
-    @declared_attr
-    def __mapper_args__(cls):  # pylint: disable=no-self-argument
-        # pylint: disable=no-member
-        # NOTE: Mapper args are only allowed to be a dict so we ignore `args`.
-        _, kargs = merge_declarative_args(cls.__bases__, '__mapper_args__')
-        _, local_kargs = merge_declarative_args([cls],
-                                                '__local_mapper_args__')
-
-        kargs.update(local_kargs)
-
-        return kargs
 
     def __init__(self, *args, **kargs):
         """Initialize model instance by calling :meth:`update`."""
