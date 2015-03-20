@@ -11,7 +11,7 @@ from .utils import (
     camelcase_to_underscore,
     get_mapper_class,
     merge_mapper_args,
-    merge_table_args
+    merge_table_args,
 )
 from ._compat import iteritems
 
@@ -68,16 +68,16 @@ class ModelMeta(DeclarativeMeta):
 
             events.register(cls, dct)
 
-        base_dcts = [dct] + [base.__dict__ for base in bases]
-
         # Merge __mapper_args__ from all base classes.
-        __mapper_args__ = merge_mapper_args(cls, base_dcts)
+        __mapper_args_configs__, __mapper_args__ = merge_mapper_args(cls)
         if __mapper_args__:
+            cls.__mapper_args_configs__ = __mapper_args_configs__
             cls.__mapper_args__ = __mapper_args__
 
         # Merge __table_args__ from all base classes.
-        __table_args__ = merge_table_args(cls, base_dcts)
+        __table_args_configs__, __table_args__ = merge_table_args(cls)
         if __table_args__:
+            cls.__table_args_configs__ = __table_args_configs__
             cls.__table_args__ = __table_args__
 
 

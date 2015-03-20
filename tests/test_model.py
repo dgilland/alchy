@@ -438,7 +438,7 @@ class TestModel(TestQueryBase):
 
         class Obj(Model, Mixin, Abstract):
             text = Column(types.Text())
-            __local_table_args__ = (Index('idx_obj_text', 'text'),
+            __merge_table_args__ = (Index('idx_obj_text', 'text'),
                                     {'mysql_foo': 'foo'})
 
         self.assertEqual(Obj.__table_args__[-1],
@@ -473,7 +473,7 @@ class TestModel(TestQueryBase):
             text = Column(types.Text())
 
             @classmethod
-            def __local_table_args__(cls):
+            def __merge_table_args__(cls):
                 return (Index('idx_cm_obj_text', 'text'),
                         {'mysql_foo': 'foo'})
 
@@ -504,7 +504,7 @@ class TestModel(TestQueryBase):
 
         class Obj2(Model, Mixin, Abstract):
             text = Column(types.Text())
-            __local_mapper_args__ = {'order_by': 'string'}
+            __merge_mapper_args__ = {'order_by': 'string'}
 
         self.assertEqual(Obj2.__mapper_args__,
                          {'column_prefix': '__', 'order_by': 'string'})
