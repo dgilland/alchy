@@ -92,11 +92,36 @@ def get_mapper_class(model, field):
     return mapper_class(getattr(model, field))
 
 
-def merge_declarative_args(cls, base_dcts, config_key):
-    """Given a list of base dicts, merge declarative args identified by
-    `config_key` into a single configuration object.
+def _merge_declarative_args_configs(cls, args_key, merge_args_key,
+                                    configs_key):
+    """Return configs list constructed recursively as follows:
+    If `cls`.__dict__ specifies `configs_key`, return that.
+    Otherwise if `cls`.__dict__ specifies `args-key`,
+    return array containing that.
+    Otherwise merge `merge_args_key` from `cls`.__dict__ (if any)
+    with _merge_declarative_args_configs(base) for each
+    base in `cls`.__bases__.
     """
-    configs = [base.get(config_key) for base in reversed(base_dcts)]
+    configs = []
+
+    def _recursive_merge_configs(k, conf):
+        if configs_key in k.__dict__:
+            conf.extend(k.__dict__.get(configs_key))
+        elif args_key in k.__dict__:
+            conf.append(k.__dict__.get(args_key))
+        else:
+            for base in reversed(k.__bases__):
+                _recursive_merge_configs(base, conf)
+            conf.append(k.__dict__.get(merge_args_key))
+
+    _recursive_merge_configs(cls, configs)
+
+    return configs
+
+
+def _declarative_args_from_configs(cls, configs):
+    """Create (args, kargs) from the declarative args specified in `configs`
+    (which may be callable)."""
     args = []
     kargs = {}
 
@@ -125,33 +150,30 @@ def merge_declarative_args(cls, base_dcts, config_key):
     return (args, kargs)
 
 
-def merge_mapper_args(cls, base_dcts):
+def merge_mapper_args(cls):
     """Merge `__mapper_args__` from all base dictionaries and
-    `__local_mapper_args__` from first base into single inherited object.
+    `__merge_mapper_args__` from `cls`.__dict__ into single inherited object.
     """
-    _, kargs = merge_declarative_args(cls, base_dcts, '__mapper_args__')
-    _, local_kargs = merge_declarative_args(cls,
-                                            base_dcts[:1],
-                                            '__local_mapper_args__')
+    configs = _merge_declarative_args_configs(cls,
+                                              '__mapper_args__',
+                                              '__merge_mapper_args__',
+                                              '__mapper_args_configs__')
+    _, kargs = _declarative_args_from_configs(cls, configs)
 
-    kargs.update(local_kargs)
-
-    return kargs
+    return (configs, kargs)
 
 
-def merge_table_args(cls, base_dcts):
+def merge_table_args(cls):
     """Merge `__table_args__` from all base dictionaries and
-    `__local_table_args__` from first base into single inherited object.
+    `__merge_table_args__` from `cls`.__dict__ into single inherited object.
     """
-    args, kargs = merge_declarative_args(cls, base_dcts, '__table_args__')
-    local_args, local_kargs = merge_declarative_args(cls,
-                                                     base_dcts[:1],
-                                                     '__local_table_args__')
-
-    args = unique(args + local_args)
-    kargs.update(local_kargs)
+    configs = _merge_declarative_args_configs(cls,
+                                              '__table_args__',
+                                              '__merge_table_args__',
+                                              '__table_args_configs__')
+    args, kargs = _declarative_args_from_configs(cls, configs)
 
     # Append kargs onto end of args to adhere to SQLAlchemy requirements.
     args.append(kargs)
 
-    return tuple(args)
+    return (configs, tuple(args))
