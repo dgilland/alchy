@@ -2,7 +2,11 @@
 """
 
 from sqlalchemy import inspect, orm
-from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.declarative import (
+    declarative_base,
+    DeclarativeMeta,
+    declared_attr,
+)
 
 from . import query, events
 from .utils import (
@@ -11,7 +15,7 @@ from .utils import (
     camelcase_to_underscore,
     get_mapper_class,
     merge_mapper_args,
-    merge_table_args
+    merge_table_args,
 )
 from ._compat import iteritems
 
@@ -70,16 +74,6 @@ class ModelMeta(DeclarativeMeta):
 
         base_dcts = [dct] + [base.__dict__ for base in bases]
 
-        # Merge __mapper_args__ from all base classes.
-        __mapper_args__ = merge_mapper_args(cls, base_dcts)
-        if __mapper_args__:
-            cls.__mapper_args__ = __mapper_args__
-
-        # Merge __table_args__ from all base classes.
-        __table_args__ = merge_table_args(cls, base_dcts)
-        if __table_args__:
-            cls.__table_args__ = __table_args__
-
 
 class ModelBase(object):
     """Base class for creating a declarative base for models.
@@ -130,6 +124,14 @@ class ModelBase(object):
     __events__ = {}
     query_class = query.QueryModel
     query = None
+
+    @declared_attr
+    def __mapper_args__(cls):  # pylint: disable=no-self-argument
+        return merge_mapper_args(cls)
+
+    @declared_attr
+    def __table_args__(cls):  # pylint: disable=no-self-argument
+        return merge_table_args(cls)
 
     def __init__(self, *args, **kargs):
         """Initialize model instance by calling :meth:`update`."""
