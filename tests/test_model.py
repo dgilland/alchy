@@ -421,33 +421,63 @@ class TestModel(TestQueryBase):
         self.assertEqual(MultiplePrimaryKey.primary_key(),
                          inspect(MultiplePrimaryKey).primary_key)
 
+    def test_inherited_mapper_args(self):
+        class Abstract(object):
+            id = Column(types.Integer(), primary_key=True)
+            string = Column(types.String())
+            number = Column(types.Integer())
+
+            __global_mapper_args__ = {'column_prefix': '_',
+                                      'order_by': 'number'}
+
+        class Mixin(object):
+            name = Column(types.String())
+
+            __global_mapper_args__ = {'column_prefix': '__'}
+
+        class Obj2(Model, Mixin, Abstract):
+            text = Column(types.Text())
+
+            __local_mapper_args__ = {'order_by': 'string'}
+
+        self.assertEqual(Obj2.__mapper_args__,
+                         {'column_prefix': '__', 'order_by': 'string'})
+
     def test_inherited_table_args(self):
         class Abstract(object):
             id = Column(types.Integer(), primary_key=True)
             string = Column(types.String())
             number = Column(types.Integer())
 
-            __table_args__ = (Index('idx_abstract_string', 'string'),
-                              Index('idx_abstract_number', 'number'),
-                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+            __global_table_args__ = (Index('idx_abstract_string', 'string'),
+                                     Index('idx_abstract_number', 'number'),
+                                     {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+
+            __local_table_args__ = {'not_inherited': 'ignored'}
 
         class Mixin(object):
             name = Column(types.String())
 
-            __table_args__ = (Index('idx_name', 'name'),)
+            __global_table_args__ = (Index('idx_name', 'name'),)
 
         class Obj(Model, Mixin, Abstract):
             text = Column(types.Text())
-            __local_table_args__ = (Index('idx_obj_text', 'text'),
-                                    {'mysql_foo': 'foo'})
+
+            __global_table_args__ = (Index('idx_obj_text', 'text'),
+                                     {'mysql_foo': 'foo'})
+
+            __local_table_args__ = (Index('idx_obj_text2', 'text'),
+                                    {'mysql_baz': 'baz'})
 
         self.assertEqual(Obj.__table_args__[-1],
-                         {'mysql_foo': 'foo', 'mysql_bar': 'bar'})
+                         {'mysql_foo': 'foo', 'mysql_bar': 'bar',
+                          'mysql_baz': 'baz'})
 
         expected_indexes = ['idx_abstract_string',
                             'idx_abstract_number',
                             'idx_name',
-                            'idx_obj_text']
+                            'idx_obj_text',
+                            'idx_obj_text2']
 
         for i, name in enumerate(expected_indexes):
             self.assertEqual(Obj.__table_args__[i].name, name)
@@ -459,55 +489,47 @@ class TestModel(TestQueryBase):
             string = Column(types.String())
             number = Column(types.Integer())
 
-            __table_args__ = (Index('idx_cm_abstract_string', 'string'),
-                              Index('idx_cm_abstract_number', 'number'),
-                              {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+            @classmethod
+            def __global_table_args__(cls):
+                return (Index('idx_cm_abstract_string', 'string'),
+                        Index('idx_cm_abstract_number', 'number'),
+                        {'mysql_foo': 'bar', 'mysql_bar': 'bar'})
+
+            def __local_table_args__(self):
+                return {'not_inherited': 'ignored'}
 
         class MixinCM(object):
             name = Column(types.String())
 
-            def __table_args__():
+            def __global_table_args__():
                 return (Index('idx_cm_name', 'name'),)
 
         class ObjCM(Model, MixinCM, AbstractCM):
             text = Column(types.Text())
 
             @classmethod
-            def __local_table_args__(cls):
+            def __global_table_args__(cls):
                 return (Index('idx_cm_obj_text', 'text'),
                         {'mysql_foo': 'foo'})
 
+            @classmethod
+            def __local_table_args__(cls):
+                return (Index('idx_cm_obj_text2', 'text'),
+                        {'mysql_baz': 'baz'})
+
         self.assertEqual(ObjCM.__table_args__[-1],
-                         {'mysql_foo': 'foo', 'mysql_bar': 'bar'})
+                         {'mysql_foo': 'foo', 'mysql_bar': 'bar',
+                          'mysql_baz': 'baz'})
 
         expected_indexes = ['idx_cm_abstract_string',
                             'idx_cm_abstract_number',
                             'idx_cm_name',
-                            'idx_cm_obj_text']
+                            'idx_cm_obj_text',
+                            'idx_cm_obj_text2']
 
         for i, name in enumerate(expected_indexes):
             self.assertEqual(ObjCM.__table_args__[i].name, name)
             self.assertIsInstance(ObjCM.__table_args__[i], Index)
-
-    def test_inherited_mapper_args(self):
-        class Abstract(object):
-            id = Column(types.Integer(), primary_key=True)
-            string = Column(types.String())
-            number = Column(types.Integer())
-
-            __mapper_args__ = {'column_prefix': '_', 'order_by': 'number'}
-
-        class Mixin(object):
-            name = Column(types.String())
-
-            __mapper_args__ = {'column_prefix': '__'}
-
-        class Obj2(Model, Mixin, Abstract):
-            text = Column(types.Text())
-            __local_mapper_args__ = {'order_by': 'string'}
-
-        self.assertEqual(Obj2.__mapper_args__,
-                         {'column_prefix': '__', 'order_by': 'string'})
 
     def test_is_modified(self):
         record = Foo.get(1)
