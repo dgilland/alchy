@@ -14,8 +14,7 @@ from .utils import (
     has_primary_key,
     camelcase_to_underscore,
     get_mapper_class,
-    merge_mapper_args,
-    merge_table_args,
+    merge_declarative_args,
 )
 from ._compat import iteritems
 
@@ -127,11 +126,19 @@ class ModelBase(object):
 
     @declared_attr
     def __mapper_args__(cls):  # pylint: disable=no-self-argument
-        return merge_mapper_args(cls)
+        _, kargs = merge_declarative_args(cls,
+                                          '__global_mapper_args__',
+                                          '__local_mapper_args__')
+        return kargs
 
     @declared_attr
     def __table_args__(cls):  # pylint: disable=no-self-argument
-        return merge_table_args(cls)
+        args, kargs = merge_declarative_args(cls,
+                                             '__global_table_args__',
+                                             '__local_table_args__')
+        # Append kargs onto end of args to adhere to SQLAlchemy requirements.
+        args.append(kargs)
+        return tuple(args)
 
     def __init__(self, *args, **kargs):
         """Initialize model instance by calling :meth:`update`."""

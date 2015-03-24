@@ -127,28 +127,3 @@ def merge_declarative_args(cls, global_config_key, local_config_key):
     args = unique(args)
 
     return (args, kargs)
-
-
-def merge_mapper_args(cls):
-    """Merge `__mapper_args__` from all base dictionaries and
-    `__local_mapper_args__` from first base into single inherited object.
-    """
-    _, kargs = merge_declarative_args(cls,
-                                      '__global_mapper_args__',
-                                      '__local_mapper_args__')
-
-    return kargs
-
-
-def merge_table_args(cls):
-    """Merge `__table_args__` from all base dictionaries and
-    `__local_table_args__` from first base into single inherited object.
-    """
-    args, kargs = merge_declarative_args(cls,
-                                         '__global_table_args__',
-                                         '__local_table_args__')
-
-    # Append kargs onto end of args to adhere to SQLAlchemy requirements.
-    args.append(kargs)
-
-    return tuple(args)
