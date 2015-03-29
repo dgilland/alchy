@@ -11,10 +11,10 @@ from sqlalchemy.ext.declarative import (
 from . import query, events
 from .utils import (
     is_sequence,
-    has_primary_key,
     camelcase_to_underscore,
     get_mapper_class,
     merge_declarative_args,
+    should_set_tablename,
 )
 from ._compat import iteritems
 
@@ -37,12 +37,8 @@ class ModelMeta(DeclarativeMeta):
     or :attr:`ModelBase.__events__`.
     """
     def __new__(mcs, name, bases, dct):
-        # Determine if primary key is defined for dct or any of its bases.
-        base_dcts = [dct] + [base.__dict__ for base in bases]
-
-        if (not dct.get('__tablename__') and
-                dct.get('__table__') is None and
-                any([has_primary_key(base) for base in base_dcts])):
+        # Determine if should set __tablename__.
+        if should_set_tablename(bases, dct):
             # Set to underscore version of class name.
             dct['__tablename__'] = camelcase_to_underscore(name)
 
@@ -55,6 +51,7 @@ class ModelMeta(DeclarativeMeta):
             dct['__events__'] = {}
 
         if '__bind_key__' not in dct:
+            base_dcts = [dct] + [base.__dict__ for base in bases]
             for base in base_dcts:
                 if '__bind_key__' in base:
                     dct['__bind_key__'] = base['__bind_key__']
@@ -70,8 +67,6 @@ class ModelMeta(DeclarativeMeta):
                 cls.__table__.info['bind_key'] = dct['__bind_key__']
 
             events.register(cls, dct)
-
-        base_dcts = [dct] + [base.__dict__ for base in bases]
 
 
 class ModelBase(object):
