@@ -1,9 +1,9 @@
 
-import sqlalchemy
-from sqlalchemy import orm, Column, types, inspect, Index
+from sqlalchemy import orm, Column, types, inspect, Index, ForeignKey
 from sqlalchemy.orm.exc import UnmappedClassError
+from sqlalchemy.ext.declarative import ConcreteBase, AbstractConcreteBase
 
-from alchy import model, query, manager, events
+from alchy import query
 
 from .base import TestQueryBase
 from . import fixtures
@@ -540,3 +540,84 @@ class TestModel(TestQueryBase):
 
         record.refresh()
         self.assertEqual(record.is_modified(), False)
+
+    def test_should_set_tablename(self):
+        class AAA(Model):
+            __abstract__ = True
+            idx = Column(types.Integer(), primary_key=True)
+
+        self.assertEqual(hasattr(AAA, '__tablename__'), False)
+
+        class BBB(AAA):
+            __abstract__ = True
+            b_int = Column(types.Integer())
+
+        self.assertEqual(hasattr(BBB, '__tablename__'), False)
+
+        class CCC(BBB):
+            c_int = Column(types.Integer())
+
+        self.assertEqual(getattr(CCC, '__tablename__'), 'ccc')
+
+        # Joined table inheritance
+        class DDD(CCC):
+            idx = Column(types.Integer(), ForeignKey(CCC.idx),
+                         primary_key=True)
+            d_int = Column(types.Integer())
+
+        self.assertEqual(getattr(DDD, '__tablename__'), 'ddd')
+
+        # Single table inheritance
+        class EEE(BBB):
+            idx = Column(types.Integer(), primary_key=True)
+            e_str = Column(types.String())
+            __global_mapper_args__ = {'polymorphic_on': e_str}
+
+        self.assertEqual(getattr(EEE, '__tablename__'), 'eee')
+
+        class FFF(EEE):
+            f_int = Column(types.Integer())
+            __local_mapper_args__ = {'polymorphic_identity': 'eee_subtype_fff'}
+
+        self.assertEqual(getattr(FFF, '__tablename__'), 'eee')
+
+        class FFF2(EEE):
+            f2_int = Column(types.Integer())
+            __mapper_args__ = {'polymorphic_identity': 'eee_subtype_fff2'}
+
+        self.assertEqual(getattr(FFF2, '__tablename__'), 'eee')
+
+        # Concrete table inheritance
+        class GGG(CCC):
+            idx = Column(types.Integer(), primary_key=True)
+            g_int = Column(types.Integer())
+            __local_mapper_args__ = {'concrete': True}
+
+        self.assertEqual(getattr(GGG, '__tablename__'), 'ggg')
+
+        # Concrete table inheritance - using ConcreteBase
+        class HHH(ConcreteBase, BBB):
+            h_int = Column(types.Integer())
+            __local_mapper_args__ = {'polymorphic_on': h_int, 'concrete': True}
+
+        self.assertEqual(getattr(HHH, '__tablename__'), 'hhh')
+
+        class III(HHH):
+            idx = Column(types.Integer(), primary_key=True)
+            i_int = Column(types.Integer())
+            __mapper_args__ = {'polymorphic_identity': 2, 'concrete': True}
+
+        self.assertEqual(getattr(III, '__tablename__'), 'iii')
+
+        # Concrete table inheritance - using AbstractConcreteBase
+        class JJJ(AbstractConcreteBase, BBB):
+            pass
+
+        self.assertEqual(hasattr(JJJ, '__tablename__'), False)
+
+        class KKK(JJJ):
+            idx = Column(types.Integer(), primary_key=True)
+            k_int = Column(types.Integer())
+            __mapper_args__ = {'polymorphic_identity': 2, 'concrete': True}
+
+        self.assertEqual(getattr(KKK, '__tablename__'), 'kkk')
