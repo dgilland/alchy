@@ -8,8 +8,9 @@ import re
 from collections import Iterable
 
 from sqlalchemy import Column
+from sqlalchemy.ext.declarative import AbstractConcreteBase
 
-from ._compat import string_types, iteritems, classmethod_func
+from ._compat import string_types, iteritems, itervalues, classmethod_func
 
 
 __all__ = [
@@ -127,3 +128,61 @@ def merge_declarative_args(cls, global_config_key, local_config_key):
     args = unique(args)
 
     return (args, kargs)
+
+
+def should_set_tablename(bases, dct):
+    """Check what values are set by a class and its bases to determine if a
+    tablename should be automatically generated.
+
+    The class and its bases are checked in order of precedence: the class
+    itself then each base in the order they were given at class definition.
+
+    Abstract classes do not generate a tablename, although they may have set
+    or inherited a tablename elsewhere.
+
+    If a class defines a tablename or table, a new one will not be generated.
+    Otherwise, if the class defines a primary key, a new name will be
+    generated.
+
+    This supports:
+
+    * Joined table inheritance without explicitly naming sub-models.
+    * Single table inheritance.
+    * Concrete table inheritance
+    * Inheriting from mixins or abstract models.
+
+    :param bases: base classes of new class
+    :param dct: new class dict
+    :return: True if tablename should be set
+    """
+
+    if '__tablename__' in dct or '__table__' in dct or '__abstract__' in dct:
+        return False
+
+    if has_primary_key(dct):
+        return True
+
+    if '__mapper_args__' in dct:
+        is_concrete = dct.get('__mapper_args__', {}).get('concrete', False)
+    else:
+        is_concrete = dct.get('__global_mapper_args__', {}).get('concrete',
+                                                                False)
+        is_concrete = dct.get('__local_mapper_args__', {}).get('concrete',
+                                                               is_concrete)
+
+    for base in bases:
+        if base is AbstractConcreteBase:
+            return False
+
+        if (not is_concrete) and (hasattr(base, '__tablename__') or
+                                  hasattr(base, '__table__')):
+            return False
+
+        for name in dir(base):
+            if not (name in ('query') or
+                    (name.startswith('__') and name.endswith('__'))):
+                attr = getattr(base, name)
+                if getattr(attr, 'primary_key', False):
+                    return True
+
+    return False
