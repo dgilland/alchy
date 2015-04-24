@@ -1,5 +1,6 @@
 
 from sqlalchemy import orm, types, Column, ForeignKey, Index
+from sqlalchemy.ext.declarative import ConcreteBase, AbstractConcreteBase
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from alchy import model, query
@@ -199,6 +200,95 @@ class SearchMany(Model):
     _id = Column(types.Integer(), primary_key=True)
     string = Column(types.String())
     search_id = Column(types.Integer(), ForeignKey('search._id'))
+
+
+# Classes to test inheritance
+
+class AAA(Model):
+    __abstract__ = True
+    idx = Column(types.Integer(), primary_key=True)
+
+
+class BBB(AAA):
+    __abstract__ = True
+    b_int = Column(types.Integer())
+
+
+class CCC(BBB):
+    c_int = Column(types.Integer())
+
+
+def get_CCC2():
+    class CCC2(BBB):
+        idx = Column(types.Integer(), primary_key=False)
+        c2_int = Column(types.Integer())
+
+    return CCC2
+
+
+class DDD(CCC):
+    idx = Column(types.Integer(), ForeignKey(CCC.idx),
+                 primary_key=True)
+    d_int = Column(types.Integer())
+
+
+class EEE(BBB):
+    idx = Column(types.Integer(), primary_key=True)
+    e_str = Column(types.String())
+    __global_mapper_args__ = {'polymorphic_on': e_str}
+
+
+class FFF(EEE):
+    f_int = Column(types.Integer())
+    __local_mapper_args__ = {'polymorphic_identity': 'eee_subtype_fff'}
+
+
+class FFF2(EEE):
+    f2_int = Column(types.Integer())
+    __mapper_args__ = {'polymorphic_identity': 'eee_subtype_fff2'}
+
+
+# Concrete table inheritance
+class GGG(CCC):
+    idx = Column(types.Integer(), primary_key=True)
+    g_int = Column(types.Integer())
+    __local_mapper_args__ = {'concrete': True}
+
+
+# Concrete table inheritance - using ConcreteBase
+class HHH(ConcreteBase, BBB):
+    h_int = Column(types.Integer())
+    __local_mapper_args__ = {'polymorphic_on': h_int, 'concrete': True}
+
+
+class III(HHH):
+    idx = Column(types.Integer(), primary_key=True)
+    i_int = Column(types.Integer())
+    __mapper_args__ = {'polymorphic_identity': 2, 'concrete': True}
+
+
+# Concrete table inheritance - using AbstractConcreteBase
+class JJJ(AbstractConcreteBase, Model):
+    idx = Column(types.Integer(), primary_key=True)
+    j_int = Column(types.Integer())
+    __local_mapper_args__ = {'polymorphic_on': j_int}
+
+
+class KKK(JJJ):
+    idx = Column(types.Integer(), primary_key=True)
+    k_int = Column(types.Integer())
+    __mapper_args__ = {'polymorphic_identity': 2, 'concrete': True}
+
+
+class LLL(AbstractConcreteBase, Model):
+    l_int = Column(types.Integer())
+    __local_mapper_args__ = {'polymorphic_on': l_int}
+
+
+class MMM(LLL):
+    idx = Column(types.Integer(), primary_key=True)
+    m_int = Column(types.Integer())
+    __mapper_args__ = {'polymorphic_identity': 3, 'concrete': True}
 
 
 Models = {

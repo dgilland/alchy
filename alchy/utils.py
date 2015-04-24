@@ -159,6 +159,9 @@ def should_set_tablename(bases, dct):
     if '__tablename__' in dct or '__table__' in dct or '__abstract__' in dct:
         return False
 
+    if AbstractConcreteBase in bases:
+        return False
+
     if has_primary_key(dct):
         return True
 
@@ -170,19 +173,21 @@ def should_set_tablename(bases, dct):
         is_concrete = dct.get('__local_mapper_args__', {}).get('concrete',
                                                                is_concrete)
 
-    for base in bases:
-        if base is AbstractConcreteBase:
-            return False
+    names_to_ignore = set(dct.keys())
+    names_to_ignore.add('query')
 
+    for base in bases:
         if (not is_concrete) and (hasattr(base, '__tablename__') or
                                   hasattr(base, '__table__')):
             return False
 
         for name in dir(base):
-            if not (name in ('query') or
+            if not (name in names_to_ignore or
                     (name.startswith('__') and name.endswith('__'))):
                 attr = getattr(base, name)
                 if getattr(attr, 'primary_key', False):
                     return True
+                else:
+                    names_to_ignore.add(name)
 
     return False
