@@ -5,17 +5,18 @@
 """
 
 import re
+import warnings
 from collections import Iterable
 
 from sqlalchemy import Column
-from sqlalchemy.ext.declarative import AbstractConcreteBase
+from sqlalchemy.exc import SAWarning
+from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
 
-from ._compat import string_types, iteritems, itervalues, classmethod_func
+from ._compat import string_types, itervalues, iteritems, classmethod_func
 
 
 __all__ = [
     'is_sequence',
-    'has_primary_key',
     'camelcase_to_underscore',
     'iterflatten',
     'flatten'
@@ -29,13 +30,6 @@ def is_sequence(obj):
     return (isinstance(obj, Iterable) and
             not isinstance(obj, string_types) and
             not isinstance(obj, dict))
-
-
-def has_primary_key(metadict):
-    """Check if meta class' dict object has a primary key defined."""
-    return any(column.primary_key
-               for attr, column in iteritems(metadict)
-               if isinstance(column, Column))
 
 
 def camelcase_to_underscore(string):
@@ -93,6 +87,26 @@ def get_mapper_class(model, field):
     return mapper_class(getattr(model, field))
 
 
+def get_concrete_value(obj,
+                       cls,
+                       check_classmethod=False,
+                       check_callable=False):
+    """Return a 'concrete' form of obj.
+    If obj is a declared_attr, it is evaluated on cls.
+    If obj is a classmethod and check_classmethod is True,
+    it is evaluated on cls.
+    If obj is callable and check_callable is True, it is evaluated.
+    """
+    if isinstance(obj, declared_attr):
+        return obj.fget(cls)
+    elif check_classmethod and isinstance(obj, classmethod):
+        return classmethod_func(obj)(cls)
+    elif check_callable and callable(obj):
+        return obj()
+    else:
+        return obj
+
+
 def merge_declarative_args(cls, global_config_key, local_config_key):
     """Merge declarative args for class `cls`
     identified by `global_config_key` and `local_config_key`
@@ -109,10 +123,10 @@ def merge_declarative_args(cls, global_config_key, local_config_key):
         if not obj:
             continue
 
-        if isinstance(obj, classmethod):
-            obj = classmethod_func(obj)(cls)
-        elif callable(obj):
-            obj = obj()
+        obj = get_concrete_value(obj,
+                                 cls,
+                                 check_classmethod=True,
+                                 check_callable=True)
 
         if isinstance(obj, dict):
             kargs.update(obj)
@@ -130,7 +144,7 @@ def merge_declarative_args(cls, global_config_key, local_config_key):
     return (args, kargs)
 
 
-def should_set_tablename(bases, dct):
+def should_set_tablename(cls):
     """Check what values are set by a class and its bases to determine if a
     tablename should be automatically generated.
 
@@ -156,38 +170,63 @@ def should_set_tablename(bases, dct):
     :return: True if tablename should be set
     """
 
+    dct = cls.__dict__
+
     if '__tablename__' in dct or '__table__' in dct or '__abstract__' in dct:
         return False
 
-    if AbstractConcreteBase in bases:
+    if AbstractConcreteBase in cls.__bases__:
         return False
 
-    if has_primary_key(dct):
-        return True
+    def is_primary_key_column(obj):
+        obj = get_concrete_value(obj, cls)
+        return isinstance(obj, Column) and obj.primary_key
 
-    if '__mapper_args__' in dct:
-        is_concrete = dct.get('__mapper_args__', {}).get('concrete', False)
-    else:
-        is_concrete = dct.get('__global_mapper_args__', {}).get('concrete',
-                                                                False)
-        is_concrete = dct.get('__local_mapper_args__', {}).get('concrete',
-                                                               is_concrete)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore",
+                                message='Unmanaged access of '
+                                        'declarative attribute .*',
+                                category=SAWarning)
 
-    names_to_ignore = set(dct.keys())
-    names_to_ignore.add('query')
+        for name, value in iteritems(dct):
+            if is_primary_key_column(value):
+                return True
 
-    for base in bases:
-        if (not is_concrete) and (hasattr(base, '__tablename__') or
-                                  hasattr(base, '__table__')):
-            return False
+        if '__mapper_args__' in dct:
+            mapper_args = get_concrete_value(dct.get('__mapper_args__', {}),
+                                             cls,
+                                             check_classmethod=True,
+                                             check_callable=True)
+            is_concrete = mapper_args.get('concrete', False)
+        else:
+            mapper_args = get_concrete_value(dct.get('__global_mapper_args__',
+                                                     {}),
+                                             cls,
+                                             check_classmethod=True,
+                                             check_callable=True)
+            is_concrete = mapper_args.get('concrete', False)
+            mapper_args = get_concrete_value(dct.get('__local_mapper_args__',
+                                                     {}),
+                                             cls,
+                                             check_classmethod=True,
+                                             check_callable=True)
+            is_concrete = mapper_args.get('concrete', is_concrete)
 
-        for name in dir(base):
-            if not (name in names_to_ignore or
-                    (name.startswith('__') and name.endswith('__'))):
-                attr = getattr(base, name)
-                if getattr(attr, 'primary_key', False):
-                    return True
-                else:
-                    names_to_ignore.add(name)
+        names_to_ignore = set(dct.keys())
+        names_to_ignore.add('query')
+
+        for base in cls.__bases__:
+            if (not is_concrete) and (hasattr(base, '__tablename__') or
+                                      hasattr(base, '__table__')):
+                return False
+
+            for k in base.mro():
+                for name, value in iteritems(k.__dict__):
+                    if not (name in names_to_ignore or
+                            (name.startswith('__') and name.endswith('__'))):
+                        if is_primary_key_column(value):
+                            return True
+                        else:
+                            names_to_ignore.add(name)
 
     return False

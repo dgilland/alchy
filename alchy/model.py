@@ -37,11 +37,6 @@ class ModelMeta(DeclarativeMeta):
     or :attr:`ModelBase.__events__`.
     """
     def __new__(mcs, name, bases, dct):
-        # Determine if should set __tablename__.
-        if should_set_tablename(bases, dct):
-            # Set to underscore version of class name.
-            dct['__tablename__'] = camelcase_to_underscore(name)
-
         # Set __events__ to expected default so that it's updatable when
         # initializing. E.g. if class definition sets __events__=None but
         # defines decorated events, then we want the final __events__ attribute
@@ -57,7 +52,16 @@ class ModelMeta(DeclarativeMeta):
                     dct['__bind_key__'] = base['__bind_key__']
                     break
 
-        return DeclarativeMeta.__new__(mcs, name, bases, dct)
+        cls = DeclarativeMeta.__new__(mcs, name, bases, dct)
+
+        # Determine if should set __tablename__.
+        # This is being done after DeclarativeMeta.__new__()
+        # as the class is needed to accommodate @declared_attr columns.
+        if should_set_tablename(cls):
+            # Set to underscore version of class name.
+            cls.__tablename__ = camelcase_to_underscore(name)
+
+        return cls
 
     def __init__(cls, name, bases, dct):
         DeclarativeMeta.__init__(cls, name, bases, dct)

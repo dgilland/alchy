@@ -1,7 +1,9 @@
 
-from sqlalchemy import orm, Column, types, inspect, Index
-from sqlalchemy.orm.exc import UnmappedClassError
+from sqlalchemy import orm, Column, types, inspect, Index, ForeignKey
 from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import UnmappedClassError
 
 from alchy import query
 
@@ -560,3 +562,56 @@ class TestModel(TestQueryBase):
         self.assertEqual(getattr(KKK, '__tablename__'), 'kkk')
         self.assertEqual(hasattr(LLL, '__tablename__'), False)
         self.assertEqual(getattr(MMM, '__tablename__'), 'mmm')
+
+    def test_should_set_tablename_declared_attr(self):
+        class IntColumnMixin(object):
+            @declared_attr
+            def mixed_in_column(cls):
+                return Column(types.Integer(),
+                              primary_key=cls.__name__.endswith('Primary'))
+
+        # MixedInTablePrimary.mixed_in_column.primary_key is True,
+        # and so __tablename__ should be generated
+        class MixedInTablePrimary(IntColumnMixin, Model):
+            pass
+
+        self.assertEqual(getattr(MixedInTablePrimary, '__tablename__'),
+                         'mixed_in_table_primary')
+
+        def get_MixedInTableNoPrimaryKey():
+            # MixedInTableNoPrimaryKey.mixed_in_column.primary_key is False,
+            # so no __tablename__ should be generated
+            class MixedInTableNoPrimaryKey(IntColumnMixin, Model):
+                pass
+
+            return MixedInTableNoPrimaryKey
+
+        self.assertRaises(InvalidRequestError, get_MixedInTableNoPrimaryKey)
+
+        # test that can handle mixed-in @declared_attr relationships
+        class RelationshipMixin(object):
+            @declared_attr
+            def foreign_id(cls):
+                return Column(types.Integer(),
+                              ForeignKey(MixedInTablePrimary.mixed_in_column),
+                              primary_key=cls.__name__.endswith('Primary'))
+
+            @declared_attr
+            def foreign(cls):
+                return relationship(MixedInTablePrimary,
+                                    foreign_keys=[cls.foreign_id])
+
+        class MixedInRelationshipPrimary(RelationshipMixin, Model):
+            pass
+
+        self.assertEqual(getattr(MixedInRelationshipPrimary, '__tablename__'),
+                         'mixed_in_relationship_primary')
+
+        class MixedInRelAndDeclaredAttrPrimKey(RelationshipMixin, Model):
+            @declared_attr
+            def local_primary_key(cls):
+                return Column(types.Integer(), primary_key=True)
+
+        self.assertEqual(getattr(MixedInRelAndDeclaredAttrPrimKey,
+                                 '__tablename__'),
+                         'mixed_in_rel_and_declared_attr_prim_key')
