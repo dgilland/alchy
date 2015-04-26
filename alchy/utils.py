@@ -120,13 +120,12 @@ def merge_declarative_args(cls, global_config_key, local_config_key):
     kargs = {}
 
     for obj in configs:
-        if not obj:
-            continue
-
         obj = get_concrete_value(obj,
                                  cls,
                                  check_classmethod=True,
                                  check_callable=True)
+        if not obj:
+            continue
 
         if isinstance(obj, dict):
             kargs.update(obj)

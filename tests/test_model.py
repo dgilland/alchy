@@ -506,7 +506,11 @@ class TestModel(TestQueryBase):
             def __global_table_args__():
                 return (Index('idx_cm_name', 'name'),)
 
-        class ObjCM(Model, MixinCM, AbstractCM):
+        class MixinEmpty(object):
+            def __global_table_args__():
+                return ()
+
+        class ObjCM(Model, MixinEmpty, MixinCM, AbstractCM):
             text = Column(types.Text())
 
             @classmethod
