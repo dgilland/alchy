@@ -24,6 +24,7 @@ except ImportError:  # pragma: no cover
 
         def __getattr__(self, attr):
             self()
+from pydash import py_
 
 from ._compat import iteritems
 
@@ -236,32 +237,25 @@ class Query(orm.Query):
         obj, names = get_load_options(*names)
         return self.options(obj.undefer_group(names[0]))
 
-    def map(self, func):
-        """Map `func` to each item returned by :meth:`all`."""
-        return [func(item) for item in self.all()]
 
-    def reduce(self, func, initial=None, reverse=False):
-        """Reduce :meth:`all` using `func`."""
-        items = self.all()
 
-        if reverse:
-            items = reversed(items)
+    def map(self, callback=None):
+        """Map `callback` to each item returned by :meth:`all`."""
+        return py_.map(self.all(), callback)
 
-        result = initial
-        for item in items:
-            result = func(result, item)
+    def reduce(self, callback=None, initial=None):
+        """Reduce :meth:`all` using `callback`."""
+        return py_.reduce(self.all(), callback, initial)
 
-        return result
-
-    def reduce_right(self, func, initial=None):
-        """Reduce reversed :meth:`all` using `func`."""
-        return self.reduce(func, initial=initial, reverse=True)
+    def reduce_right(self, callback=None, initial=None):
+        """Reduce reversed :meth:`all` using `callback`."""
+        return py_.reduce_right(self.all(), callback, initial)
 
     def pluck(self, column):
         """Pluck `column` attribute values from :meth:`all` results and
         return as list.
         """
-        return [getattr(r, column, None) for r in self.all()]
+        return py_.pluck(self.all(), column)
 
     def page(self, page=1, per_page=None):
         """Return query with limit and offset applied for page."""
