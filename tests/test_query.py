@@ -1,8 +1,10 @@
 
 from sqlalchemy import orm
+import pydash
 
 from alchy import query
 from alchy.query import LoadOption
+from alchy._compat import iteritems
 
 from .base import TestQueryBase
 from .fixtures import Foo, Bar, Baz, Qux
@@ -622,19 +624,31 @@ class TestQuery(TestQueryBase):
 
     def test_reduce_right(self):
         items = self.db.query(Foo).all()
+
         expected = 1
         for i in reversed(items):
             expected = (i.number * expected) + 1
 
-        test = (self.db.query(Foo)
-                .reduce_right(lambda result, i: (i.number * result) + 1, 1))
+        def callback(result, item):
+            return (item.number * result) + 1
+
+        test = self.db.query(Foo).reduce_right(callback, 1)
+
         self.assertEqual(test, expected)
 
     def test_pluck(self):
         expected = sum([i.number for i in self.db.query(Foo).all()])
         test = sum(self.db.query(Foo).pluck('number'))
-
         self.assertEqual(test, expected)
+
+    def test_index_by(self):
+        test = self.db.query(Foo).index_by('_id')
+        for _id, item in iteritems(test):
+            self.assertEqual(_id, item._id)
+
+    def test_chain(self):
+        test = self.db.query(Foo).chain()
+        self.assertIsInstance(test, pydash.chaining.Chain)
 
     def test_model_property(self):
         self.assertIs(Foo.query.Model, Foo)

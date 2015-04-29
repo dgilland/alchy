@@ -237,7 +237,15 @@ class Query(orm.Query):
         obj, names = get_load_options(*names)
         return self.options(obj.undefer_group(names[0]))
 
+    def chain(self):
+        """Return pydash chaining instance with items returned by
+        :meth:`all`.
+        """
+        return py_.chain(self.all())
 
+    def index_by(self, callback=None):
+        """Index items returned by :meth:`all` using `callback`."""
+        return py_.index_by(self.all(), callback)
 
     def map(self, callback=None):
         """Map `callback` to each item returned by :meth:`all`."""
