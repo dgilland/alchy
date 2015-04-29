@@ -1,6 +1,7 @@
 Changelog
 =========
 
+
 v2.0.0 (2015-04-zz)
 -------------------
 
@@ -8,7 +9,7 @@ v2.0.0 (2015-04-zz)
 - Add ``Query.chain``.
 - Add ``pydash`` as dependency and incorporate into existing ``Query`` methods: ``map``, ``reduce``, ``reduce_right``, and ``pluck``.
 - Improve logic for setting ``__tablename__`` to work with all table inheritance styles (joined, single, and concrete), to handle ``@declared_attr`` columns, and not to duplicate underscore characters.
-- Modify logic that sets a Model class' ``__table_args__`` and ``__mapper_args__`` (unless overridden in subclass) by merging ``__global_table_args__`` and ``__global_mapper_args__`` from all classes in the class's ``mro()`` with ``__local_table_args__`` and ``__local_mapper_args__`` from the class itself. A ``__{global,local}_{table,mapper}_args__`` may be callable or classmethod, in which case it is evaluated on the class whose ``__{table,mapper}_args__`` is being set.
+- Modify logic that sets a Model class' ``__table_args__`` and ``__mapper_args__`` (unless overridden in subclass) by merging ``__global_table_args__`` and ``__global_mapper_args__`` from all classes in the class's ``mro()`` with ``__local_table_args__`` and ``__local_mapper_args__`` from the class itself. A ``__{global,local}_{table,mapper}_args__`` may be callable or classmethod, in which case it is evaluated on the class whose ``__{table,mapper}_args__`` is being set. (**breaking change**)
 
 
 v1.5.1 (2015-01-13)

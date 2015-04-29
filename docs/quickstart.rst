@@ -232,11 +232,14 @@ Use features from the enhanced query class.
     # utilities
     User.query.map(lambda user: user.level)
     User.query.pluck('level')
+    User.query.index_by('email')
+    User.query.chain().value()
     User.query.reduce(
         lambda result, user: result + 1 if user.level > 5 else result,
         initial=0
     )
 
+For more details regarding the chaining API (i.e. :meth:`.Query.chain`), see the `pydash documentation <http://pydash.readthedocs.org>`_.
 
 Utilize ORM events.
 

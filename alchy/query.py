@@ -221,6 +221,10 @@ class Query(orm.Query):
     def chain(self):
         """Return pydash chaining instance with items returned by
         :meth:`all`.
+
+        See Also:
+            `pydash's <http://pydash.readthedocs.org/>`_ documentation on
+            `chaining <http://pydash.readthedocs.org/en/latest/chaining.html>`_
         """
         return py_.chain(self.all())
 
