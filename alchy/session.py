@@ -21,7 +21,7 @@ class Session(SessionBase):
                                       binds=manager.binds_map,
                                       **options)
 
-    def get_bind(self, mapper, clause=None):
+    def get_bind(self, mapper=None, clause=None):
         """Return engine bind using mapper info's bind_key if present."""
         # mapper is None if someone tries to just get a connection.
         if mapper is not None:
