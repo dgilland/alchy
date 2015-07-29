@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+v2.0.1 (2015-07-29)
+-------------------
+
 - Make ``Session.get_bind()`` ``mapper`` argument have default value of ``None``.
 
 
