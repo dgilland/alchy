@@ -649,6 +649,7 @@ class TestQuery(TestQueryBase):
     def test_chain(self):
         test = self.db.query(Foo).chain()
         self.assertIsInstance(test, pydash.chaining.Chain)
+        self.assertEqual(test.value(), self.db.query(Foo).all())
 
     def test_model_property(self):
         self.assertIs(Foo.query.Model, Foo)
