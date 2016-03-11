@@ -132,7 +132,7 @@ Fetch model and operate.
     user.flush()
 
     # access the session that loaded the model instance
-    user.session == db.object_session(user)
+    assert user.session() == db.object_session(user)
 
     # delete user
     user.delete()
