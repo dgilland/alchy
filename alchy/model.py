@@ -378,6 +378,7 @@ class ModelBase(object):
     @classmethod
     def attrs(cls):
         """Return ORM attributes"""
+        # pylint: disable=no-member
         return inspect(cls).attrs.keys()
 
     @classmethod
@@ -390,6 +391,7 @@ class ModelBase(object):
     @classmethod
     def relationships(cls):
         """Return ORM relationships"""
+        # pylint: disable=no-member
         return inspect(cls).relationships.keys()
 
     @classmethod
@@ -401,6 +403,7 @@ class ModelBase(object):
     @classmethod
     def columns(cls):
         """Return table columns."""
+        # pylint: disable=no-member
         return inspect(cls).columns.keys()
 
 
