@@ -56,15 +56,11 @@ test-setuppy:
 
 
 .PHONY: lint
-lint: pylint pep8
+lint: pylint-errors pep8
 
 .PHONY: pep8
 pep8:
 	$(ENV_ACT) pep8 $(PYTEST_TARGET)
-
-.PHONY: pylint
-pylint:
-	$(ENV_ACT) pylint $(COVERAGE_TARGET)
 
 .PHONY: pylint-errors
 pylint-errors:
