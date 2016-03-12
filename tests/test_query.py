@@ -600,13 +600,6 @@ class TestQuery(TestQueryBase):
         self.assertNotIn('deferred2_col3', item)
         self.assertNotIn('deferred2_col4', item)
 
-    def test_undefer_group_with_load_arg(self):
-        item = (self.db.query(Foo)
-                .undefer_group(orm.lazyload(Foo.bars), 'bar_deferred_1')
-                .first().bars[0].__dict__)
-        self.assertIn('deferred1_col1', item)
-        self.assertNotIn('deferred2_col2', item)
-
     def test_map(self):
         items = self.db.query(Foo).all()
         expected = [i.number * 2 for i in items]
