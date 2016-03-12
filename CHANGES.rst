@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+v2.1.0 (2016-03-11)
+-------------------
+
+- Add ``Meta`` argument to ``alchy.model.make_declarative_base`` to provide custom metaclass for declarative base model. Thanks elidchan_!
+
+
 v2.0.1 (2015-07-29)
 -------------------
 
@@ -279,3 +285,4 @@ v0.1.0 (2014-02-01)
 
 
 .. _sethp: https://github.com/https://github.com/seth-p
+.. _elidchan: https://github.com/elidchan
