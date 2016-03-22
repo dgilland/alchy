@@ -407,8 +407,11 @@ class ModelBase(object):
         return inspect(cls).columns.keys()
 
 
-def make_declarative_base(session=None, Model=None, Base=None,
-                          Meta=None, metadata=None):
+def make_declarative_base(session=None,
+                          Model=None,
+                          Base=None,
+                          Meta=None,
+                          metadata=None):
     """Factory function for either creating a new declarative base class or
     extending a previously defined one.
     """
