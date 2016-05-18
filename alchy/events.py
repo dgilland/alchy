@@ -139,7 +139,7 @@ class on_remove(AttributeEvent):
 ##
 
 
-class before_delete(Event):
+class before_delete(GenericEvent):
     """Event decorator for the ``before_delete`` event."""
     event_names = 'before_delete'
 
