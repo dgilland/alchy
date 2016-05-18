@@ -1,5 +1,5 @@
 pep8>=1.7.0
-pydash>=3.4.1
+pydash>=3.4.3
 pylint>=1.5.4
 pytest>=2.9.0
 pytest-cov>=1.8.0

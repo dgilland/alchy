@@ -7,7 +7,7 @@ __summary__ = ('A SQLAlchemy extension for its declarative ORM that provides '
 __url__ = 'https://github.com/dgilland/alchy'
 
 __version__ = '2.2.0'
-__install_requires__ = ['SQLAlchemy>=0.9.0', 'pydash>=3.2.2']
+__install_requires__ = ['SQLAlchemy>=0.9.0', 'pydash>=3.4.3']
 
 __author__ = 'Derrick Gilland'
 __email__ = 'dgilland@gmail.com'
