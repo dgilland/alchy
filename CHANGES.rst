@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+v2.2.1 (2016-05-18)
+-------------------
+
 - Fix bug with ``events.before_delete`` where decorator was defined using invalid parent class making it completely non-functional as a decorator.
 
 
