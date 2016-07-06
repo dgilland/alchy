@@ -114,7 +114,8 @@ class Manager(ManagerMixin):
     your subclass will inherit the functionality of :class:`alchy.Session`.
     """
 
-    def __init__(self, config=None, session_options=None, Model=None, session_class=None):
+    def __init__(self, config=None, session_options=None,
+                 Model=None, session_class=None):
         self.config = None
         self._engines = {}
         self._binds = {}
@@ -122,12 +123,19 @@ class Manager(ManagerMixin):
         self.session = None
         self.Model = None
 
-        # If the manager had any arguments passed during the declaration (i.e: Manager()) then init it
+        # If the manager had any arguments passed during the
+        # declaration (i.e: Manager()) then init it
         # otherwise, it's a late bind.
-        if config is not None or session_options is not None or Model is not None or session_class is not None:
-            self.init(config=config, session_options=session_options, Model=Model, session_class=session_class)
+        if config is not None or session_options is not None \
+                or Model is not None or session_class is not None:
+            self.init(
+                config=config,
+                session_options=session_options,
+                Model=Model,
+                session_class=session_class)
 
-    def init(self, config=None, session_options=None, Model=None, session_class=None):
+    def init(self, config=None, session_options=None,
+             Model=None, session_class=None):
 
         #: Database engine configuration options.
         self.config = Config(defaults={
