@@ -44,7 +44,6 @@ from .query import QueryModel
 from .session import Session
 from ._compat import string_types, itervalues
 
-
 __all__ = [
     'ManagerMixin',
     'Manager',
@@ -115,11 +114,20 @@ class Manager(ManagerMixin):
     your subclass will inherit the functionality of :class:`alchy.Session`.
     """
 
-    def __init__(self,
-                 config=None,
-                 session_options=None,
-                 Model=None,
-                 session_class=None):
+    def __init__(self, config=None, session_options=None, Model=None, session_class=None):
+        self.config = None
+        self._engines = {}
+        self._binds = {}
+        self.session_class = None
+        self.session = None
+        self.Model = None
+
+        # If the manager had any arguments passed during the declaration (i.e: Manager()) then init it
+        # otherwise, it's a late bind.
+        if config is not None or session_options is not None or Model is not None or session_class is not None:
+            self.init(config=config, session_options=session_options, Model=Model, session_class=session_class)
+
+    def init(self, config=None, session_options=None, Model=None, session_class=None):
 
         #: Database engine configuration options.
         self.config = Config(defaults={
@@ -136,9 +144,6 @@ class Manager(ManagerMixin):
             self.config.update(config)
         elif config is not None:
             self.config.from_object(config)
-
-        self._engines = {}
-        self._binds = {}
 
         if session_options is None:
             session_options = {}
@@ -287,6 +292,7 @@ class Config(dict):
     """Configuration loader which acts like a dict but supports loading
     values from an object limited to ``ALL_CAPS_ATTRIBUTES``.
     """
+
     def __init__(self, defaults=None):
         super(Config, self).__init__(defaults or {})
 
