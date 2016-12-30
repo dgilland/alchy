@@ -503,11 +503,11 @@ class TestModel(TestQueryBase):
         class MixinCM(object):
             name = Column(types.String())
 
-            def __global_table_args__():
+            def __global_table_args__():  # pylint: disable=no-method-argument
                 return (Index('idx_cm_name', 'name'),)
 
         class MixinEmpty(object):
-            def __global_table_args__():
+            def __global_table_args__():  # pylint: disable=no-method-argument
                 return ()
 
         class ObjCM(Model, MixinEmpty, MixinCM, AbstractCM):

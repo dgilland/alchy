@@ -1,12 +1,2 @@
-pep8>=1.7.0
-pydash>=3.4.3
-pylint>=1.5.4
-pytest>=2.9.0
-pytest-cov>=1.8.0
-python-coveralls>=2.7.0
-Sphinx==1.3.6
-sphinx-rtd-theme==0.1.9
+pydash>=3.4.7
 SQLAlchemy>=1.0.12
-tox>=1.7.2
-twine>=1.6.5
-wheel>=0.29.0
