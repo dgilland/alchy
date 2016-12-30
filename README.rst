@@ -5,11 +5,19 @@ alchy
 
 A SQLAlchemy extension for its declarative ORM that provides enhancements for model classes, queries, and sessions.
 
+MAINTENANCE MODE
+================
+
+**PROJECT IS IN MAINTENANCE MODE: NO NEW FEATURES, BUG FIXES ONLY**
+
+Use `sqlservice <https://github.com/dgilland/sqlservice>`_ instead.
+
+
 Links
 =====
 
 - Project: https://github.com/dgilland/alchy
-- Documentation: http://alchy.readthedocs.org
+- Documentation: https://alchy.readthedocs.io
 - PyPi: https://pypi.python.org/pypi/alchy/
 - TravisCI: https://travis-ci.org/dgilland/alchy
 
