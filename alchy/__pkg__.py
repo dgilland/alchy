@@ -7,7 +7,7 @@ __description__ = ('A SQLAlchemy extension for its declarative ORM that '
                    'provides enhancements for model classes, queries, and '
                    'sessions.')
 __url__ = 'https://github.com/dgilland/alchy'
-__version__ = '2.2.1'
+__version__ = '2.2.2'
 __author__ = 'Derrick Gilland'
 __email__ = 'dgilland@gmail.com'
 __license__ = 'MIT License'

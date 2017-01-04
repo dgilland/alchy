@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+v2.2.2 (2017-01-03)
+-------------------
+
 - Fix bug in handling of session options when providing explicit ``binds`` value via ``session_options`` during ``Manager`` in initialization. Thanks brianbruggeman_!
 
 
