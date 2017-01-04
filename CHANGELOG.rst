@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+- Fix bug in handling of session options when providing explicit ``binds`` value via ``session_options`` during ``Manager`` in initialization. Thanks brianbruggeman_!
+
+
 v2.2.1 (2016-05-18)
 -------------------
 
@@ -299,3 +302,4 @@ v0.1.0 (2014-02-01)
 .. _sethp: https://github.com/https://github.com/seth-p
 .. _elidchan: https://github.com/elidchan
 .. _fabioramponi: https://github.com/fabioramponi
+.. _brianbruggeman: https://github.com/brianbruggeman
