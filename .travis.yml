@@ -1,22 +1,21 @@
-# Config file for automatic testing at travis-ci.org
 sudo: false
-
 language: python
-
 python:
   - "2.7"
   - "3.4"
   - "3.5"
+  - "3.6"
+  - "nightly"  # points to 3.7 right now (2016-12-28)
 
-# command to install dependencies
+matrix:
+  fast_finish: true
+  allow_failures:
+    - python: "3.6"
+    - python: "nightly"
+
 install:
   - make travisci-install
-
-# command to run tests
 script:
   - make travisci-test
-
-# tasks to execute after successful test
 after_success:
-  - pip install python-coveralls
   - coveralls

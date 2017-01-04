@@ -12,14 +12,17 @@ __all__ = [
 class Session(SessionBase):
     """The default session used by :class:`alchy.manager.Manager`. It extends
     the default session system with bind selection.
+
+    Args:
+        manager(alchy.manager.Manager): Alchy manager instance
+        options(dict): pass-through to SessionBase call
     """
 
     def __init__(self, manager, **options):
         self.manager = manager
         bind = options.pop('bind', manager.engine)
-        super(Session, self).__init__(bind=bind,
-                                      binds=manager.binds_map,
-                                      **options)
+        binds = options.pop('binds', {}) or manager.binds_map
+        super(Session, self).__init__(bind=bind, binds=binds, **options)
 
     def get_bind(self, mapper=None, clause=None):
         """Return engine bind using mapper info's bind_key if present."""
