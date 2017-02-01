@@ -39,6 +39,7 @@ from sqlalchemy import orm
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm.exc import UnmappedError
 
+from alchy.errors import SessionError
 from .model import make_declarative_base, extend_declarative_base
 from .query import QueryModel
 from .session import Session
@@ -114,8 +115,11 @@ class Manager(ManagerMixin):
     your subclass will inherit the functionality of :class:`alchy.Session`.
     """
 
-    def __init__(self, config=None, session_options=None,
-                 Model=None, session_class=None):
+    def __init__(self,
+                 config=None,
+                 session_options=None,
+                 Model=None,
+                 session_class=None):
         self.config = None
         self._engines = {}
         self._binds = {}
@@ -126,16 +130,18 @@ class Manager(ManagerMixin):
         # If the manager had any arguments passed during the
         # declaration (i.e: Manager()) then init it
         # otherwise, it's a late bind.
-        if config is not None or session_options is not None \
-                or Model is not None or session_class is not None:
+        if config is not None:
             self.setup(
                 config=config,
                 session_options=session_options,
                 Model=Model,
                 session_class=session_class)
 
-    def setup(self, config=None, session_options=None,
-              Model=None, session_class=None):
+    def setup(self,
+              config=None,
+              session_options=None,
+              Model=None,
+              session_class=None):
 
         #: Database engine configuration options.
         self.config = Config(defaults={
@@ -293,6 +299,8 @@ class Manager(ManagerMixin):
 
     def __getattr__(self, attr):
         """Delegate all other attributes to :attr:`session`."""
+        if self.session is None:
+            raise SessionError("Session for manager has not been initialized")
         return getattr(self.session, attr)
 
 
