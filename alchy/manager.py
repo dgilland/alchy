@@ -123,14 +123,15 @@ class Manager(ManagerMixin):
         self.config = None
         self._engines = {}
         self._binds = {}
-        self.session_class = None
+        self.session_class = session_class
         self.session = None
         self.Model = None
 
         # If the manager had any arguments passed during the
         # declaration (i.e: Manager()) then init it
         # otherwise, it's a late bind.
-        if config is not None:
+        if config is not None or session_class is not None\
+                or session_options is not None:
             self.setup(
                 config=config,
                 session_options=session_options,
