@@ -39,7 +39,7 @@ from sqlalchemy import orm
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm.exc import UnmappedError
 
-from alchy.errors import SessionError
+from .errors import SessionError
 from .model import make_declarative_base, extend_declarative_base
 from .query import QueryModel
 from .session import Session
