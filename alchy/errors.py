@@ -1,0 +1,2 @@
+class SessionError(Exception):
+    pass
