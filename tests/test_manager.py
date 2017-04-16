@@ -1,4 +1,3 @@
-
 import os
 import glob
 
@@ -14,7 +13,6 @@ from .fixtures import Foo
 
 
 class TestManager(TestBase):
-
     def test_create_drop_all(self):
         db = manager.Manager(Model=fixtures.Model, config=self.config)
 
@@ -43,8 +41,39 @@ class TestManager(TestBase):
         self.assertRaises(UnmappedError, db.drop_all)
 
 
-class TestManagerSessionExtensions(TestQueryBase):
+class TestManagerLateInitialization(TestBase):
+    def test_create_drop_all(self):
+        db = manager.Manager()
+        db.init(Model=fixtures.Model, config=self.config)
 
+        db.create_all()
+
+        self.assertTrue(len(self.models) > 0)
+        self.assertModelTablesExist(db.engine)
+
+        db.drop_all()
+
+        self.assertModelTablesNotExists(db.engine)
+
+    def test_default_model_config(self):
+        db = manager.Manager()
+        db.init(config=self.config)
+        self.assertTrue(issubclass(db.Model, model.ModelBase))
+
+    def test_create_all_exception(self):
+        # pass in dummy value for Model
+        db = manager.Manager()
+        db.init(Model=False, config=self.config)
+        self.assertRaises(UnmappedError, db.create_all)
+
+    def test_drop_all_exception(self):
+        # pass in dummy value for Model
+        db = manager.Manager()
+        db.init(Model=False, config=self.config)
+        self.assertRaises(UnmappedError, db.drop_all)
+
+
+class TestManagerSessionExtensions(TestQueryBase):
     def get_count(self, table='foo'):
         return self.db.execute(
             'select count(*) from {0}'.format(table)).scalar()
